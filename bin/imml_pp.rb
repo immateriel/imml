@@ -1,4 +1,7 @@
+# -*- coding: utf-8 -*-
+
 require 'imml'
+require 'pp'
 
 filename=ARGV[0]
 
@@ -22,14 +25,18 @@ if filename
     doc.book.metadata.topics.each do |topic|
       puts "    Topic: #{topic.identifier} (#{topic.type})"
     end
-    puts "   Description: #{doc.book.metadata.description}"
+    puts "   Description: #{doc.book.metadata.description.without_html.with_stripped_spaces}"
     puts "  Assets"
     if doc.book.assets.cover
       puts "   Cover: #{doc.book.assets.cover.url} (#{doc.book.assets.cover.mimetype})"
     end
     if doc.book.assets.extracts.length > 0
       doc.book.assets.extracts.each do |e|
-        puts "   Extract: #{e.url} (#{e.mimetype})"
+        if e.unsupported?
+          puts "   Extract: UNSUPPORTED"
+        else
+          puts "   Extract: #{e.url} (#{e.mimetype})"
+        end
       end
     end
     if doc.book.assets.fulls.length > 0

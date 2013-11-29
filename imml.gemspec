@@ -12,6 +12,10 @@ Gem::Specification.new do |s|
   s.date = "2013-11-29"
   s.description = "immat\u{e9}riel.fr IMML parser/writer"
   s.email = "jboulnois@immateriel.fr"
+  s.executables = ["imml_pp.rb"]
+  s.extra_rdoc_files = [
+    "README.md"
+  ]
   s.files = [
     "bin/imml_pp.rb",
     "lib/imml.rb",
@@ -29,11 +33,14 @@ Gem::Specification.new do |s|
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<nokogiri>, [">= 0"])
+      s.add_runtime_dependency(%q<levenshtein>, [">= 0"])
     else
       s.add_dependency(%q<nokogiri>, [">= 0"])
+      s.add_dependency(%q<levenshtein>, [">= 0"])
     end
   else
     s.add_dependency(%q<nokogiri>, [">= 0"])
+    s.add_dependency(%q<levenshtein>, [">= 0"])
   end
 end
 

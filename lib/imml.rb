@@ -3,6 +3,7 @@ module IMML
 end
 
 require 'nokogiri'
+require 'levenshtein'
 require 'imml/header'
 require 'imml/book'
 require 'imml/order'

@@ -3,7 +3,7 @@ module IMML
   module Book
 
     class Entity
-      attr_accessor :unsupported
+      attr_accessor :attributes, :unsupported
 
       def parse(node)
         if node["unsupported"]
@@ -11,24 +11,57 @@ module IMML
         end
       end
 
-      def attributes
-        attrs={}
+      def write(xml)
         if @unsupported
-          attrs[:unsupported]=@unsupported
+          @attributes[:unsupported]=@unsupported
         end
-        attrs
       end
+
+      def supported?
+        not @unsupported
+      end
+
+      def unsupported?
+        @unsupported
+      end
+
     end
 
     class EntityWithUid < Entity
       attr_accessor :uid
 
-      def attributes
-        attrs=super
+      def write(xml)
+        super
         if @uid
-          attrs[:uid]=@uid
+          @attributes[:uid]=@uid
         end
-        attrs
+      end
+    end
+
+    class Text
+      def initialize(text)
+        @text=text
+      end
+
+      def like?(t)
+        dist=Levenshtein.distance(@text, t)
+        if dist < @text.length * 0.1
+          true
+        else
+          false
+        end
+      end
+
+      def without_html
+        Text.new(@text.gsub(/&nbsp;/," ").gsub(/<[^>]*(>+|\s*\z)/m, ''))
+      end
+
+      def with_stripped_spaces
+        Text.new(@text.gsub(/\s+/," ").strip)
+      end
+
+      def to_s
+        @text
       end
     end
 
@@ -36,10 +69,11 @@ module IMML
       attr_accessor :role
       def parse(node)
         super
-        @role=node.text
+        @role=Text.new(node.text)
       end
 
       def write(xml)
+        super
         xml.role(@role)
       end
     end
@@ -76,12 +110,13 @@ module IMML
             when "role"
               @role.parse(child)
             when "name"
-              @name=child.text
+              @name=Text.new(child.text)
           end
         end
       end
 
       def write(xml)
+        super
         xml.contributor(self.attributes) {
           @role.write(xml)
           xml.name(@name)
@@ -94,11 +129,12 @@ module IMML
 
       def parse(node)
         super
-        @name=node.text
+        @name=Text.new(node.text)
         @uid=node["uid"]
       end
 
       def write(xml)
+        super
         if @name
           attrs=self.attributes
           xml.collection(attrs, @name)
@@ -112,10 +148,11 @@ module IMML
       def parse(node)
         super
         @type=node["type"]
-        @identifier=node.text
+        @identifier=Text.new(node.text)
       end
 
       def write(xml)
+        super
         if @identifier
           attrs={}
           if @type
@@ -132,10 +169,11 @@ module IMML
       def parse(node)
         super
         @uid=node["uid"]
-        @name=node.text
+        @name=Text.new(node.text)
       end
 
       def write(xml)
+        super
         if @name
         attrs=self.attributes
         xml.publisher(attrs, @name)
@@ -160,16 +198,16 @@ module IMML
         node.children.each do |child|
           case child.name
             when "title"
-              @title=child.text
+              @title=Text.new(child.text)
             when "subtitle"
-              @subtitle=child.text
+              @subtitle=Text.new(child.text)
             when "description"
-              @description=child.text
+              @description=Text.new(child.text)
             when "collection"
               @collection=Collection.new
               @collection.parse(child)
             when "language"
-              @language=child.text
+              @language=Text.new(child.text)
             when "publisher"
               @publisher=Publisher.new
               @publisher.parse(child)
@@ -194,6 +232,7 @@ module IMML
       end
 
       def write(xml)
+
         xml.metadata {
           xml.title(self.title)
           if self.subtitle
@@ -235,36 +274,38 @@ module IMML
         @url=node["url"]
       end
 
-      def attrs
-        attrs=self.attributes
+      def write(xml)
+        super
         if @mimetype
-          attrs[:mimetype]=@mimetype
+          @attributes[:mimetype]=@mimetype
         end
         if @url
-          attrs[:url]=@url
+          @attributes[:url]=@url
         end
-        attrs
       end
 
     end
 
     class Cover < Asset
       def write(xml)
-        xml.cover(self.attrs)
+        super
+        xml.cover(self.attributes)
       end
 
     end
 
     class Extract < Asset
       def write(xml)
-        xml.extract(self.attrs)
+        super
+        xml.extract(self.attributes)
       end
 
     end
 
     class Full < Asset
       def write(xml)
-        xml.full(self.attrs)
+        super
+        xml.full(self.attributes)
       end
 
     end
@@ -323,11 +364,12 @@ module IMML
             when "current_amount"
               @current_amount=child.text.to_i
             when "territories"
-              @territories=child.text
+              @territories=Text.new(child.text)
           end
         end
       end
       def write(xml)
+        super
         xml.price(:currency=>@currency) {
           xml.current_amount(@current_amount)
           xml.territories(@territories)
@@ -336,13 +378,14 @@ module IMML
     end
 
     class Offer
-      attr_accessor :support, :ready_for_sale, :sales_start_at, :prices
+      attr_accessor :support, :ready_for_sale, :sales_start_at, :prices, :prices_with_currency
 
       def initialize
         @prices=[]
+        @prices_with_currency={}
       end
-      def parse(node)
 
+      def parse(node)
         node.children.each do |child|
           case child.name
             when "support"
@@ -361,9 +404,10 @@ module IMML
                   @prices << price
                 end
               end
-
+              update_currency_hash
           end
         end
+
       end
 
       def write(xml)
@@ -384,6 +428,14 @@ module IMML
         }
 
         }
+      end
+
+      private
+      def update_currency_hash
+        @prices.each do |price|
+          @prices_with_currency[price.currency]=price
+        end
+
       end
     end
 

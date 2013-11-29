@@ -11,6 +11,8 @@ begin
     gem.files = Dir.glob('bin/**/*') + Dir.glob('lib/**/*')
 
     gem.add_dependency "nokogiri"
+    gem.add_dependency "levenshtein"
+
   end
   Jeweler::GemcutterTasks.new
 
