@@ -11,6 +11,7 @@ if filename
 
   if doc.book
     puts " Book"
+    puts "  EAN: #{doc.book.ean}"
     puts "  Metadata"
     puts "   Title: #{doc.book.metadata.title}"
     puts "   Subtitle: #{doc.book.metadata.subtitle}"
