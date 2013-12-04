@@ -141,6 +141,10 @@ module IMML
           xml.collection(attrs, @name)
         end
       end
+
+      def to_s
+        self.name
+      end
     end
 
     class Topic < Entity
@@ -185,7 +189,7 @@ module IMML
 
     class Metadata
 
-      attr_accessor :title, :subtitle, :contributors, :topics, :collection, :language, :publisher, :description
+      attr_accessor :title, :subtitle, :contributors, :topics, :collection, :language, :publication, :publisher, :description
 
       def initialize
         @collection=nil
@@ -209,6 +213,8 @@ module IMML
               @collection.parse(child)
             when "language"
               @language=Text.new(child.text)
+            when "publication"
+              @publication=Date.strptime(child.text,"%Y-%m-%d")
             when "publisher"
               @publisher=Publisher.new
               @publisher.parse(child)
@@ -379,7 +385,7 @@ module IMML
     end
 
     class Offer
-      attr_accessor :support, :ready_for_sale, :sales_start_at, :prices, :prices_with_currency
+      attr_accessor :medium, :format, :pagination, :ready_for_sale, :sales_start_at, :prices, :prices_with_currency
 
       def initialize
         @prices=[]
@@ -389,14 +395,16 @@ module IMML
       def parse(node)
         node.children.each do |child|
           case child.name
-            when "support"
-              @support=child.text
+            when "medium"
+              @medium=child.text
+            when "format"
+              @format=child.text
+            when "pagination"
+              @pagination=child.text.to_i
             when "ready_for_sale"
               @ready_for_sale=(child.text == "true")
             when "sales_start_at"
-              if child.text!=""
-                @sales_start_at=Date.strptime(child.text,"%Y-%m-%d")
-              end
+              @sales_start_at=Date.strptime(child.text,"%Y-%m-%d")
             when "prices"
               child.children.each do |price_node|
                 if price_node.element?

@@ -14,8 +14,9 @@ if filename
     puts "  Metadata"
     puts "   Title: #{doc.book.metadata.title}"
     puts "   Subtitle: #{doc.book.metadata.subtitle}"
-    puts "   Collection: #{doc.book.metadata.collection}"
+    puts "   Collection: #{doc.book.metadata.collection.name}"
     puts "   Language: #{doc.book.metadata.language}"
+    puts "   Publication: #{doc.book.metadata.publication}"
     puts "   Publisher: #{doc.book.metadata.publisher.name}"
     puts "   Contributors"
     doc.book.metadata.contributors.each do |contributor|
@@ -45,7 +46,9 @@ if filename
       end
     end
     puts "  Offer"
-    puts "   Support: #{doc.book.offer.support}"
+    puts "   Medium: #{doc.book.offer.medium}"
+    puts "   Format: #{doc.book.offer.format}" if doc.book.offer.format
+    puts "   Pagination: #{doc.book.offer.pagination}" if doc.book.offer.pagination
     puts "   Ready for sale: #{doc.book.offer.ready_for_sale}"
     puts "   Sales start at: #{doc.book.offer.sales_start_at}"
     puts "   Prices"
