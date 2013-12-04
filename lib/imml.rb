@@ -13,15 +13,20 @@ module IMML
     attr_accessor :version,:header, :book, :order
 
     def parse(xml)
-      root=xml.at("//imml")
-      @version=root["version"].to_f
-      root.children.each do |child|
-        case child.name
-          when "header"
-          when "book"
-            @book=Book::Book.new
-            @book.parse(child)
-          when "order"
+      xml.children.each do |root|
+        case root.name
+          when "imml"
+            @version=root["version"].to_f
+            root.children.each do |child|
+              case child.name
+                when "header"
+                when "book"
+                  @book=Book::Book.new
+                  @book.parse(child)
+                when "order"
+
+              end
+            end
 
         end
       end
