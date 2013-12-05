@@ -13,6 +13,7 @@ module IMML
     attr_accessor :version,:header, :book, :order
 
     def parse(xml)
+#      validate(xml)
       xml.children.each do |root|
         case root.name
           when "imml"
@@ -35,7 +36,7 @@ module IMML
     def validate(xml)
       schema = Nokogiri::XML::RelaxNG(File.open("data/imml.rng"))
       schema.validate(xml).each do |error|
-        puts error.message
+        puts "Error: #{error.line} #{error.message}"
       end
     end
 
