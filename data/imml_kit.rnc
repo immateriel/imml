@@ -9,7 +9,7 @@ imml.order.schema.version = notAllowed
 ## when an element is not supported at the emitter end, it must have
 ## an unsupported attribute with "true" value. Otherwise, it may explicitly 
 ## indicate support with a "false" value, but absence of this att is ok too.
-imml.unsupported = attribute unsupported { "true" } & anyContent
+imml.unsupported = attribute unsupported { "true" } & almostAnyContent
 imml.not_unsupported = attribute unsupported { "false" }? 
 
 start = 
@@ -284,7 +284,7 @@ imml.order =
    # the version attribute is a child of <imml>
    attribute version { imml.order.schema.version }
  & element order {
-      anyContent
+      almostAnyContent
    } 
 
 ########################################
@@ -302,8 +302,9 @@ anyXHTMLElement =
       | text
       | anyXHTMLElement)*
   }
-anyContent =
-   (attribute * { text }
+# So not exactly "any" content. Part of the not-quite-clean handling of "unsupported" features
+almostAnyContent =
+   (attribute * - (unsupported|type|format) { text }
     | text
     | anyElement)*
 

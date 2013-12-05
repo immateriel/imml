@@ -17,7 +17,7 @@ indicate support with a "false" value, but absence of this att is ok too.</a:doc
       <attribute name="unsupported">
         <value>true</value>
       </attribute>
-      <ref name="anyContent"/>
+      <ref name="almostAnyContent"/>
     </interleave>
   </define>
   <define name="imml.not_unsupported">
@@ -521,7 +521,7 @@ Order ##
         <ref name="imml.order.schema.version"/>
       </attribute>
       <element name="order">
-        <ref name="anyContent"/>
+        <ref name="almostAnyContent"/>
       </element>
     </interleave>
   </define>
@@ -556,11 +556,18 @@ See http://www.relaxng.org/compact-tutorial-20030326.html#id2816343</a:documenta
       </zeroOrMore>
     </element>
   </define>
-  <define name="anyContent">
+  <!-- So not exactly "any" content. Part of the not-quite-clean handling of "unsupported" features -->
+  <define name="almostAnyContent">
     <zeroOrMore>
       <choice>
         <attribute>
-          <anyName/>
+          <anyName>
+            <except>
+              <name ns="">unsupported</name>
+              <name ns="">type</name>
+              <name ns="">format</name>
+            </except>
+          </anyName>
         </attribute>
         <text/>
         <ref name="anyElement"/>

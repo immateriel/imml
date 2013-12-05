@@ -11,6 +11,6 @@ with fixed supplier-id or fixed publisher-id.</a:documentation>
     <value>2.0</value>
   </define>
   <define name="imml.order.schema.version" combine="choice">
-    <value>1.1</value>
+    <value>0.0</value>
   </define>
 </grammar>
