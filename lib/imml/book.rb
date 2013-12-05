@@ -61,6 +61,10 @@ module IMML
         Text.new(@text.gsub(/\s+/," ").strip)
       end
 
+      def length
+        @text.length
+      end
+
       def to_s
         @text
       end
