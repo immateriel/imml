@@ -97,13 +97,16 @@ Book ##
     <element name="metadata">
       <interleave>
         <ref name="imml.book.metadata.title"/>
+        <ref name="imml.book.metadata.language"/>
         <optional>
           <ref name="imml.book.metadata.subtitle"/>
         </optional>
         <optional>
           <ref name="imml.book.metadata.collection"/>
         </optional>
-        <ref name="imml.book.metadata.language"/>
+        <optional>
+          <ref name="imml.book.metadata.pubdate"/>
+        </optional>
         <ref name="imml.book.metadata.publisher"/>
         <ref name="imml.book.metadata.contributors"/>
         <ref name="imml.book.metadata.topics"/>
@@ -111,18 +114,25 @@ Book ##
       </interleave>
     </element>
   </define>
-  <!-- Book title -->
+  <!-- Work title -->
   <define name="imml.book.metadata.title">
     <element name="title">
       <text/>
     </element>
   </define>
-  <!-- Book subtitle -->
+  <!-- Work subtitle -->
   <define name="imml.book.metadata.subtitle">
     <element name="subtitle">
       <text/>
     </element>
   </define>
+  <!-- First publication date for this work -->
+  <define name="imml.book.metadata.pubdate">
+    <element name="publication">
+      <data type="date"/>
+    </element>
+  </define>
+  <!-- Book current publisher -->
   <define name="imml.book.metadata.publisher">
     <element name="publisher">
       <interleave>

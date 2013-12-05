@@ -55,20 +55,25 @@ imml.book =
 imml.book.metadata =
    element metadata {
       imml.book.metadata.title
+    & imml.book.metadata.language
     & imml.book.metadata.subtitle?
     & imml.book.metadata.collection?
-    & imml.book.metadata.language
+    & imml.book.metadata.pubdate?
     & imml.book.metadata.publisher
     & imml.book.metadata.contributors
     & imml.book.metadata.topics
     & imml.book.metadata.description
    }
-# Book title
+# Work title
 imml.book.metadata.title =
    element title { text }
-# Book subtitle
+# Work subtitle
 imml.book.metadata.subtitle =
    element subtitle { text }
+# First publication date for this work
+imml.book.metadata.pubdate =
+   element publication { xsd:date }
+# Book current publisher
 imml.book.metadata.publisher =
    element publisher {
       attribute uid {
