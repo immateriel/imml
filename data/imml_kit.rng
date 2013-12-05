@@ -1,0 +1,2584 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- default namespace = "http://ns.immateriel.fr/imml" -->
+<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:x="http://www.w3.org/1999/xhtml" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <define name="imml.book.schema.version">
+    <a:documentation>book and order subschemas may be changed independently in the calling schema
+example : imml.book.schema.version |= "2.0"</a:documentation>
+    <notAllowed/>
+  </define>
+  <define name="imml.order.schema.version">
+    <notAllowed/>
+  </define>
+  <define name="imml.unsupported">
+    <a:documentation>when an element is not supported at the emitter end, it must have
+an unsupported attribute with "true" value. Otherwise, it may explicitly 
+indicate support with a "false" value, but absence of this att is ok too.</a:documentation>
+    <interleave>
+      <attribute name="unsupported">
+        <value>true</value>
+      </attribute>
+      <ref name="anyContent"/>
+    </interleave>
+  </define>
+  <define name="imml.not_unsupported">
+    <optional>
+      <attribute name="unsupported">
+        <value>false</value>
+      </attribute>
+    </optional>
+  </define>
+  <start>
+    <element name="imml">
+      <interleave>
+        <ref name="imml.message.attributes"/>
+        <optional>
+          <ref name="imml.message.header"/>
+        </optional>
+        <ref name="imml.message.content"/>
+      </interleave>
+    </element>
+  </start>
+  <define name="imml.message.attributes">
+    <optional>
+      <attribute name="timestamp">
+        <data type="dateTime"/>
+      </attribute>
+    </optional>
+  </define>
+  <define name="imml.message.header">
+    <a:documentation>
+Header ##
+</a:documentation>
+    <element name="header">
+      <interleave>
+        <attribute name="sender-id">
+          <ref name="imml.message.sender.id.datatype"/>
+        </attribute>
+        <attribute name="message-id">
+          <ref name="imml.message.id.datatype"/>
+        </attribute>
+      </interleave>
+    </element>
+  </define>
+  <define name="imml.message.content">
+    <choice>
+      <ref name="imml.book"/>
+      <ref name="imml.order"/>
+    </choice>
+  </define>
+  <define name="imml.book">
+    <a:documentation>
+Book ##
+</a:documentation>
+    <interleave>
+      <!-- the version attribute is a child of <imml> -->
+      <attribute name="version">
+        <ref name="imml.book.schema.version"/>
+      </attribute>
+      <element name="book">
+        <interleave>
+          <attribute name="ean">
+            <ref name="imml.book.ean.datatype"/>
+          </attribute>
+          <attribute name="uid">
+            <ref name="imml.book.id.datatype"/>
+          </attribute>
+          <ref name="imml.book.metadata"/>
+          <ref name="imml.book.assets"/>
+          <ref name="imml.book.offer"/>
+        </interleave>
+      </element>
+    </interleave>
+  </define>
+  <define name="imml.book.metadata">
+    <a:documentation/>
+    <!-- Book metadata -->
+    <a:documentation/>
+    <element name="metadata">
+      <interleave>
+        <ref name="imml.book.metadata.title"/>
+        <optional>
+          <ref name="imml.book.metadata.subtitle"/>
+        </optional>
+        <optional>
+          <ref name="imml.book.metadata.collection"/>
+        </optional>
+        <ref name="imml.book.metadata.language"/>
+        <ref name="imml.book.metadata.publisher"/>
+        <ref name="imml.book.metadata.contributors"/>
+        <ref name="imml.book.metadata.topics"/>
+        <ref name="imml.book.metadata.description"/>
+      </interleave>
+    </element>
+  </define>
+  <!-- Book title -->
+  <define name="imml.book.metadata.title">
+    <element name="title">
+      <text/>
+    </element>
+  </define>
+  <!-- Book subtitle -->
+  <define name="imml.book.metadata.subtitle">
+    <element name="subtitle">
+      <text/>
+    </element>
+  </define>
+  <define name="imml.book.metadata.publisher">
+    <element name="publisher">
+      <interleave>
+        <attribute name="uid">
+          <ref name="imml.book.metadata.publisher.id.datatype"/>
+        </attribute>
+        <text/>
+      </interleave>
+    </element>
+  </define>
+  <!-- Book collection -->
+  <define name="imml.book.metadata.collection">
+    <element name="collection">
+      <interleave>
+        <optional>
+          <attribute name="uid">
+            <ref name="imml.book.metadata.collection.id.datatype"/>
+          </attribute>
+        </optional>
+        <text/>
+      </interleave>
+    </element>
+  </define>
+  <!-- Book language -->
+  <define name="imml.book.metadata.language">
+    <choice>
+      <element name="language">
+        <ref name="imml.book.metadata.language.datatype"/>
+      </element>
+      <attribute name="lang">
+        <ref name="imml.book.metadata.language.datatype"/>
+      </attribute>
+    </choice>
+  </define>
+  <!-- Book contributors -->
+  <define name="imml.book.metadata.contributors">
+    <element name="contributors">
+      <oneOrMore>
+        <ref name="imml.book.metadata.contributor"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="imml.book.metadata.contributor">
+    <element name="contributor">
+      <interleave>
+        <ref name="imml.book.metadata.contributor.uid"/>
+        <ref name="imml.book.metadata.contributor.name"/>
+        <ref name="imml.book.metadata.contributor.role"/>
+      </interleave>
+    </element>
+  </define>
+  <define name="imml.book.metadata.contributor.uid">
+    <attribute name="uid">
+      <ref name="imml.book.contributor.id.datatype"/>
+    </attribute>
+  </define>
+  <define name="imml.book.metadata.contributor.name">
+    <element name="name">
+      <text/>
+    </element>
+  </define>
+  <define name="imml.book.metadata.contributor.role">
+    <element name="role">
+      <choice>
+        <ref name="imml.unsupported"/>
+        <interleave>
+          <ref name="imml.not_unsupported"/>
+          <ref name="imml.book.contributor.datatype"/>
+        </interleave>
+      </choice>
+    </element>
+  </define>
+  <!-- Book topics -->
+  <define name="imml.book.metadata.topics">
+    <element name="topics">
+      <choice>
+        <ref name="imml.unsupported"/>
+        <interleave>
+          <ref name="imml.not_unsupported"/>
+          <oneOrMore>
+            <ref name="imml.book.metadata.topic"/>
+          </oneOrMore>
+        </interleave>
+      </choice>
+    </element>
+  </define>
+  <define name="imml.book.metadata.topic">
+    <element name="topic">
+      <ref name="imml.book.metadata.topic.class"/>
+    </element>
+  </define>
+  <define name="imml.book.metadata.topic.class">
+    <choice>
+      <ref name="imml.book.metadata.topic.bisac"/>
+      <ref name="imml.book.metadata.topic.clil"/>
+      <ref name="imml.book.metadata.topic.keyword"/>
+    </choice>
+  </define>
+  <define name="imml.book.metadata.topic.bisac">
+    <interleave>
+      <attribute name="type">
+        <value>bisac</value>
+      </attribute>
+      <choice>
+        <ref name="imml.unsupported"/>
+        <interleave>
+          <ref name="imml.not_unsupported"/>
+          <ref name="imml.bisac.id.datatype"/>
+        </interleave>
+      </choice>
+    </interleave>
+  </define>
+  <define name="imml.book.metadata.topic.clil">
+    <interleave>
+      <attribute name="type">
+        <value>clil</value>
+      </attribute>
+      <choice>
+        <ref name="imml.unsupported"/>
+        <interleave>
+          <ref name="imml.not_unsupported"/>
+          <ref name="imml.clil.id.datatype"/>
+        </interleave>
+      </choice>
+    </interleave>
+  </define>
+  <define name="imml.book.metadata.topic.keyword">
+    <interleave>
+      <attribute name="type">
+        <value>keyword</value>
+      </attribute>
+      <choice>
+        <ref name="imml.unsupported"/>
+        <interleave>
+          <ref name="imml.not_unsupported"/>
+          <text/>
+        </interleave>
+      </choice>
+    </interleave>
+  </define>
+  <!-- Book description -->
+  <define name="imml.book.metadata.description.attributes">
+    <interleave>
+      <optional>
+        <attribute name="lang">
+          <a:documentation>Default to book language (although ideally bookseller preferred language)</a:documentation>
+          <ref name="imml.book.metadata.language.datatype"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="extent">
+          <choice>
+            <value>short</value>
+            <value>long</value>
+            <value>140</value>
+          </choice>
+        </attribute>
+      </optional>
+    </interleave>
+  </define>
+  <define name="imml.book.metadata.description">
+    <element name="description">
+      <!-- imml.book.metadata.description.attributes & -->
+      <ref name="imml.book.metadata.description.content"/>
+    </element>
+  </define>
+  <define name="imml.book.metadata.description.content">
+    <choice>
+      <ref name="imml.book.metadata.description.content.xhtml"/>
+      <ref name="imml.book.metadata.description.content.text"/>
+    </choice>
+  </define>
+  <define name="imml.book.metadata.description.content.xhtml">
+    <interleave>
+      <attribute name="format">
+        <value>xhtml</value>
+      </attribute>
+      <choice>
+        <ref name="imml.unsupported"/>
+        <interleave>
+          <ref name="imml.not_unsupported"/>
+          <ref name="anyXHTMLElement"/>
+        </interleave>
+      </choice>
+    </interleave>
+  </define>
+  <define name="imml.book.metadata.description.content.text">
+    <text/>
+  </define>
+  <define name="imml.book.assets">
+    <a:documentation/>
+    <!-- Book assets -->
+    <a:documentation/>
+    <element name="assets">
+      <interleave>
+        <ref name="imml.book.assets.cover"/>
+        <zeroOrMore>
+          <ref name="imml.book.assets.extract"/>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="imml.book.assets.full"/>
+        </zeroOrMore>
+      </interleave>
+    </element>
+  </define>
+  <define name="imml.book.assets.cover">
+    <a:documentation>Cover files are made available to the receiving reseller via an ad hoc url</a:documentation>
+    <element name="cover">
+      <interleave>
+        <ref name="imml.book.assets.url"/>
+        <ref name="imml.book.assets.mimetype"/>
+      </interleave>
+    </element>
+  </define>
+  <define name="imml.book.assets.extract">
+    <a:documentation>Extract files are made available to the receiving reseller via an ad hoc url</a:documentation>
+    <element name="extract">
+      <choice>
+        <ref name="imml.unsupported"/>
+        <interleave>
+          <ref name="imml.not_unsupported"/>
+          <ref name="imml.book.assets.extract.content"/>
+        </interleave>
+      </choice>
+    </element>
+  </define>
+  <define name="imml.book.assets.extract.content">
+    <interleave>
+      <ref name="imml.book.assets.url"/>
+      <ref name="imml.book.assets.mimetype"/>
+    </interleave>
+  </define>
+  <define name="imml.book.assets.full">
+    <a:documentation>Content files are made available via an ad hoc url tailored for the receiving warehouse</a:documentation>
+    <element name="full">
+      <choice>
+        <ref name="imml.unsupported"/>
+        <interleave>
+          <ref name="imml.not_unsupported"/>
+          <ref name="imml.book.assets.full.content"/>
+        </interleave>
+      </choice>
+    </element>
+  </define>
+  <define name="imml.book.assets.full.content">
+    <interleave>
+      <ref name="imml.book.assets.url"/>
+      <ref name="imml.book.assets.mimetype"/>
+    </interleave>
+  </define>
+  <define name="imml.book.assets.mimetype">
+    <attribute name="mimetype">
+      <ref name="imml.book.assets.mimetype.datatype"/>
+    </attribute>
+  </define>
+  <define name="imml.book.assets.url">
+    <attribute name="url">
+      <ref name="imml.book.assets.url.datatype"/>
+    </attribute>
+  </define>
+  <define name="imml.book.offer">
+    <a:documentation/>
+    <!-- Book offer -->
+    <a:documentation/>
+    <element name="offer">
+      <interleave>
+        <optional>
+          <!-- =ex-support -->
+          <ref name="imml.book.offer.medium"/>
+        </optional>
+        <optional>
+          <ref name="imml.book.offer.manifestation"/>
+        </optional>
+        <optional>
+          <ref name="imml.book.offer.pagination"/>
+        </optional>
+        <optional>
+          <ref name="imml.book.offer.alternatives"/>
+        </optional>
+        <!-- if not ready for sale, allow price to be missing -->
+        <choice>
+          <element name="ready_for_sale">
+            <value>false</value>
+          </element>
+          <interleave>
+            <element name="ready_for_sale">
+              <data type="boolean"/>
+            </element>
+            <ref name="imml.book.offer.prices"/>
+          </interleave>
+        </choice>
+        <ref name="imml.book.offer.sales_start_at"/>
+      </interleave>
+    </element>
+  </define>
+  <define name="imml.book.offer.medium">
+    <a:documentation>Book medium (for now, printed|digital)</a:documentation>
+    <element name="medium">
+      <ref name="imml.book.offer.medium.datatype"/>
+    </element>
+  </define>
+  <define name="imml.book.offer.manifestation">
+    <a:documentation>Manifestation</a:documentation>
+    <element name="format">
+      <ref name="imml.book.offer.manifestation.datatype"/>
+    </element>
+  </define>
+  <define name="imml.book.offer.pagination">
+    <a:documentation>Pagination of whatever alternative format where it makes sense</a:documentation>
+    <element name="pagination">
+      <ref name="imml.book.offer.pagination.datatype"/>
+    </element>
+  </define>
+  <define name="imml.book.offer.alternatives">
+    <a:documentation>Alternative offers for the same content</a:documentation>
+    <element name="alternatives">
+      <oneOrMore>
+        <ref name="imml.book.offer.alternative"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="imml.book.offer.alternative">
+    <element name="alternative">
+      <interleave>
+        <attribute name="ean">
+          <ref name="imml.book.ean.datatype"/>
+        </attribute>
+        <optional>
+          <attribute name="medium">
+            <ref name="imml.book.offer.medium.datatype"/>
+          </attribute>
+        </optional>
+        <optional>
+          <attribute name="format">
+            <ref name="imml.book.offer.manifestation.datatype"/>
+          </attribute>
+        </optional>
+      </interleave>
+    </element>
+  </define>
+  <define name="imml.book.offer.sales_start_at">
+    <a:documentation>Date d'effet</a:documentation>
+    <element name="sales_start_at">
+      <choice>
+        <ref name="imml.unsupported"/>
+        <interleave>
+          <ref name="imml.not_unsupported"/>
+          <data type="date"/>
+        </interleave>
+      </choice>
+    </element>
+  </define>
+  <define name="imml.book.offer.prices">
+    <a:documentation>Book prices</a:documentation>
+    <element name="prices">
+      <oneOrMore>
+        <ref name="imml.book.offer.price"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="imml.book.offer.price">
+    <element name="price">
+      <interleave>
+        <ref name="imml.book.offer.price.currency"/>
+        <ref name="imml.book.offer.price.current_amount"/>
+        <ref name="imml.book.offer.price.territories"/>
+      </interleave>
+    </element>
+  </define>
+  <!-- Currency -->
+  <define name="imml.book.offer.price.currency">
+    <attribute name="currency">
+      <ref name="imml.book.offer.price.currency.datatype"/>
+    </attribute>
+  </define>
+  <!-- Public price amount -->
+  <define name="imml.book.offer.price.current_amount">
+    <element name="current_amount">
+      <ref name="imml.book.offer.price.datatype"/>
+    </element>
+  </define>
+  <define name="imml.book.offer.price.territories">
+    <a:documentation>Book territories</a:documentation>
+    <element name="territories">
+      <ref name="imml.book.offer.territory.datatype"/>
+    </element>
+  </define>
+  <!-- As of version 0, nothing interesting -->
+  <define name="imml.order">
+    <a:documentation>
+Order ##
+</a:documentation>
+    <interleave>
+      <!-- the version attribute is a child of <imml> -->
+      <attribute name="version">
+        <ref name="imml.order.schema.version"/>
+      </attribute>
+      <element name="order">
+        <ref name="anyContent"/>
+      </element>
+    </interleave>
+  </define>
+  <define name="anyElement">
+    <a:documentation>
+Tools for expressing "whatever child"
+See http://www.relaxng.org/compact-tutorial-20030326.html#id2816343</a:documentation>
+    <element>
+      <anyName/>
+      <zeroOrMore>
+        <choice>
+          <attribute>
+            <anyName/>
+          </attribute>
+          <text/>
+          <ref name="anyElement"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="anyXHTMLElement">
+    <element>
+      <nsName ns="http://www.w3.org/1999/xhtml"/>
+      <zeroOrMore>
+        <choice>
+          <attribute>
+            <anyName/>
+          </attribute>
+          <text/>
+          <ref name="anyXHTMLElement"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="anyContent">
+    <zeroOrMore>
+      <choice>
+        <attribute>
+          <anyName/>
+        </attribute>
+        <text/>
+        <ref name="anyElement"/>
+      </choice>
+    </zeroOrMore>
+  </define>
+  <define name="imml.book.assets.url.datatype">
+    <a:documentation>
+Datatypes ##
+</a:documentation>
+    <data type="anyURI"/>
+  </define>
+  <define name="imml.book.assets.mimetype.datatype">
+    <choice>
+      <value>image/jpeg</value>
+      <value>image/png</value>
+      <value>audio/mpeg</value>
+      <value>video/mpeg</value>
+      <value>video/mp4</value>
+      <value>video/x-flv</value>
+      <value>application/pdf</value>
+      <value>text/html</value>
+      <value>application/zip</value>
+      <value>application/x-mobipocket</value>
+      <value>application/x-mobipocket-ebook</value>
+      <value>application/x-rar-compressed</value>
+      <value>application/epub+zip</value>
+    </choice>
+  </define>
+  <define name="imml.book.contributor.datatype">
+    <choice>
+      <value>author</value>
+      <value>translator</value>
+      <value>editor</value>
+      <value>typesetter</value>
+    </choice>
+  </define>
+  <define name="imml.bisac.id.datatype">
+    <data type="token">
+      <param name="pattern">[A-Z]{3}[0-9]{6}</param>
+    </data>
+  </define>
+  <define name="imml.clil.id.datatype">
+    <data type="token">
+      <param name="pattern">[0-9]{4}</param>
+    </data>
+  </define>
+  <define name="imml.book.offer.medium.datatype">
+    <choice>
+      <value>printed</value>
+      <value>digital</value>
+    </choice>
+  </define>
+  <define name="imml.book.offer.manifestation.datatype">
+    <choice>
+      <value>epub</value>
+      <value>pdf</value>
+      <value>streaming</value>
+      <value>bundle</value>
+    </choice>
+  </define>
+  <define name="imml.book.offer.pagination.datatype">
+    <data type="integer">
+      <param name="minInclusive">0</param>
+    </data>
+  </define>
+  <define name="imml.book.offer.price.datatype">
+    <data type="decimal">
+      <param name="minInclusive">0</param>
+      <param name="fractionDigits">2</param>
+    </data>
+  </define>
+  <define name="imml.book.metadata.language.datatype">
+    <list>
+      <oneOrMore>
+        <ref name="List74"/>
+      </oneOrMore>
+    </list>
+  </define>
+  <define name="imml.uid.datatype">
+    <data type="token">
+      <param name="pattern">C[A-Z]{1}[0-9]+</param>
+    </data>
+  </define>
+  <define name="imml.message.sender.id.datatype">
+    <data type="NMTOKEN"/>
+  </define>
+  <define name="imml.message.id.datatype">
+    <data type="NMTOKEN"/>
+  </define>
+  <define name="imml.book.id.datatype">
+    <data type="token">
+      <param name="pattern">C[B][0-9]+</param>
+    </data>
+  </define>
+  <define name="imml.book.metadata.publisher.id.datatype">
+    <data type="token">
+      <param name="pattern">C[P][0-9]+</param>
+    </data>
+  </define>
+  <define name="imml.book.metadata.collection.id.datatype">
+    <data type="token">
+      <param name="pattern">C[C][0-9]+</param>
+    </data>
+  </define>
+  <define name="imml.book.contributor.id.datatype">
+    <ref name="imml.uid.datatype"/>
+  </define>
+  <define name="imml.book.ean.datatype">
+    <data type="token">
+      <param name="length">13</param>
+      <param name="pattern">3[0-9]{12}|97[8-9][0-9]{10}</param>
+    </data>
+  </define>
+  <define name="imml.book.offer.territory.datatype">
+    <choice>
+      <value>WORLD</value>
+      <ref name="imml.book.offer.country.datatype"/>
+    </choice>
+  </define>
+  <define name="imml.book.offer.country.datatype">
+    <list>
+      <oneOrMore>
+        <ref name="List91"/>
+      </oneOrMore>
+    </list>
+  </define>
+  <define name="List91">
+    <a:documentation>Country code – ISO 3166-1 from ONIX Code List 91</a:documentation>
+    <choice>
+      <value>AD</value>
+      <a:documentation>Andorra ##</a:documentation>
+      <value>AE</value>
+      <a:documentation>United Arab Emirates ##</a:documentation>
+      <value>AF</value>
+      <a:documentation>Afghanistan ##</a:documentation>
+      <value>AG</value>
+      <a:documentation>Antigua and Barbuda ##</a:documentation>
+      <value>AI</value>
+      <a:documentation>Anguilla ##</a:documentation>
+      <value>AL</value>
+      <a:documentation>Albania ##</a:documentation>
+      <value>AM</value>
+      <a:documentation>Armenia ##</a:documentation>
+      <value>AN</value>
+      <a:documentation>Netherlands Antilles ## Deprecated – use BQ, CW or SX as appropriate.</a:documentation>
+      <value>AO</value>
+      <a:documentation>Angola ##</a:documentation>
+      <value>AQ</value>
+      <a:documentation>Antarctica ## </a:documentation>
+      <value>AR</value>
+      <a:documentation>Argentina ##</a:documentation>
+      <value>AS</value>
+      <a:documentation>American Samoa ##</a:documentation>
+      <value>AT</value>
+      <a:documentation>Austria ##</a:documentation>
+      <value>AU</value>
+      <a:documentation>Australia ##</a:documentation>
+      <value>AW</value>
+      <a:documentation>Aruba ##</a:documentation>
+      <value>AX</value>
+      <a:documentation>Åland Islands ##</a:documentation>
+      <value>AZ</value>
+      <a:documentation>Azerbaijan ##</a:documentation>
+      <value>BA</value>
+      <a:documentation>Bosnia and Herzegovina ##</a:documentation>
+      <value>BB</value>
+      <a:documentation>Barbados ##</a:documentation>
+      <value>BD</value>
+      <a:documentation>Bangladesh ##</a:documentation>
+      <value>BE</value>
+      <a:documentation>Belgium ##</a:documentation>
+      <value>BF</value>
+      <a:documentation>Burkina Faso ##</a:documentation>
+      <value>BG</value>
+      <a:documentation>Bulgaria ##</a:documentation>
+      <value>BH</value>
+      <a:documentation>Bahrain ##</a:documentation>
+      <value>BI</value>
+      <a:documentation>Burundi ##</a:documentation>
+      <value>BJ</value>
+      <a:documentation>Benin ##</a:documentation>
+      <value>BL</value>
+      <a:documentation>Saint Barthélemy ##</a:documentation>
+      <value>BM</value>
+      <a:documentation>Bermuda ##</a:documentation>
+      <value>BN</value>
+      <a:documentation>Brunei Darussalam ##</a:documentation>
+      <value>BO</value>
+      <a:documentation>Bolivia, Plurinational State of ##</a:documentation>
+      <value>BQ</value>
+      <a:documentation>Bonaire, Sint Eustatius, Saba ##</a:documentation>
+      <value>BR</value>
+      <a:documentation>Brazil ##</a:documentation>
+      <value>BS</value>
+      <a:documentation>Bahamas ##</a:documentation>
+      <value>BT</value>
+      <a:documentation>Bhutan ##</a:documentation>
+      <value>BV</value>
+      <a:documentation>Bouvet Island ##</a:documentation>
+      <value>BW</value>
+      <a:documentation>Botswana ##</a:documentation>
+      <value>BY</value>
+      <a:documentation>Belarus ##</a:documentation>
+      <value>BZ</value>
+      <a:documentation>Belize ##</a:documentation>
+      <value>CA</value>
+      <a:documentation>Canada ##</a:documentation>
+      <value>CC</value>
+      <a:documentation>Cocos (Keeling) Islands ##</a:documentation>
+      <value>CD</value>
+      <a:documentation>Congo, Democratic Republic of the ##</a:documentation>
+      <value>CF</value>
+      <a:documentation>Central African Republic ##</a:documentation>
+      <value>CG</value>
+      <a:documentation>Congo ##</a:documentation>
+      <value>CH</value>
+      <a:documentation>Switzerland ##</a:documentation>
+      <value>CI</value>
+      <a:documentation>Cote D’Ivoire ##</a:documentation>
+      <value>CK</value>
+      <a:documentation>Cook Islands ##</a:documentation>
+      <value>CL</value>
+      <a:documentation>Chile ##</a:documentation>
+      <value>CM</value>
+      <a:documentation>Cameroon ##</a:documentation>
+      <value>CN</value>
+      <a:documentation>China ##</a:documentation>
+      <value>CO</value>
+      <a:documentation>Colombia ##</a:documentation>
+      <value>CR</value>
+      <a:documentation>Costa Rica ##</a:documentation>
+      <value>CS</value>
+      <a:documentation>Serbia and Montenegro ## DEPRECATED, replaced by ME – Montenegro and RS – Serbia.</a:documentation>
+      <value>CU</value>
+      <a:documentation>Cuba ##</a:documentation>
+      <value>CV</value>
+      <a:documentation>Cape Verde ##</a:documentation>
+      <value>CW</value>
+      <a:documentation>Curaçao ##</a:documentation>
+      <value>CX</value>
+      <a:documentation>Christmas Island ##</a:documentation>
+      <value>CY</value>
+      <a:documentation>Cyprus ##</a:documentation>
+      <value>CZ</value>
+      <a:documentation>Czech Republic ##</a:documentation>
+      <value>DE</value>
+      <a:documentation>Germany ##</a:documentation>
+      <value>DJ</value>
+      <a:documentation>Djibouti ##</a:documentation>
+      <value>DK</value>
+      <a:documentation>Denmark ##</a:documentation>
+      <value>DM</value>
+      <a:documentation>Dominica ##</a:documentation>
+      <value>DO</value>
+      <a:documentation>Dominican Republic ##</a:documentation>
+      <value>DZ</value>
+      <a:documentation>Algeria ##</a:documentation>
+      <value>EC</value>
+      <a:documentation>Ecuador ##</a:documentation>
+      <value>EE</value>
+      <a:documentation>Estonia ##</a:documentation>
+      <value>EG</value>
+      <a:documentation>Egypt ##</a:documentation>
+      <value>EH</value>
+      <a:documentation>Western Sahara ##</a:documentation>
+      <value>ER</value>
+      <a:documentation>Eritrea ##</a:documentation>
+      <value>ES</value>
+      <a:documentation>Spain ##</a:documentation>
+      <value>ET</value>
+      <a:documentation>Ethiopia ##</a:documentation>
+      <value>FI</value>
+      <a:documentation>Finland ##</a:documentation>
+      <value>FJ</value>
+      <a:documentation>Fiji ##</a:documentation>
+      <value>FK</value>
+      <a:documentation>Falkland Islands (Malvinas) ##</a:documentation>
+      <value>FM</value>
+      <a:documentation>Micronesia, Federated States of ##</a:documentation>
+      <value>FO</value>
+      <a:documentation>Faroe Islands ##</a:documentation>
+      <value>FR</value>
+      <a:documentation>France ##</a:documentation>
+      <value>GA</value>
+      <a:documentation>Gabon ##</a:documentation>
+      <value>GB</value>
+      <a:documentation>United Kingdom ##</a:documentation>
+      <value>GD</value>
+      <a:documentation>Grenada ##</a:documentation>
+      <value>GE</value>
+      <a:documentation>Georgia ##</a:documentation>
+      <value>GF</value>
+      <a:documentation>French Guiana ##</a:documentation>
+      <value>GG</value>
+      <a:documentation>Guernsey ##</a:documentation>
+      <value>GH</value>
+      <a:documentation>Ghana ##</a:documentation>
+      <value>GI</value>
+      <a:documentation>Gibraltar ##</a:documentation>
+      <value>GL</value>
+      <a:documentation>Greenland ##</a:documentation>
+      <value>GM</value>
+      <a:documentation>Gambia ##</a:documentation>
+      <value>GN</value>
+      <a:documentation>Guinea ##</a:documentation>
+      <value>GP</value>
+      <a:documentation>Guadeloupe ##</a:documentation>
+      <value>GQ</value>
+      <a:documentation>Equatorial Guinea ##</a:documentation>
+      <value>GR</value>
+      <a:documentation>Greece ##</a:documentation>
+      <value>GS</value>
+      <a:documentation>South Georgia and the South Sandwich Islands ##</a:documentation>
+      <value>GT</value>
+      <a:documentation>Guatemala ##</a:documentation>
+      <value>GU</value>
+      <a:documentation>Guam ##</a:documentation>
+      <value>GW</value>
+      <a:documentation>Guinea-Bissau ##</a:documentation>
+      <value>GY</value>
+      <a:documentation>Guyana ##</a:documentation>
+      <value>HK</value>
+      <a:documentation>Hong Kong ##</a:documentation>
+      <value>HM</value>
+      <a:documentation>Heard Island and McDonald Islands ##</a:documentation>
+      <value>HN</value>
+      <a:documentation>Honduras ##</a:documentation>
+      <value>HR</value>
+      <a:documentation>Croatia ##</a:documentation>
+      <value>HT</value>
+      <a:documentation>Haiti ##</a:documentation>
+      <value>HU</value>
+      <a:documentation>Hungary ##</a:documentation>
+      <value>ID</value>
+      <a:documentation>Indonesia ##</a:documentation>
+      <value>IE</value>
+      <a:documentation>Ireland ##</a:documentation>
+      <value>IL</value>
+      <a:documentation>Israel ##</a:documentation>
+      <value>IM</value>
+      <a:documentation>Isle of Man ##</a:documentation>
+      <value>IN</value>
+      <a:documentation>India ##</a:documentation>
+      <value>IO</value>
+      <a:documentation>British Indian Ocean Territory ##</a:documentation>
+      <value>IQ</value>
+      <a:documentation>Iraq ##</a:documentation>
+      <value>IR</value>
+      <a:documentation>Iran, Islamic Republic of ##</a:documentation>
+      <value>IS</value>
+      <a:documentation>Iceland ##</a:documentation>
+      <value>IT</value>
+      <a:documentation>Italy ##</a:documentation>
+      <value>JE</value>
+      <a:documentation>Jersey ##</a:documentation>
+      <value>JM</value>
+      <a:documentation>Jamaica ##</a:documentation>
+      <value>JO</value>
+      <a:documentation>Jordan ##</a:documentation>
+      <value>JP</value>
+      <a:documentation>Japan ##</a:documentation>
+      <value>KE</value>
+      <a:documentation>Kenya ##</a:documentation>
+      <value>KG</value>
+      <a:documentation>Kyrgyzstan ##</a:documentation>
+      <value>KH</value>
+      <a:documentation>Cambodia ##</a:documentation>
+      <value>KI</value>
+      <a:documentation>Kiribati ##</a:documentation>
+      <value>KM</value>
+      <a:documentation>Comoros ##</a:documentation>
+      <value>KN</value>
+      <a:documentation>Saint Kitts and Nevis ##</a:documentation>
+      <value>KP</value>
+      <a:documentation>Korea, Democratic People’s Republic of ##</a:documentation>
+      <value>KR</value>
+      <a:documentation>Korea, Republic of ##</a:documentation>
+      <value>KW</value>
+      <a:documentation>Kuwait ##</a:documentation>
+      <value>KY</value>
+      <a:documentation>Cayman Islands ##</a:documentation>
+      <value>KZ</value>
+      <a:documentation>Kazakhstan ##</a:documentation>
+      <value>LA</value>
+      <a:documentation>Lao People’s Democratic Republic ##</a:documentation>
+      <value>LB</value>
+      <a:documentation>Lebanon ##</a:documentation>
+      <value>LC</value>
+      <a:documentation>Saint Lucia ##</a:documentation>
+      <value>LI</value>
+      <a:documentation>Liechtenstein ##</a:documentation>
+      <value>LK</value>
+      <a:documentation>Sri Lanka ##</a:documentation>
+      <value>LR</value>
+      <a:documentation>Liberia ##</a:documentation>
+      <value>LS</value>
+      <a:documentation>Lesotho ##</a:documentation>
+      <value>LT</value>
+      <a:documentation>Lithuania ##</a:documentation>
+      <value>LU</value>
+      <a:documentation>Luxembourg ##</a:documentation>
+      <value>LV</value>
+      <a:documentation>Latvia ##</a:documentation>
+      <value>LY</value>
+      <a:documentation>Libyan Arab Jamahiriya ##</a:documentation>
+      <value>MA</value>
+      <a:documentation>Morocco ##</a:documentation>
+      <value>MC</value>
+      <a:documentation>Monaco ##</a:documentation>
+      <value>MD</value>
+      <a:documentation>Moldova ##</a:documentation>
+      <value>ME</value>
+      <a:documentation>Montenegro ##</a:documentation>
+      <value>MF</value>
+      <a:documentation>Saint Martin, French part ##</a:documentation>
+      <value>MG</value>
+      <a:documentation>Madagascar ##</a:documentation>
+      <value>MH</value>
+      <a:documentation>Marshall Islands ##</a:documentation>
+      <value>MK</value>
+      <a:documentation>Macedonia, the former Yugoslav Republic of ##</a:documentation>
+      <value>ML</value>
+      <a:documentation>Mali ##</a:documentation>
+      <value>MM</value>
+      <a:documentation>Myanmar ##</a:documentation>
+      <value>MN</value>
+      <a:documentation>Mongolia ##</a:documentation>
+      <value>MO</value>
+      <a:documentation>Macao ##</a:documentation>
+      <value>MP</value>
+      <a:documentation>Northern Mariana Islands ##</a:documentation>
+      <value>MQ</value>
+      <a:documentation>Martinique ##</a:documentation>
+      <value>MR</value>
+      <a:documentation>Mauritania ##</a:documentation>
+      <value>MS</value>
+      <a:documentation>Montserrat ##</a:documentation>
+      <value>MT</value>
+      <a:documentation>Malta ##</a:documentation>
+      <value>MU</value>
+      <a:documentation>Mauritius ##</a:documentation>
+      <value>MV</value>
+      <a:documentation>Maldives ##</a:documentation>
+      <value>MW</value>
+      <a:documentation>Malawi ##</a:documentation>
+      <value>MX</value>
+      <a:documentation>Mexico ##</a:documentation>
+      <value>MY</value>
+      <a:documentation>Malaysia ##</a:documentation>
+      <value>MZ</value>
+      <a:documentation>Mozambique ##</a:documentation>
+      <value>NA</value>
+      <a:documentation>Namibia ##</a:documentation>
+      <value>NC</value>
+      <a:documentation>New Caledonia ##</a:documentation>
+      <value>NE</value>
+      <a:documentation>Niger ##</a:documentation>
+      <value>NF</value>
+      <a:documentation>Norfolk Island ##</a:documentation>
+      <value>NG</value>
+      <a:documentation>Nigeria ##</a:documentation>
+      <value>NI</value>
+      <a:documentation>Nicaragua ##</a:documentation>
+      <value>NL</value>
+      <a:documentation>Netherlands ##</a:documentation>
+      <value>NO</value>
+      <a:documentation>Norway ##</a:documentation>
+      <value>NP</value>
+      <a:documentation>Nepal ##</a:documentation>
+      <value>NR</value>
+      <a:documentation>Nauru ##</a:documentation>
+      <value>NU</value>
+      <a:documentation>Niue ##</a:documentation>
+      <value>NZ</value>
+      <a:documentation>New Zealand ##</a:documentation>
+      <value>OM</value>
+      <a:documentation>Oman ##</a:documentation>
+      <value>PA</value>
+      <a:documentation>Panama ##</a:documentation>
+      <value>PE</value>
+      <a:documentation>Peru ##</a:documentation>
+      <value>PF</value>
+      <a:documentation>French Polynesia ##</a:documentation>
+      <value>PG</value>
+      <a:documentation>Papua New Guinea ##</a:documentation>
+      <value>PH</value>
+      <a:documentation>Philippines ##</a:documentation>
+      <value>PK</value>
+      <a:documentation>Pakistan ##</a:documentation>
+      <value>PL</value>
+      <a:documentation>Poland ##</a:documentation>
+      <value>PM</value>
+      <a:documentation>Saint Pierre and Miquelon ##</a:documentation>
+      <value>PN</value>
+      <a:documentation>Pitcairn ##</a:documentation>
+      <value>PR</value>
+      <a:documentation>Puerto Rico ##</a:documentation>
+      <value>PS</value>
+      <a:documentation>Palestinian Territory, Occupied ##</a:documentation>
+      <value>PT</value>
+      <a:documentation>Portugal ##</a:documentation>
+      <value>PW</value>
+      <a:documentation>Palau ##</a:documentation>
+      <value>PY</value>
+      <a:documentation>Paraguay ##</a:documentation>
+      <value>QA</value>
+      <a:documentation>Qatar ##</a:documentation>
+      <value>RE</value>
+      <a:documentation>Réunion ##</a:documentation>
+      <value>RO</value>
+      <a:documentation>Romania ##</a:documentation>
+      <value>RS</value>
+      <a:documentation>Serbia ##</a:documentation>
+      <value>RU</value>
+      <a:documentation>Russian Federation ##</a:documentation>
+      <value>RW</value>
+      <a:documentation>Rwanda ##</a:documentation>
+      <value>SA</value>
+      <a:documentation>Saudi Arabia ##</a:documentation>
+      <value>SB</value>
+      <a:documentation>Solomon Islands ##</a:documentation>
+      <value>SC</value>
+      <a:documentation>Seychelles ##</a:documentation>
+      <value>SD</value>
+      <a:documentation>Sudan ##</a:documentation>
+      <value>SE</value>
+      <a:documentation>Sweden ##</a:documentation>
+      <value>SG</value>
+      <a:documentation>Singapore ##</a:documentation>
+      <value>SH</value>
+      <a:documentation>Saint Helena, Ascension, Tristan da Cunha ##</a:documentation>
+      <value>SI</value>
+      <a:documentation>Slovenia ##</a:documentation>
+      <value>SJ</value>
+      <a:documentation>Svalbard and Jan Mayen ##</a:documentation>
+      <value>SK</value>
+      <a:documentation>Slovakia ##</a:documentation>
+      <value>SL</value>
+      <a:documentation>Sierra Leone ##</a:documentation>
+      <value>SM</value>
+      <a:documentation>San Marino ##</a:documentation>
+      <value>SN</value>
+      <a:documentation>Senegal ##</a:documentation>
+      <value>SO</value>
+      <a:documentation>Somalia ##</a:documentation>
+      <value>SR</value>
+      <a:documentation>Suriname ##</a:documentation>
+      <value>SS</value>
+      <a:documentation>South Sudan ##</a:documentation>
+      <value>ST</value>
+      <a:documentation>Sao Tome and Principe ##</a:documentation>
+      <value>SV</value>
+      <a:documentation>El Salvador ##</a:documentation>
+      <value>SX</value>
+      <a:documentation>Sint Maarten (Dutch part) ##</a:documentation>
+      <value>SY</value>
+      <a:documentation>Syrian Arab Republic ##</a:documentation>
+      <value>SZ</value>
+      <a:documentation>Swaziland ##</a:documentation>
+      <value>TC</value>
+      <a:documentation>Turks and Caicos Islands ##</a:documentation>
+      <value>TD</value>
+      <a:documentation>Chad ##</a:documentation>
+      <value>TF</value>
+      <a:documentation>French Southern Territories ##</a:documentation>
+      <value>TG</value>
+      <a:documentation>Togo ##</a:documentation>
+      <value>TH</value>
+      <a:documentation>Thailand ##</a:documentation>
+      <value>TJ</value>
+      <a:documentation>Tajikistan ##</a:documentation>
+      <value>TK</value>
+      <a:documentation>Tokelau ##</a:documentation>
+      <value>TL</value>
+      <a:documentation>Timor-Leste ##</a:documentation>
+      <value>TM</value>
+      <a:documentation>Turkmenistan ##</a:documentation>
+      <value>TN</value>
+      <a:documentation>Tunisia ##</a:documentation>
+      <value>TO</value>
+      <a:documentation>Tonga ##</a:documentation>
+      <value>TR</value>
+      <a:documentation>Turkey ##</a:documentation>
+      <value>TT</value>
+      <a:documentation>Trinidad and Tobago ##</a:documentation>
+      <value>TV</value>
+      <a:documentation>Tuvalu ##</a:documentation>
+      <value>TW</value>
+      <a:documentation>Taiwan, Province of China ##</a:documentation>
+      <value>TZ</value>
+      <a:documentation>Tanzania, United Republic of ##</a:documentation>
+      <value>UA</value>
+      <a:documentation>Ukraine ##</a:documentation>
+      <value>UG</value>
+      <a:documentation>Uganda ##</a:documentation>
+      <value>UM</value>
+      <a:documentation>United States Minor Outlying Islands ##</a:documentation>
+      <value>US</value>
+      <a:documentation>United States ##</a:documentation>
+      <value>UY</value>
+      <a:documentation>Uruguay ##</a:documentation>
+      <value>UZ</value>
+      <a:documentation>Uzbekistan ##</a:documentation>
+      <value>VA</value>
+      <a:documentation>Holy See (Vatican City State) ##</a:documentation>
+      <value>VC</value>
+      <a:documentation>Saint Vincent and the Grenadines ##</a:documentation>
+      <value>VE</value>
+      <a:documentation>Venezuela, Bolivarian Republic of ##</a:documentation>
+      <value>VG</value>
+      <a:documentation>Virgin Islands, British ##</a:documentation>
+      <value>VI</value>
+      <a:documentation>Virgin Islands, US ##</a:documentation>
+      <value>VN</value>
+      <a:documentation>Viet Nam ##</a:documentation>
+      <value>VU</value>
+      <a:documentation>Vanuatu ##</a:documentation>
+      <value>WF</value>
+      <a:documentation>Wallis and Futuna ##</a:documentation>
+      <value>WS</value>
+      <a:documentation>Samoa ##</a:documentation>
+      <value>YE</value>
+      <a:documentation>Yemen ##</a:documentation>
+      <value>YT</value>
+      <a:documentation>Mayotte ##</a:documentation>
+      <value>YU</value>
+      <a:documentation>Yugoslavia ## DEPRECATED, replaced by ME – Montenegro and RS – Serbia.</a:documentation>
+      <value>ZA</value>
+      <a:documentation>South Africa ##</a:documentation>
+      <value>ZM</value>
+      <a:documentation>Zambia ##</a:documentation>
+      <value>ZW</value>
+      <a:documentation>Zimbabwe ##</a:documentation>
+    </choice>
+  </define>
+  <define name="imml.book.offer.language.datatype">
+    <list>
+      <oneOrMore>
+        <ref name="List74"/>
+      </oneOrMore>
+    </list>
+  </define>
+  <define name="List74">
+    <a:documentation>Language code – ISO 639-2/B from ONIX Code List 74</a:documentation>
+    <choice>
+      <value>aar</value>
+      <a:documentation>Afar ##</a:documentation>
+      <value>abk</value>
+      <a:documentation>Abkhaz ##</a:documentation>
+      <value>ace</value>
+      <a:documentation>Achinese ##</a:documentation>
+      <value>ach</value>
+      <a:documentation>Acoli ##</a:documentation>
+      <value>ada</value>
+      <a:documentation>Adangme ##</a:documentation>
+      <value>ady</value>
+      <a:documentation>Adygei ##</a:documentation>
+      <value>afa</value>
+      <a:documentation>Afro-Asiatic languages ## Collective name.</a:documentation>
+      <value>afh</value>
+      <a:documentation>Afrihili ## Artificial language.</a:documentation>
+      <value>afr</value>
+      <a:documentation>Afrikaans ##</a:documentation>
+      <value>ain</value>
+      <a:documentation>Ainu ##</a:documentation>
+      <value>aka</value>
+      <a:documentation>Akan ##</a:documentation>
+      <value>akk</value>
+      <a:documentation>Akkadian ##</a:documentation>
+      <value>alb</value>
+      <a:documentation>Albanian ##</a:documentation>
+      <value>ale</value>
+      <a:documentation>Aleut ##</a:documentation>
+      <value>alg</value>
+      <a:documentation>Algonquian languages ## Collective name.</a:documentation>
+      <value>alt</value>
+      <a:documentation>Southern Altai ##</a:documentation>
+      <value>amh</value>
+      <a:documentation>Amharic ##</a:documentation>
+      <value>ang</value>
+      <a:documentation>English, Old (ca. 450-1100) ##</a:documentation>
+      <value>anp</value>
+      <a:documentation>Angika ##</a:documentation>
+      <value>apa</value>
+      <a:documentation>Apache languages ## Collective name.</a:documentation>
+      <value>ara</value>
+      <a:documentation>Arabic ##</a:documentation>
+      <value>arc</value>
+      <a:documentation>Official Aramaic; Imperial Aramaic (700-300 BCE) ##</a:documentation>
+      <value>arg</value>
+      <a:documentation>Aragonese ##</a:documentation>
+      <value>arm</value>
+      <a:documentation>Armenian ##</a:documentation>
+      <value>arn</value>
+      <a:documentation>Mapudungun; Mapuche ##</a:documentation>
+      <value>arp</value>
+      <a:documentation>Arapaho ##</a:documentation>
+      <value>art</value>
+      <a:documentation>Artificial languages ## Collective name.</a:documentation>
+      <value>arw</value>
+      <a:documentation>Arawak ##</a:documentation>
+      <value>asm</value>
+      <a:documentation>Assamese ##</a:documentation>
+      <value>ast</value>
+      <a:documentation>Asturian; Bable; Leonese; Asturleonese ##</a:documentation>
+      <value>ath</value>
+      <a:documentation>Athapascan languages ## Collective name.</a:documentation>
+      <value>aus</value>
+      <a:documentation>Australian languages ## Collective name.</a:documentation>
+      <value>ava</value>
+      <a:documentation>Avaric ##</a:documentation>
+      <value>ave</value>
+      <a:documentation>Avestan ##</a:documentation>
+      <value>awa</value>
+      <a:documentation>Awadhi ##</a:documentation>
+      <value>aym</value>
+      <a:documentation>Aymara ##</a:documentation>
+      <value>aze</value>
+      <a:documentation>Azerbaijani ##</a:documentation>
+      <value>bad</value>
+      <a:documentation>Banda languages ## Collective name.</a:documentation>
+      <value>bai</value>
+      <a:documentation>Bamileke languages ## Collective name.</a:documentation>
+      <value>bak</value>
+      <a:documentation>Bashkir ##</a:documentation>
+      <value>bal</value>
+      <a:documentation>Baluchi ##</a:documentation>
+      <value>bam</value>
+      <a:documentation>Bambara ##</a:documentation>
+      <value>ban</value>
+      <a:documentation>Balinese ##</a:documentation>
+      <value>baq</value>
+      <a:documentation>Basque ##</a:documentation>
+      <value>bas</value>
+      <a:documentation>Basa ##</a:documentation>
+      <value>bat</value>
+      <a:documentation>Baltic languages ## Collective name.</a:documentation>
+      <value>bej</value>
+      <a:documentation>Beja; Bedawiyet ##</a:documentation>
+      <value>bel</value>
+      <a:documentation>Belarusian ##</a:documentation>
+      <value>bem</value>
+      <a:documentation>Bemba ##</a:documentation>
+      <value>ben</value>
+      <a:documentation>Bengali ##</a:documentation>
+      <value>ber</value>
+      <a:documentation>Berber languages ## Collective name.</a:documentation>
+      <value>bho</value>
+      <a:documentation>Bhojpuri ##</a:documentation>
+      <value>bih</value>
+      <a:documentation>Bihari languages ## Collective name.</a:documentation>
+      <value>bik</value>
+      <a:documentation>Bikol ##</a:documentation>
+      <value>bin</value>
+      <a:documentation>Bini; Edo ##</a:documentation>
+      <value>bis</value>
+      <a:documentation>Bislama ##</a:documentation>
+      <value>bla</value>
+      <a:documentation>Siksika ##</a:documentation>
+      <value>bnt</value>
+      <a:documentation>Bantu languages ## Collective name.</a:documentation>
+      <value>bos</value>
+      <a:documentation>Bosnian ##</a:documentation>
+      <value>bra</value>
+      <a:documentation>Braj ##</a:documentation>
+      <value>bre</value>
+      <a:documentation>Breton ##</a:documentation>
+      <value>btk</value>
+      <a:documentation>Batak languages ## Collective name.</a:documentation>
+      <value>bua</value>
+      <a:documentation>Buriat ##</a:documentation>
+      <value>bug</value>
+      <a:documentation>Buginese ##</a:documentation>
+      <value>bul</value>
+      <a:documentation>Bulgarian ##</a:documentation>
+      <value>bur</value>
+      <a:documentation>Burmese ##</a:documentation>
+      <value>byn</value>
+      <a:documentation>Blin; Bilin ##</a:documentation>
+      <value>cad</value>
+      <a:documentation>Caddo ##</a:documentation>
+      <value>cai</value>
+      <a:documentation>Central American Indian languages ## Collective name.</a:documentation>
+      <value>car</value>
+      <a:documentation>Galibi Carib ##</a:documentation>
+      <value>cat</value>
+      <a:documentation>Catalan ##</a:documentation>
+      <value>cau</value>
+      <a:documentation>Caucasian languages ## Collective name.</a:documentation>
+      <value>ceb</value>
+      <a:documentation>Cebuano ##</a:documentation>
+      <value>cel</value>
+      <a:documentation>Celtic languages ## Collective name.</a:documentation>
+      <value>cha</value>
+      <a:documentation>Chamorro ##</a:documentation>
+      <value>chb</value>
+      <a:documentation>Chibcha ##</a:documentation>
+      <value>che</value>
+      <a:documentation>Chechen ##</a:documentation>
+      <value>chg</value>
+      <a:documentation>Chagatai ##</a:documentation>
+      <value>chi</value>
+      <a:documentation>Chinese ##</a:documentation>
+      <value>chk</value>
+      <a:documentation>Chuukese (Truk) ##</a:documentation>
+      <value>chm</value>
+      <a:documentation>Mari ##</a:documentation>
+      <value>chn</value>
+      <a:documentation>Chinook jargon ##</a:documentation>
+      <value>cho</value>
+      <a:documentation>Choctaw ##</a:documentation>
+      <value>chp</value>
+      <a:documentation>Chipewyan; Dene Suline ##</a:documentation>
+      <value>chr</value>
+      <a:documentation>Cherokee ##</a:documentation>
+      <value>chu</value>
+      <a:documentation>Church Slavic; Old Slavonic; Church Slavonic; Old Bulgarian; Old Church Slavonic ##</a:documentation>
+      <value>chv</value>
+      <a:documentation>Chuvash ##</a:documentation>
+      <value>chy</value>
+      <a:documentation>Cheyenne ##</a:documentation>
+      <value>cmc</value>
+      <a:documentation>Chamic languages ## Collective name.</a:documentation>
+      <value>cop</value>
+      <a:documentation>Coptic ##</a:documentation>
+      <value>cor</value>
+      <a:documentation>Cornish ##</a:documentation>
+      <value>cos</value>
+      <a:documentation>Corsican ##</a:documentation>
+      <value>cpe</value>
+      <a:documentation>Creoles and pidgins, English-based ## Collective name.</a:documentation>
+      <value>cpf</value>
+      <a:documentation>Creoles and pidgins, French-based ## Collective name.</a:documentation>
+      <value>cpp</value>
+      <a:documentation>Creoles and pidgins, Portuguese-based ## Collective name.</a:documentation>
+      <value>cre</value>
+      <a:documentation>Cree ##</a:documentation>
+      <value>crh</value>
+      <a:documentation>Crimean Turkish; Crimean Tatar ##</a:documentation>
+      <value>crp</value>
+      <a:documentation>Creoles and pidgins ## Collective name.</a:documentation>
+      <value>csb</value>
+      <a:documentation>Kashubian ##</a:documentation>
+      <value>cus</value>
+      <a:documentation>Cushitic languages ## Collective name.</a:documentation>
+      <value>cze</value>
+      <a:documentation>Czech ##</a:documentation>
+      <value>dak</value>
+      <a:documentation>Dakota ##</a:documentation>
+      <value>dan</value>
+      <a:documentation>Danish ##</a:documentation>
+      <value>dar</value>
+      <a:documentation>Dargwa ##</a:documentation>
+      <value>day</value>
+      <a:documentation>Land Dayak languages ## Collective name.</a:documentation>
+      <value>del</value>
+      <a:documentation>Delaware ##</a:documentation>
+      <value>den</value>
+      <a:documentation>Slave (Athapascan) ##</a:documentation>
+      <value>dgr</value>
+      <a:documentation>Dogrib ##</a:documentation>
+      <value>din</value>
+      <a:documentation>Dinka ##</a:documentation>
+      <value>div</value>
+      <a:documentation>Divehi; Dhivehi; Maldivian ##</a:documentation>
+      <value>doi</value>
+      <a:documentation>Dogri ##</a:documentation>
+      <value>dra</value>
+      <a:documentation>Dravidian languages ## Collective name.</a:documentation>
+      <value>dsb</value>
+      <a:documentation>Lower Sorbian ##</a:documentation>
+      <value>dua</value>
+      <a:documentation>Duala ##</a:documentation>
+      <value>dum</value>
+      <a:documentation>Dutch, Middle (ca. 1050-1350) ##</a:documentation>
+      <value>dut</value>
+      <a:documentation>Dutch; Flemish ##</a:documentation>
+      <value>dyu</value>
+      <a:documentation>Dyula ##</a:documentation>
+      <value>dzo</value>
+      <a:documentation>Dzongkha ##</a:documentation>
+      <value>efi</value>
+      <a:documentation>Efik ##</a:documentation>
+      <value>egy</value>
+      <a:documentation>Egyptian (Ancient) ##</a:documentation>
+      <value>eka</value>
+      <a:documentation>Ekajuk ##</a:documentation>
+      <value>elx</value>
+      <a:documentation>Elamite ##</a:documentation>
+      <value>eng</value>
+      <a:documentation>English ##</a:documentation>
+      <value>enm</value>
+      <a:documentation>English, Middle (1100-1500) ##</a:documentation>
+      <value>epo</value>
+      <a:documentation>Esperanto ## Artificial language.</a:documentation>
+      <value>est</value>
+      <a:documentation>Estonian ##</a:documentation>
+      <value>ewe</value>
+      <a:documentation>Ewe ##</a:documentation>
+      <value>ewo</value>
+      <a:documentation>Ewondo ##</a:documentation>
+      <value>fan</value>
+      <a:documentation>Fang ##</a:documentation>
+      <value>fao</value>
+      <a:documentation>Faroese ##</a:documentation>
+      <value>fat</value>
+      <a:documentation>Fanti ##</a:documentation>
+      <value>fij</value>
+      <a:documentation>Fijian ##</a:documentation>
+      <value>fil</value>
+      <a:documentation>Filipino; Pilipino ##</a:documentation>
+      <value>fin</value>
+      <a:documentation>Finnish ##</a:documentation>
+      <value>fiu</value>
+      <a:documentation>Finno-Ugrian languages ## Collective name.</a:documentation>
+      <value>fon</value>
+      <a:documentation>Fon ##</a:documentation>
+      <value>fre</value>
+      <a:documentation>French ##</a:documentation>
+      <value>frm</value>
+      <a:documentation>French, Middle (ca. 1400-1600) ##</a:documentation>
+      <value>fro</value>
+      <a:documentation>French, Old (ca. 842-1400) ##</a:documentation>
+      <value>frr</value>
+      <a:documentation>Northern Frisian ##</a:documentation>
+      <value>frs</value>
+      <a:documentation>Eastern Frisian ##</a:documentation>
+      <value>fry</value>
+      <a:documentation>Western Frisian ##</a:documentation>
+      <value>ful</value>
+      <a:documentation>Fulah ##</a:documentation>
+      <value>fur</value>
+      <a:documentation>Friulian ##</a:documentation>
+      <value>gaa</value>
+      <a:documentation>Gã ##</a:documentation>
+      <value>gay</value>
+      <a:documentation>Gayo ##</a:documentation>
+      <value>gba</value>
+      <a:documentation>Gbaya ##</a:documentation>
+      <value>gem</value>
+      <a:documentation>Germanic languages ## Collective name.</a:documentation>
+      <value>geo</value>
+      <a:documentation>Georgian ##</a:documentation>
+      <value>ger</value>
+      <a:documentation>German ##</a:documentation>
+      <value>gez</value>
+      <a:documentation>Ethiopic (Ge’ez) ##</a:documentation>
+      <value>gil</value>
+      <a:documentation>Gilbertese ##</a:documentation>
+      <value>gla</value>
+      <a:documentation>Scottish Gaelic ##</a:documentation>
+      <value>gle</value>
+      <a:documentation>Irish ##</a:documentation>
+      <value>glg</value>
+      <a:documentation>Galician ##</a:documentation>
+      <value>glv</value>
+      <a:documentation>Manx ##</a:documentation>
+      <value>gmh</value>
+      <a:documentation>German, Middle High (ca. 1050-1500) ##</a:documentation>
+      <value>goh</value>
+      <a:documentation>German, Old High (ca. 750-1050) ##</a:documentation>
+      <value>gon</value>
+      <a:documentation>Gondi ##</a:documentation>
+      <value>gor</value>
+      <a:documentation>Gorontalo ##</a:documentation>
+      <value>got</value>
+      <a:documentation>Gothic ##</a:documentation>
+      <value>grb</value>
+      <a:documentation>Grebo ##</a:documentation>
+      <value>grc</value>
+      <a:documentation>Greek, Ancient (to 1453) ##</a:documentation>
+      <value>gre</value>
+      <a:documentation>Greek, Modern (1453-) ##</a:documentation>
+      <value>grn</value>
+      <a:documentation>Guarani ##</a:documentation>
+      <value>gsw</value>
+      <a:documentation>Swiss German; Alemannic ##</a:documentation>
+      <value>guj</value>
+      <a:documentation>Gujarati ##</a:documentation>
+      <value>gwi</value>
+      <a:documentation>Gwich’in ##</a:documentation>
+      <value>hai</value>
+      <a:documentation>Haida ##</a:documentation>
+      <value>hat</value>
+      <a:documentation>Haitian French Creole ##</a:documentation>
+      <value>hau</value>
+      <a:documentation>Hausa ##</a:documentation>
+      <value>haw</value>
+      <a:documentation>Hawaiian ##</a:documentation>
+      <value>heb</value>
+      <a:documentation>Hebrew ##</a:documentation>
+      <value>her</value>
+      <a:documentation>Herero ##</a:documentation>
+      <value>hil</value>
+      <a:documentation>Hiligaynon ##</a:documentation>
+      <value>him</value>
+      <a:documentation>Himachali languages; Western Pahari languages ## Collective name.</a:documentation>
+      <value>hin</value>
+      <a:documentation>Hindi ##</a:documentation>
+      <value>hit</value>
+      <a:documentation>Hittite ##</a:documentation>
+      <value>hmn</value>
+      <a:documentation>Hmong; Mong ##</a:documentation>
+      <value>hmo</value>
+      <a:documentation>Hiri Motu ##</a:documentation>
+      <value>hrv</value>
+      <a:documentation>Croatian ##</a:documentation>
+      <value>hsb</value>
+      <a:documentation>Upper Sorbian ##</a:documentation>
+      <value>hun</value>
+      <a:documentation>Hungarian ##</a:documentation>
+      <value>hup</value>
+      <a:documentation>Hupa ##</a:documentation>
+      <value>iba</value>
+      <a:documentation>Iban ##</a:documentation>
+      <value>ibo</value>
+      <a:documentation>Igbo ##</a:documentation>
+      <value>ice</value>
+      <a:documentation>Icelandic ##</a:documentation>
+      <value>ido</value>
+      <a:documentation>Ido ## Artificial language.</a:documentation>
+      <value>iii</value>
+      <a:documentation>Sichuan Yi; Nuosu ##</a:documentation>
+      <value>ijo</value>
+      <a:documentation>Ijo languages ## Collective name.</a:documentation>
+      <value>iku</value>
+      <a:documentation>Inuktitut ##</a:documentation>
+      <value>ile</value>
+      <a:documentation>Interlingue; Occidental ## Artificial language.</a:documentation>
+      <value>ilo</value>
+      <a:documentation>Iloko ##</a:documentation>
+      <value>ina</value>
+      <a:documentation>Interlingua (International Auxiliary Language Association) ## Artificial language.</a:documentation>
+      <value>inc</value>
+      <a:documentation>Indic languages ## Collective name.</a:documentation>
+      <value>ind</value>
+      <a:documentation>Indonesian ##</a:documentation>
+      <value>ine</value>
+      <a:documentation>Indo-European languages ## Collective name.</a:documentation>
+      <value>inh</value>
+      <a:documentation>Ingush ##</a:documentation>
+      <value>ipk</value>
+      <a:documentation>Inupiaq ##</a:documentation>
+      <value>ira</value>
+      <a:documentation>Iranian languages ## Collective name.</a:documentation>
+      <value>iro</value>
+      <a:documentation>Iroquoian languages ## Collective name.</a:documentation>
+      <value>ita</value>
+      <a:documentation>Italian ##</a:documentation>
+      <value>jav</value>
+      <a:documentation>Javanese ##</a:documentation>
+      <value>jbo</value>
+      <a:documentation>Lojban ##</a:documentation>
+      <value>jpn</value>
+      <a:documentation>Japanese ##</a:documentation>
+      <value>jpr</value>
+      <a:documentation>Judeo-Persian ##</a:documentation>
+      <value>jrb</value>
+      <a:documentation>Judeo-Arabic ##</a:documentation>
+      <value>kaa</value>
+      <a:documentation>Kara-Kalpak ##</a:documentation>
+      <value>kab</value>
+      <a:documentation>Kabyle ##</a:documentation>
+      <value>kac</value>
+      <a:documentation>Kachin; Jingpho ##</a:documentation>
+      <value>kal</value>
+      <a:documentation>Kalâtdlisut; Greenlandic ##</a:documentation>
+      <value>kam</value>
+      <a:documentation>Kamba ##</a:documentation>
+      <value>kan</value>
+      <a:documentation>Kannada ##</a:documentation>
+      <value>kar</value>
+      <a:documentation>Karen languages ## Collective name.</a:documentation>
+      <value>kas</value>
+      <a:documentation>Kashmiri ##</a:documentation>
+      <value>kau</value>
+      <a:documentation>Kanuri ##</a:documentation>
+      <value>kaw</value>
+      <a:documentation>Kawi ##</a:documentation>
+      <value>kaz</value>
+      <a:documentation>Kazakh ##</a:documentation>
+      <value>kbd</value>
+      <a:documentation>Kabardian (Circassian) ##</a:documentation>
+      <value>kha</value>
+      <a:documentation>Khasi ##</a:documentation>
+      <value>khi</value>
+      <a:documentation>Khoisan languages ## Collective name.</a:documentation>
+      <value>khm</value>
+      <a:documentation>Central Khmer ##</a:documentation>
+      <value>kho</value>
+      <a:documentation>Khotanese; Sakan ##</a:documentation>
+      <value>kik</value>
+      <a:documentation>Kikuyu; Gikuyu ##</a:documentation>
+      <value>kin</value>
+      <a:documentation>Kinyarwanda ##</a:documentation>
+      <value>kir</value>
+      <a:documentation>Kirghiz; Kyrgyz ##</a:documentation>
+      <value>kmb</value>
+      <a:documentation>Kimbundu ##</a:documentation>
+      <value>kok</value>
+      <a:documentation>Konkani ##</a:documentation>
+      <value>kom</value>
+      <a:documentation>Komi ##</a:documentation>
+      <value>kon</value>
+      <a:documentation>Kongo ##</a:documentation>
+      <value>kor</value>
+      <a:documentation>Korean ##</a:documentation>
+      <value>kos</value>
+      <a:documentation>Kusaiean (Caroline Islands) ##</a:documentation>
+      <value>kpe</value>
+      <a:documentation>Kpelle ##</a:documentation>
+      <value>krc</value>
+      <a:documentation>Karachay-Balkar ##</a:documentation>
+      <value>krl</value>
+      <a:documentation>Karelian ##</a:documentation>
+      <value>kro</value>
+      <a:documentation>Kru languages ## Collective name.</a:documentation>
+      <value>kru</value>
+      <a:documentation>Kurukh ##</a:documentation>
+      <value>kua</value>
+      <a:documentation>Kuanyama ##</a:documentation>
+      <value>kum</value>
+      <a:documentation>Kumyk ##</a:documentation>
+      <value>kur</value>
+      <a:documentation>Kurdish ##</a:documentation>
+      <value>kut</value>
+      <a:documentation>Kutenai ##</a:documentation>
+      <value>lad</value>
+      <a:documentation>Ladino ##</a:documentation>
+      <value>lah</value>
+      <a:documentation>Lahnda ##</a:documentation>
+      <value>lam</value>
+      <a:documentation>Lamba ##</a:documentation>
+      <value>lao</value>
+      <a:documentation>Lao ##</a:documentation>
+      <value>lat</value>
+      <a:documentation>Latin ##</a:documentation>
+      <value>lav</value>
+      <a:documentation>Latvian ##</a:documentation>
+      <value>lez</value>
+      <a:documentation>Lezgian ##</a:documentation>
+      <value>lim</value>
+      <a:documentation>Limburgish ##</a:documentation>
+      <value>lin</value>
+      <a:documentation>Lingala ##</a:documentation>
+      <value>lit</value>
+      <a:documentation>Lithuanian ##</a:documentation>
+      <value>lol</value>
+      <a:documentation>Mongo-Nkundu ##</a:documentation>
+      <value>loz</value>
+      <a:documentation>Lozi ##</a:documentation>
+      <value>ltz</value>
+      <a:documentation>Luxembourgish; Letzeburgesch ##</a:documentation>
+      <value>lua</value>
+      <a:documentation>Luba-Lulua ##</a:documentation>
+      <value>lub</value>
+      <a:documentation>Luba-Katanga ##</a:documentation>
+      <value>lug</value>
+      <a:documentation>Ganda ##</a:documentation>
+      <value>lui</value>
+      <a:documentation>Luiseño ##</a:documentation>
+      <value>lun</value>
+      <a:documentation>Lunda ##</a:documentation>
+      <value>luo</value>
+      <a:documentation>Luo (Kenya and Tanzania) ##</a:documentation>
+      <value>lus</value>
+      <a:documentation>Lushai ##</a:documentation>
+      <value>mac</value>
+      <a:documentation>Macedonian ##</a:documentation>
+      <value>mad</value>
+      <a:documentation>Madurese ##</a:documentation>
+      <value>mag</value>
+      <a:documentation>Magahi ##</a:documentation>
+      <value>mah</value>
+      <a:documentation>Marshallese ##</a:documentation>
+      <value>mai</value>
+      <a:documentation>Maithili ##</a:documentation>
+      <value>mak</value>
+      <a:documentation>Makasar ##</a:documentation>
+      <value>mal</value>
+      <a:documentation>Malayalam ##</a:documentation>
+      <value>man</value>
+      <a:documentation>Mandingo ##</a:documentation>
+      <value>mao</value>
+      <a:documentation>Maori ##</a:documentation>
+      <value>map</value>
+      <a:documentation>Austronesian languages ## Collective name.</a:documentation>
+      <value>mar</value>
+      <a:documentation>Marathi ##</a:documentation>
+      <value>mas</value>
+      <a:documentation>Masai ##</a:documentation>
+      <value>may</value>
+      <a:documentation>Malay ##</a:documentation>
+      <value>mdf</value>
+      <a:documentation>Moksha ##</a:documentation>
+      <value>mdr</value>
+      <a:documentation>Mandar ##</a:documentation>
+      <value>men</value>
+      <a:documentation>Mende ##</a:documentation>
+      <value>mga</value>
+      <a:documentation>Irish, Middle (ca. 1100-1550) ##</a:documentation>
+      <value>mic</value>
+      <a:documentation>Mi’kmaq; Micmac ##</a:documentation>
+      <value>min</value>
+      <a:documentation>Minangkabau ##</a:documentation>
+      <value>mis</value>
+      <a:documentation>Uncoded languages ##</a:documentation>
+      <value>mkh</value>
+      <a:documentation>Mon-Khmer languages ## Collective name.</a:documentation>
+      <value>mlg</value>
+      <a:documentation>Malagasy ##</a:documentation>
+      <value>mlt</value>
+      <a:documentation>Maltese ##</a:documentation>
+      <value>mnc</value>
+      <a:documentation>Manchu ##</a:documentation>
+      <value>mni</value>
+      <a:documentation>Manipuri ##</a:documentation>
+      <value>mno</value>
+      <a:documentation>Manobo languages ## Collective name.</a:documentation>
+      <value>moh</value>
+      <a:documentation>Mohawk ##</a:documentation>
+      <value>mol</value>
+      <a:documentation>Moldavian; Moldovan ## DEPRECATED – use rum.</a:documentation>
+      <value>mon</value>
+      <a:documentation>Mongolian ##</a:documentation>
+      <value>mos</value>
+      <a:documentation>Mooré; Mossi ##</a:documentation>
+      <value>mul</value>
+      <a:documentation>Multiple languages ##</a:documentation>
+      <value>mun</value>
+      <a:documentation>Munda languages ## Collective name.</a:documentation>
+      <value>mus</value>
+      <a:documentation>Creek ##</a:documentation>
+      <value>mwl</value>
+      <a:documentation>Mirandese ##</a:documentation>
+      <value>mwr</value>
+      <a:documentation>Marwari ##</a:documentation>
+      <value>myn</value>
+      <a:documentation>Mayan languages ## Collective name.</a:documentation>
+      <value>myv</value>
+      <a:documentation>Erzya ##</a:documentation>
+      <value>nah</value>
+      <a:documentation>Nahuatl languages ## Collective name.</a:documentation>
+      <value>nai</value>
+      <a:documentation>North American Indian languages ## Collective name.</a:documentation>
+      <value>nap</value>
+      <a:documentation>Neapolitan ##</a:documentation>
+      <value>nau</value>
+      <a:documentation>Nauruan ##</a:documentation>
+      <value>nav</value>
+      <a:documentation>Navajo ##</a:documentation>
+      <value>nbl</value>
+      <a:documentation>Ndebele, South ##</a:documentation>
+      <value>nde</value>
+      <a:documentation>Ndebele, North ##</a:documentation>
+      <value>ndo</value>
+      <a:documentation>Ndonga ##</a:documentation>
+      <value>nds</value>
+      <a:documentation>Low German; Low Saxon ##</a:documentation>
+      <value>nep</value>
+      <a:documentation>Nepali ##</a:documentation>
+      <value>new</value>
+      <a:documentation>Newari; Nepal Bhasa ##</a:documentation>
+      <value>nia</value>
+      <a:documentation>Nias ##</a:documentation>
+      <value>nic</value>
+      <a:documentation>Niger-Kordofanian languages ## Collective name.</a:documentation>
+      <value>niu</value>
+      <a:documentation>Niuean ##</a:documentation>
+      <value>nno</value>
+      <a:documentation>Norwegian Nynorsk ##</a:documentation>
+      <value>nob</value>
+      <a:documentation>Norwegian Bokmål ##</a:documentation>
+      <value>nog</value>
+      <a:documentation>Nogai ##</a:documentation>
+      <value>non</value>
+      <a:documentation>Old Norse ##</a:documentation>
+      <value>nor</value>
+      <a:documentation>Norwegian ##</a:documentation>
+      <value>nqo</value>
+      <a:documentation>N’Ko ##</a:documentation>
+      <value>nso</value>
+      <a:documentation>Pedi; Sepedi; Northern Sotho ##</a:documentation>
+      <value>nub</value>
+      <a:documentation>Nubian languages ## Collective name.</a:documentation>
+      <value>nwc</value>
+      <a:documentation>Classical Newari; Old Newari; Classical Nepal Bhasa ##</a:documentation>
+      <value>nya</value>
+      <a:documentation>Chichewa; Chewa; Nyanja ##</a:documentation>
+      <value>nym</value>
+      <a:documentation>Nyamwezi ##</a:documentation>
+      <value>nyn</value>
+      <a:documentation>Nyankole ##</a:documentation>
+      <value>nyo</value>
+      <a:documentation>Nyoro ##</a:documentation>
+      <value>nzi</value>
+      <a:documentation>Nzima ##</a:documentation>
+      <value>oci</value>
+      <a:documentation>Occitan (post 1500) ##</a:documentation>
+      <value>oji</value>
+      <a:documentation>Ojibwa ##</a:documentation>
+      <value>ori</value>
+      <a:documentation>Oriya ##</a:documentation>
+      <value>orm</value>
+      <a:documentation>Oromo ##</a:documentation>
+      <value>osa</value>
+      <a:documentation>Osage ##</a:documentation>
+      <value>oss</value>
+      <a:documentation>Ossetian; Ossetic ##</a:documentation>
+      <value>ota</value>
+      <a:documentation>Turkish, Ottoman ##</a:documentation>
+      <value>oto</value>
+      <a:documentation>Otomian languages ## Collective name.</a:documentation>
+      <value>paa</value>
+      <a:documentation>Papuan languages ## Collective name.</a:documentation>
+      <value>pag</value>
+      <a:documentation>Pangasinan ##</a:documentation>
+      <value>pal</value>
+      <a:documentation>Pahlavi ##</a:documentation>
+      <value>pam</value>
+      <a:documentation>Pampanga; Kapampangan ##</a:documentation>
+      <value>pan</value>
+      <a:documentation>Panjabi ##</a:documentation>
+      <value>pap</value>
+      <a:documentation>Papiamento ##</a:documentation>
+      <value>pau</value>
+      <a:documentation>Palauan ##</a:documentation>
+      <value>peo</value>
+      <a:documentation>Old Persian (ca. 600-400 B.C.) ##</a:documentation>
+      <value>per</value>
+      <a:documentation>Persian ##</a:documentation>
+      <value>phi</value>
+      <a:documentation>Philippine languages ## Collective name.</a:documentation>
+      <value>phn</value>
+      <a:documentation>Phoenician ##</a:documentation>
+      <value>pli</value>
+      <a:documentation>Pali ##</a:documentation>
+      <value>pol</value>
+      <a:documentation>Polish ##</a:documentation>
+      <value>pon</value>
+      <a:documentation>Ponapeian ##</a:documentation>
+      <value>por</value>
+      <a:documentation>Portuguese ##</a:documentation>
+      <value>pra</value>
+      <a:documentation>Prakrit languages ## Collective name.</a:documentation>
+      <value>pro</value>
+      <a:documentation>Provençal, Old (to 1500); Occitan, Old (to 1500) ##</a:documentation>
+      <value>pus</value>
+      <a:documentation>Pushto; Pashto ##</a:documentation>
+      <value>qar</value>
+      <a:documentation>Aranés ## ONIX local code.</a:documentation>
+      <value>qav</value>
+      <a:documentation>Valencian ## ONIX local code.</a:documentation>
+      <value>que</value>
+      <a:documentation>Quechua ##</a:documentation>
+      <value>raj</value>
+      <a:documentation>Rajasthani ##</a:documentation>
+      <value>rap</value>
+      <a:documentation>Rapanui ##</a:documentation>
+      <value>rar</value>
+      <a:documentation>Rarotongan; Cook Islands Maori ##</a:documentation>
+      <value>roa</value>
+      <a:documentation>Romance languages ## Collective name.</a:documentation>
+      <value>roh</value>
+      <a:documentation>Romansh ##</a:documentation>
+      <value>rom</value>
+      <a:documentation>Romany ##</a:documentation>
+      <value>rum</value>
+      <a:documentation>Romanian ##</a:documentation>
+      <value>run</value>
+      <a:documentation>Rundi ##</a:documentation>
+      <value>rup</value>
+      <a:documentation>Aromanian; Arumanian; Macedo-Romanian ##</a:documentation>
+      <value>rus</value>
+      <a:documentation>Russian ##</a:documentation>
+      <value>sad</value>
+      <a:documentation>Sandawe ##</a:documentation>
+      <value>sag</value>
+      <a:documentation>Sango ##</a:documentation>
+      <value>sah</value>
+      <a:documentation>Yakut ##</a:documentation>
+      <value>sai</value>
+      <a:documentation>South American Indian languages ## Collective name.</a:documentation>
+      <value>sal</value>
+      <a:documentation>Salishan languages ## Collective name.</a:documentation>
+      <value>sam</value>
+      <a:documentation>Samaritan Aramaic ##</a:documentation>
+      <value>san</value>
+      <a:documentation>Sanskrit ##</a:documentation>
+      <value>sas</value>
+      <a:documentation>Sasak ##</a:documentation>
+      <value>sat</value>
+      <a:documentation>Santali ##</a:documentation>
+      <value>scc</value>
+      <a:documentation>Serbian ## DEPRECATED – use srp.</a:documentation>
+      <value>scn</value>
+      <a:documentation>Sicilian ##</a:documentation>
+      <value>sco</value>
+      <a:documentation>Scots (lallans) ##</a:documentation>
+      <value>scr</value>
+      <a:documentation>Croatian ## DEPRECATED – use hrv.</a:documentation>
+      <value>sel</value>
+      <a:documentation>Selkup ##</a:documentation>
+      <value>sem</value>
+      <a:documentation>Semitic languages ## Collective name.</a:documentation>
+      <value>sga</value>
+      <a:documentation>Irish, Old (to 1100) ##</a:documentation>
+      <value>sgn</value>
+      <a:documentation>Sign languages ## Collective name.</a:documentation>
+      <value>shn</value>
+      <a:documentation>Shan ##</a:documentation>
+      <value>sid</value>
+      <a:documentation>Sidamo ##</a:documentation>
+      <value>sin</value>
+      <a:documentation>Sinhala; Sinhalese ##</a:documentation>
+      <value>sio</value>
+      <a:documentation>Siouan languages ## Collective name.</a:documentation>
+      <value>sit</value>
+      <a:documentation>Sino-Tibetan languages ## Collective name.</a:documentation>
+      <value>sla</value>
+      <a:documentation>Slavic languages ## Collective name.</a:documentation>
+      <value>slo</value>
+      <a:documentation>Slovak ##</a:documentation>
+      <value>slv</value>
+      <a:documentation>Slovenian ##</a:documentation>
+      <value>sma</value>
+      <a:documentation>Southern Sami ##</a:documentation>
+      <value>sme</value>
+      <a:documentation>Northern Sami ##</a:documentation>
+      <value>smi</value>
+      <a:documentation>Sami languages ## Collective name.</a:documentation>
+      <value>smj</value>
+      <a:documentation>Lule Sami ##</a:documentation>
+      <value>smn</value>
+      <a:documentation>Inari Sami ##</a:documentation>
+      <value>smo</value>
+      <a:documentation>Samoan ##</a:documentation>
+      <value>sms</value>
+      <a:documentation>Skolt Sami ##</a:documentation>
+      <value>sna</value>
+      <a:documentation>Shona ##</a:documentation>
+      <value>snd</value>
+      <a:documentation>Sindhi ##</a:documentation>
+      <value>snk</value>
+      <a:documentation>Soninke ##</a:documentation>
+      <value>sog</value>
+      <a:documentation>Sogdian ##</a:documentation>
+      <value>som</value>
+      <a:documentation>Somali ##</a:documentation>
+      <value>son</value>
+      <a:documentation>Songhai languages ## Collective name.</a:documentation>
+      <value>sot</value>
+      <a:documentation>Sotho; Sesotho ##</a:documentation>
+      <value>spa</value>
+      <a:documentation>Spanish ##</a:documentation>
+      <value>srd</value>
+      <a:documentation>Sardinian ##</a:documentation>
+      <value>srn</value>
+      <a:documentation>Sranan Tongo ##</a:documentation>
+      <value>srp</value>
+      <a:documentation>Serbian ##</a:documentation>
+      <value>srr</value>
+      <a:documentation>Serer ##</a:documentation>
+      <value>ssa</value>
+      <a:documentation>Nilo-Saharan languages ## Collective name.</a:documentation>
+      <value>ssw</value>
+      <a:documentation>Swazi; Swati ##</a:documentation>
+      <value>suk</value>
+      <a:documentation>Sukuma ##</a:documentation>
+      <value>sun</value>
+      <a:documentation>Sundanese ##</a:documentation>
+      <value>sus</value>
+      <a:documentation>Susu ##</a:documentation>
+      <value>sux</value>
+      <a:documentation>Sumerian ##</a:documentation>
+      <value>swa</value>
+      <a:documentation>Swahili ##</a:documentation>
+      <value>swe</value>
+      <a:documentation>Swedish ##</a:documentation>
+      <value>syc</value>
+      <a:documentation>Classical Syriac ##</a:documentation>
+      <value>syr</value>
+      <a:documentation>Syriac ##</a:documentation>
+      <value>tah</value>
+      <a:documentation>Tahitian ##</a:documentation>
+      <value>tai</value>
+      <a:documentation>Tai languages ## Collective name.</a:documentation>
+      <value>tam</value>
+      <a:documentation>Tamil ##</a:documentation>
+      <value>tat</value>
+      <a:documentation>Tatar ##</a:documentation>
+      <value>tel</value>
+      <a:documentation>Telugu ##</a:documentation>
+      <value>tem</value>
+      <a:documentation>Temne; Time ##</a:documentation>
+      <value>ter</value>
+      <a:documentation>Terena ##</a:documentation>
+      <value>tet</value>
+      <a:documentation>Tetum ##</a:documentation>
+      <value>tgk</value>
+      <a:documentation>Tajik ##</a:documentation>
+      <value>tgl</value>
+      <a:documentation>Tagalog ##</a:documentation>
+      <value>tha</value>
+      <a:documentation>Thai ##</a:documentation>
+      <value>tib</value>
+      <a:documentation>Tibetan ##</a:documentation>
+      <value>tig</value>
+      <a:documentation>Tigré ##</a:documentation>
+      <value>tir</value>
+      <a:documentation>Tigrinya ##</a:documentation>
+      <value>tiv</value>
+      <a:documentation>Tiv ##</a:documentation>
+      <value>tkl</value>
+      <a:documentation>Tokelauan ##</a:documentation>
+      <value>tlh</value>
+      <a:documentation>Klingon; tlhIngan-Hol ## Artificial language.</a:documentation>
+      <value>tli</value>
+      <a:documentation>Tlingit ##</a:documentation>
+      <value>tmh</value>
+      <a:documentation>Tamashek ##</a:documentation>
+      <value>tog</value>
+      <a:documentation>Tonga (Nyasa) ##</a:documentation>
+      <value>ton</value>
+      <a:documentation>Tongan ##</a:documentation>
+      <value>tpi</value>
+      <a:documentation>Tok Pisin ##</a:documentation>
+      <value>tsi</value>
+      <a:documentation>Tsimshian ##</a:documentation>
+      <value>tsn</value>
+      <a:documentation>Tswana ## AKA Setswana.</a:documentation>
+      <value>tso</value>
+      <a:documentation>Tsonga ##</a:documentation>
+      <value>tuk</value>
+      <a:documentation>Turkmen ##</a:documentation>
+      <value>tum</value>
+      <a:documentation>Tumbuka ##</a:documentation>
+      <value>tup</value>
+      <a:documentation>Tupi languages ## Collective name.</a:documentation>
+      <value>tur</value>
+      <a:documentation>Turkish ##</a:documentation>
+      <value>tut</value>
+      <a:documentation>Altaic languages ##</a:documentation>
+      <value>tvl</value>
+      <a:documentation>Tuvaluan ##</a:documentation>
+      <value>twi</value>
+      <a:documentation>Twi ##</a:documentation>
+      <value>tyv</value>
+      <a:documentation>Tuvinian ##</a:documentation>
+      <value>udm</value>
+      <a:documentation>Udmurt ##</a:documentation>
+      <value>uga</value>
+      <a:documentation>Ugaritic ##</a:documentation>
+      <value>uig</value>
+      <a:documentation>Uighur; Uyghur ##</a:documentation>
+      <value>ukr</value>
+      <a:documentation>Ukrainian ##</a:documentation>
+      <value>umb</value>
+      <a:documentation>Umbundu ##</a:documentation>
+      <value>und</value>
+      <a:documentation>Undetermined language ##</a:documentation>
+      <value>urd</value>
+      <a:documentation>Urdu ##</a:documentation>
+      <value>uzb</value>
+      <a:documentation>Uzbek ##</a:documentation>
+      <value>vai</value>
+      <a:documentation>Vai ##</a:documentation>
+      <value>ven</value>
+      <a:documentation>Venda ##</a:documentation>
+      <value>vie</value>
+      <a:documentation>Vietnamese ##</a:documentation>
+      <value>vol</value>
+      <a:documentation>Volapük ## Artificial language.</a:documentation>
+      <value>vot</value>
+      <a:documentation>Votic ##</a:documentation>
+      <value>wak</value>
+      <a:documentation>Wakashan languages ## Collective name.</a:documentation>
+      <value>wal</value>
+      <a:documentation>Wolaitta; Wolaytta ##</a:documentation>
+      <value>war</value>
+      <a:documentation>Waray ##</a:documentation>
+      <value>was</value>
+      <a:documentation>Washo ##</a:documentation>
+      <value>wel</value>
+      <a:documentation>Welsh ##</a:documentation>
+      <value>wen</value>
+      <a:documentation>Sorbian languages ## Collective name.</a:documentation>
+      <value>wln</value>
+      <a:documentation>Walloon ##</a:documentation>
+      <value>wol</value>
+      <a:documentation>Wolof ##</a:documentation>
+      <value>xal</value>
+      <a:documentation>Kalmyk ##</a:documentation>
+      <value>xho</value>
+      <a:documentation>Xhosa ##</a:documentation>
+      <value>yao</value>
+      <a:documentation>Yao ##</a:documentation>
+      <value>yap</value>
+      <a:documentation>Yapese ##</a:documentation>
+      <value>yid</value>
+      <a:documentation>Yiddish ##</a:documentation>
+      <value>yor</value>
+      <a:documentation>Yoruba ##</a:documentation>
+      <value>ypk</value>
+      <a:documentation>Yupik languages ## Collective name.</a:documentation>
+      <value>zap</value>
+      <a:documentation>Zapotec ##</a:documentation>
+      <value>zbl</value>
+      <a:documentation>Blissymbols; Blissymbolics; Bliss ## Artificial language.</a:documentation>
+      <value>zen</value>
+      <a:documentation>Zenaga ##</a:documentation>
+      <value>zha</value>
+      <a:documentation>Zhuang; Chuang ##</a:documentation>
+      <value>znd</value>
+      <a:documentation>Zande languages ## Collective name.</a:documentation>
+      <value>zul</value>
+      <a:documentation>Zulu ##</a:documentation>
+      <value>zun</value>
+      <a:documentation>Zuni ##</a:documentation>
+      <value>zxx</value>
+      <a:documentation>No linguistic content ##</a:documentation>
+      <value>zza</value>
+      <a:documentation>Zaza; Dimili; Dimli; Kirdki; Kirmanjki; Zazaki ##</a:documentation>
+    </choice>
+  </define>
+  <define name="imml.book.offer.price.currency.datatype">
+    <list>
+      <oneOrMore>
+        <ref name="List96"/>
+      </oneOrMore>
+    </list>
+  </define>
+  <define name="List96">
+    <a:documentation>Currency code – ISO 4217 from ONIX Code List 96</a:documentation>
+    <choice>
+      <value>AED</value>
+      <a:documentation>UAE Dirham ## United Arab Emirates.</a:documentation>
+      <value>AFA</value>
+      <a:documentation>Afghani ## DEPRECATED, replaced by AFN.</a:documentation>
+      <value>AFN</value>
+      <a:documentation>Afghani ## Afghanistan.</a:documentation>
+      <value>ALL</value>
+      <a:documentation>Lek ## Albania.</a:documentation>
+      <value>AMD</value>
+      <a:documentation>Armenian Dram ## Armenia.</a:documentation>
+      <value>ANG</value>
+      <a:documentation>Netherlands Antillian Guilder ## Curaçao, Sint Maarten.</a:documentation>
+      <value>AOA</value>
+      <a:documentation>Angolan Kwanza ## Angola.</a:documentation>
+      <value>ARS</value>
+      <a:documentation>Argentine Peso ## Argentina.</a:documentation>
+      <value>ATS</value>
+      <a:documentation>Austria, Schilling ## Now replaced by the Euro (EUR): use only for historical prices that pre-date the introduction of the Euro.</a:documentation>
+      <value>AUD</value>
+      <a:documentation>Australian Dollar ## Australia, Christmas Island, Cocos (Keeling) Islands, Heard Island and McDonald Islands, Kiribati, Nauru, Norfolk Island, Tuvalu.</a:documentation>
+      <value>AWG</value>
+      <a:documentation>Aruban Florin ## Aruba.</a:documentation>
+      <value>AZN</value>
+      <a:documentation>Azerbaijanian Manat ## Azerbaijan.</a:documentation>
+      <value>BAM</value>
+      <a:documentation>Convertible Marks ## Bosnia and Herzegovina.</a:documentation>
+      <value>BBD</value>
+      <a:documentation>Barbados Dollar ## Barbados.</a:documentation>
+      <value>BDT</value>
+      <a:documentation>Taka ## Bangladesh.</a:documentation>
+      <value>BEF</value>
+      <a:documentation>Belgium, Franc ## Now replaced by the Euro (EUR): use only for historical prices that pre-date the introduction of the Euro.</a:documentation>
+      <value>BGL</value>
+      <a:documentation>Lev ## DEPRECATED, replaced by BGN.</a:documentation>
+      <value>BGN</value>
+      <a:documentation>Lev ## Bulgaria.</a:documentation>
+      <value>BHD</value>
+      <a:documentation>Bahraini Dinar ## Bahrain.</a:documentation>
+      <value>BIF</value>
+      <a:documentation>Burundi Franc ## Burundi.</a:documentation>
+      <value>BMD</value>
+      <a:documentation>Bermuda Dollar ## Bermuda.</a:documentation>
+      <value>BND</value>
+      <a:documentation>Brunei Dollar ## Brunei Darussalam.</a:documentation>
+      <value>BOB</value>
+      <a:documentation>Boliviano ## Bolivia.</a:documentation>
+      <value>BRL</value>
+      <a:documentation>Brazilian Real ## Brazil.</a:documentation>
+      <value>BSD</value>
+      <a:documentation>Bahamian Dollar ## Bahamas.</a:documentation>
+      <value>BTN</value>
+      <a:documentation>Ngultrun ## Bhutan.</a:documentation>
+      <value>BWP</value>
+      <a:documentation>Pula ## Botswana.</a:documentation>
+      <value>BYR</value>
+      <a:documentation>Belarussian Ruble ## Belarus.</a:documentation>
+      <value>BZD</value>
+      <a:documentation>Belize Dollar ## Belize.</a:documentation>
+      <value>CAD</value>
+      <a:documentation>Canadian Dollar ## Canada.</a:documentation>
+      <value>CDF</value>
+      <a:documentation>Franc Congolais ## Congo (Democratic Republic of the).</a:documentation>
+      <value>CHF</value>
+      <a:documentation>Swiss Franc ## Switzerland, Liechtenstein.</a:documentation>
+      <value>CLP</value>
+      <a:documentation>Chilean Peso ## Chile.</a:documentation>
+      <value>CNY</value>
+      <a:documentation>Yuan Renminbi ## China.</a:documentation>
+      <value>COP</value>
+      <a:documentation>Colombian Peso ## Colombia.</a:documentation>
+      <value>CRC</value>
+      <a:documentation>Costa Rican Colon ## Costa Rica.</a:documentation>
+      <value>CSD</value>
+      <a:documentation>Serbian Dinar ## Deprecated, replaced by RSD.</a:documentation>
+      <value>CUC</value>
+      <a:documentation>Cuban Convertible Peso ## Cuba (alternative currency).</a:documentation>
+      <value>CUP</value>
+      <a:documentation>Cuban Peso ## Cuba.</a:documentation>
+      <value>CVE</value>
+      <a:documentation>Cape Verde Escudo ## Cape Verde.</a:documentation>
+      <value>CYP</value>
+      <a:documentation>Cyprus Pound ## Now replaced by the Euro (EUR): use only for historical prices that pre-date the introduction of the Euro.</a:documentation>
+      <value>CZK</value>
+      <a:documentation>Czech Koruna ## Czech Republic.</a:documentation>
+      <value>DEM</value>
+      <a:documentation>Germany, Mark ## Now replaced by the Euro (EUR): use only for historical prices that pre-date the introduction of the Euro.</a:documentation>
+      <value>DJF</value>
+      <a:documentation>Djibouti Franc ## Djibouti.</a:documentation>
+      <value>DKK</value>
+      <a:documentation>Danish Krone ## Denmark, Faroe Islands, Greenland.</a:documentation>
+      <value>DOP</value>
+      <a:documentation>Dominican Peso ## Dominican Republic.</a:documentation>
+      <value>DZD</value>
+      <a:documentation>Algerian Dinar ## Algeria.</a:documentation>
+      <value>EEK</value>
+      <a:documentation>Kroon ## Estonia – now replaced by the Euro (EUR): use only for historical prices that pre-date the introduction of the Euro.</a:documentation>
+      <value>EGP</value>
+      <a:documentation>Egyptian Pound ## Egypt.</a:documentation>
+      <value>ERN</value>
+      <a:documentation>Nakfa ## Eritrea.</a:documentation>
+      <value>ESP</value>
+      <a:documentation>Spain, Peseta ## Now replaced by the Euro (EUR): use only for historical prices that pre-date the introduction of the Euro.</a:documentation>
+      <value>ETB</value>
+      <a:documentation>Ethiopian Birr ## Ethiopia.</a:documentation>
+      <value>EUR</value>
+      <a:documentation>Euro ## Andorra, Austria, Belgium, Cyprus, Estonia, Finland, France, Fr Guiana, Fr S Territories, Germany, Greece, Guadeloupe, Holy See (Vatican City), Ireland, Italy, Luxembourg, Martinique, Malta, Mayotte, Monaco, Montenegro, Netherlands, Portugal, Réunion, St Pierre and Miquelon, San Marino, Spain.</a:documentation>
+      <value>FIM</value>
+      <a:documentation>Finland, Markka ## Now replaced by the Euro (EUR): use only for historical prices that pre-date the introduction of the Euro.</a:documentation>
+      <value>FJD</value>
+      <a:documentation>Fiji Dollar ## Fiji.</a:documentation>
+      <value>FKP</value>
+      <a:documentation>Falkland Islands Pound ## Falkland Islands (Malvinas).</a:documentation>
+      <value>FRF</value>
+      <a:documentation>France, Franc ## Now replaced by the Euro (EUR): use only for historical prices that pre-date the introduction of the Euro.</a:documentation>
+      <value>GBP</value>
+      <a:documentation>Pound Sterling ## United Kingdom, Isle of Man, Channel Islands, South Georgia, South Sandwich Islands, Brisish Indian Ocean Territory.</a:documentation>
+      <value>GEL</value>
+      <a:documentation>Lari ## Georgia.</a:documentation>
+      <value>GHC</value>
+      <a:documentation>Cedi ## Deprecated, replaced by GHS.</a:documentation>
+      <value>GHS</value>
+      <a:documentation>Cedi ## Ghana.</a:documentation>
+      <value>GIP</value>
+      <a:documentation>Gibraltar Pound ## Gibraltar.</a:documentation>
+      <value>GMD</value>
+      <a:documentation>Dalasi ## Gambia.</a:documentation>
+      <value>GNF</value>
+      <a:documentation>Guinea Franc ## Guinea.</a:documentation>
+      <value>GRD</value>
+      <a:documentation>Greece, Drachma ## Now replaced by the Euro (EUR): use only for historical prices that pre-date the introduction of the Euro.</a:documentation>
+      <value>GTQ</value>
+      <a:documentation>Quetzal ## Guatemala.</a:documentation>
+      <value>GWP</value>
+      <a:documentation>Guinea-Bissau Peso ## Now replaced by the CFA Franc BCEAO XOF use only for historical prices that pre-date use of the CFA Franc.</a:documentation>
+      <value>GYD</value>
+      <a:documentation>Guyana Dollar ## Guyana.</a:documentation>
+      <value>HKD</value>
+      <a:documentation>Hong Kong Dollar ## Hong Kong, Macao.</a:documentation>
+      <value>HNL</value>
+      <a:documentation>Lempira ## Honduras.</a:documentation>
+      <value>HRK</value>
+      <a:documentation>Croatian Kuna ## Croatia.</a:documentation>
+      <value>HTG</value>
+      <a:documentation>Gourde ## Haiti.</a:documentation>
+      <value>HUF</value>
+      <a:documentation>Forint ## Hungary.</a:documentation>
+      <value>IDR</value>
+      <a:documentation>Rupiah ## Indonesia.</a:documentation>
+      <value>IEP</value>
+      <a:documentation>Ireland, Punt ## Now replaced by the Euro (EUR): use only for historical prices that pre-date the introduction of the Euro.</a:documentation>
+      <value>ILS</value>
+      <a:documentation>Israeli Sheqel ## Israel.</a:documentation>
+      <value>INR</value>
+      <a:documentation>Indian Rupee ## India.</a:documentation>
+      <value>IQD</value>
+      <a:documentation>Iraqi Dinar ## Iraq.</a:documentation>
+      <value>IRR</value>
+      <a:documentation>Iranian Rial ## Iran (Islamic Republic of).</a:documentation>
+      <value>ISK</value>
+      <a:documentation>Iceland Krona ## Iceland.</a:documentation>
+      <value>ITL</value>
+      <a:documentation>Italy, Lira ## Now replaced by the Euro (EUR): use only for historical prices that pre-date the introduction of the Euro.</a:documentation>
+      <value>JMD</value>
+      <a:documentation>Jamaican Dollar ## Jamaica.</a:documentation>
+      <value>JOD</value>
+      <a:documentation>Jordanian Dinar ## Jordan.</a:documentation>
+      <value>JPY</value>
+      <a:documentation>Yen ## Japan.</a:documentation>
+      <value>KES</value>
+      <a:documentation>Kenyan Shilling ## Kenya.</a:documentation>
+      <value>KGS</value>
+      <a:documentation>Som ## Kyrgyzstan.</a:documentation>
+      <value>KHR</value>
+      <a:documentation>Riel ## Cambodia.</a:documentation>
+      <value>KMF</value>
+      <a:documentation>Comoro Franc ## Comoros.</a:documentation>
+      <value>KPW</value>
+      <a:documentation>North Korean Won ## Korea (Democratic People’s Republic of).</a:documentation>
+      <value>KRW</value>
+      <a:documentation>Won ## Korea (Republic of).</a:documentation>
+      <value>KWD</value>
+      <a:documentation>Kuwaiti Dinar ## Kuwait.</a:documentation>
+      <value>KYD</value>
+      <a:documentation>Cayman Islands Dollar ## Cayman Islands.</a:documentation>
+      <value>KZT</value>
+      <a:documentation>Tenge ## Kazakstan.</a:documentation>
+      <value>LAK</value>
+      <a:documentation>Kip ## Lao People’s Democratic Republic.</a:documentation>
+      <value>LBP</value>
+      <a:documentation>Lebanese Pound ## Lebanon.</a:documentation>
+      <value>LKR</value>
+      <a:documentation>Sri Lanka Rupee ## Sri Lanka.</a:documentation>
+      <value>LRD</value>
+      <a:documentation>Liberian Dollar ## Liberia.</a:documentation>
+      <value>LSL</value>
+      <a:documentation>Loti ## Lesotho.</a:documentation>
+      <value>LTL</value>
+      <a:documentation>Lithuanian Litus ## Lithuania.</a:documentation>
+      <value>LUF</value>
+      <a:documentation>Luxembourg, Franc ## Now replaced by the Euro (EUR): use only for historical prices that pre-date the introduction of the Euro.</a:documentation>
+      <value>LVL</value>
+      <a:documentation>Latvian Lats ## Latvia.</a:documentation>
+      <value>LYD</value>
+      <a:documentation>Libyan Dinar ## Libyan Arab Jamahiriya.</a:documentation>
+      <value>MAD</value>
+      <a:documentation>Moroccan Dirham ## Morocco, Western Sahara.</a:documentation>
+      <value>MDL</value>
+      <a:documentation>Moldovan Leu ## Moldova, Republic of.</a:documentation>
+      <value>MGA</value>
+      <a:documentation>Ariary ## Madagascar.</a:documentation>
+      <value>MGF</value>
+      <a:documentation>Malagasy Franc ## Now replaced by the Ariary (MGA).</a:documentation>
+      <value>MKD</value>
+      <a:documentation>Denar ## Macedonia (former Yugoslav Republic of).</a:documentation>
+      <value>MMK</value>
+      <a:documentation>Kyat ## Myanmar.</a:documentation>
+      <value>MNT</value>
+      <a:documentation>Tugrik ## Mongolia.</a:documentation>
+      <value>MOP</value>
+      <a:documentation>Pataca ## Macau.</a:documentation>
+      <value>MRO</value>
+      <a:documentation>Ouguiya ## Mauritania.</a:documentation>
+      <value>MTL</value>
+      <a:documentation>Maltese Lira ## Malta – now replaced by the Euro (EUR): use only for historical prices that pre-date the introduction of the Euro.</a:documentation>
+      <value>MUR</value>
+      <a:documentation>Mauritius Rupee ## Mauritius.</a:documentation>
+      <value>MVR</value>
+      <a:documentation>Rufiyaa ## Maldives.</a:documentation>
+      <value>MWK</value>
+      <a:documentation>Kwacha ## Malawi.</a:documentation>
+      <value>MXN</value>
+      <a:documentation>Mexican Peso ## Mexico.</a:documentation>
+      <value>MYR</value>
+      <a:documentation>Malaysian Ringgit ## Malaysia.</a:documentation>
+      <value>MZN</value>
+      <a:documentation>Metical ## Mozambique.</a:documentation>
+      <value>NAD</value>
+      <a:documentation>Namibia Dollar ## Namibia.</a:documentation>
+      <value>NGN</value>
+      <a:documentation>Naira ## Nigeria.</a:documentation>
+      <value>NIO</value>
+      <a:documentation>Cordoba Oro ## Nicaragua.</a:documentation>
+      <value>NLG</value>
+      <a:documentation>Netherlands, Guilder ## Now replaced by the Euro (EUR): use only for historical prices that pre-date the introduction of the Euro.</a:documentation>
+      <value>NOK</value>
+      <a:documentation>Norwegian Krone ## Norway, Bouvet Island, Svalbard and Jan Mayen.</a:documentation>
+      <value>NPR</value>
+      <a:documentation>Nepalese Rupee ## Nepal.</a:documentation>
+      <value>NZD</value>
+      <a:documentation>New Zealand Dollar ## New Zealand, Cook Islands, Niue, Pitcairn, Tokelau.</a:documentation>
+      <value>OMR</value>
+      <a:documentation>Rial Omani ## Oman.</a:documentation>
+      <value>PAB</value>
+      <a:documentation>Balboa ## Panama.</a:documentation>
+      <value>PEN</value>
+      <a:documentation>Nuevo Sol ## Peru.</a:documentation>
+      <value>PGK</value>
+      <a:documentation>Kina ## Papua New Guinea.</a:documentation>
+      <value>PHP</value>
+      <a:documentation>Philippine Peso ## Philippines.</a:documentation>
+      <value>PKR</value>
+      <a:documentation>Pakistan Rupee ## Pakistan.</a:documentation>
+      <value>PLN</value>
+      <a:documentation>Zloty ## Poland.</a:documentation>
+      <value>PTE</value>
+      <a:documentation>Portugal, Escudo ## Now replaced by the Euro (EUR): use only for historical prices that pre-date the introduction of the Euro.</a:documentation>
+      <value>PYG</value>
+      <a:documentation>Guarani ## Paraguay.</a:documentation>
+      <value>QAR</value>
+      <a:documentation>Qatari Rial ## Qatar.</a:documentation>
+      <value>ROL</value>
+      <a:documentation>Old Leu ## Deprecated, replaced by RON.</a:documentation>
+      <value>RON</value>
+      <a:documentation>New Leu ## Romania.</a:documentation>
+      <value>RSD</value>
+      <a:documentation>Serbian Dinar ## Serbia.</a:documentation>
+      <value>RUB</value>
+      <a:documentation>Russian Ruble ## Russian Federation.</a:documentation>
+      <value>RUR</value>
+      <a:documentation>Russian Ruble ## DEPRECATED, replaced by RUB.</a:documentation>
+      <value>RWF</value>
+      <a:documentation>Rwanda Franc ## Rwanda.</a:documentation>
+      <value>SAR</value>
+      <a:documentation>Saudi Riyal ## Saudi Arabia.</a:documentation>
+      <value>SBD</value>
+      <a:documentation>Solomon Islands Dollar ## Solomon Islands.</a:documentation>
+      <value>SCR</value>
+      <a:documentation>Seychelles Rupee ## Seychelles.</a:documentation>
+      <value>SDD</value>
+      <a:documentation>Sudanese Dinar ## Now replaced by the Sudanese Pound (SDG).</a:documentation>
+      <value>SDG</value>
+      <a:documentation>Sudanese Pound ## Sudan.</a:documentation>
+      <value>SEK</value>
+      <a:documentation>Swedish Krona ## Sweden.</a:documentation>
+      <value>SGD</value>
+      <a:documentation>Singapore Dollar ## Singapore.</a:documentation>
+      <value>SHP</value>
+      <a:documentation>Saint Helena Pound ## Saint Helena.</a:documentation>
+      <value>SIT</value>
+      <a:documentation>Tolar ## Now replaced by the Euro (EUR): use only for historical prices that pre-date the introduction of the Euro.</a:documentation>
+      <value>SKK</value>
+      <a:documentation>Slovak Koruna ## Now replaced by the Euro (EUR): use only for historical prices that pre-date the introduction of the Euro.</a:documentation>
+      <value>SLL</value>
+      <a:documentation>Leone ## Sierra Leone.</a:documentation>
+      <value>SOS</value>
+      <a:documentation>Somali Shilling ## Somalia.</a:documentation>
+      <value>SRD</value>
+      <a:documentation>Suriname Guilder ## Suriname.</a:documentation>
+      <value>SRG</value>
+      <a:documentation>Suriname Guilder ## DEPRECATED, replaced by SRD.</a:documentation>
+      <value>STD</value>
+      <a:documentation>Dobra ## São Tome and Principe.</a:documentation>
+      <value>SVC</value>
+      <a:documentation>El Salvador Colon ## El Salvador.</a:documentation>
+      <value>SYP</value>
+      <a:documentation>Syrian Pound ## Syrian Arab Republic.</a:documentation>
+      <value>SZL</value>
+      <a:documentation>Lilangeni ## Swaziland.</a:documentation>
+      <value>THB</value>
+      <a:documentation>Baht ## Thailand.</a:documentation>
+      <value>TJS</value>
+      <a:documentation>Somoni ## Tajikistan.</a:documentation>
+      <value>TMM</value>
+      <a:documentation>Manat ## Deprecated, replaced by TMT.</a:documentation>
+      <value>TMT</value>
+      <a:documentation>Manat ## Turkmenistan.</a:documentation>
+      <value>TND</value>
+      <a:documentation>Tunisian Dinar ## Tunisia.</a:documentation>
+      <value>TOP</value>
+      <a:documentation>Pa’anga ## Tonga.</a:documentation>
+      <value>TPE</value>
+      <a:documentation>Timor Escudo ## NO LONGER VALID, Timor-Leste now uses the US Dollar.</a:documentation>
+      <value>TRL</value>
+      <a:documentation>Turkish Lira (old) ## Deprecated, replaced by TRY.</a:documentation>
+      <value>TRY</value>
+      <a:documentation>Turkish Lira (new) ## Turkey, from 1 January 2005.</a:documentation>
+      <value>TTD</value>
+      <a:documentation>Trinidad and Tobago Dollar ## Trinidad and Tobago.</a:documentation>
+      <value>TWD</value>
+      <a:documentation>New Taiwan Dollar ## Taiwan (Province of China).</a:documentation>
+      <value>TZS</value>
+      <a:documentation>Tanzanian Shilling ## Tanzania (United Republic of).</a:documentation>
+      <value>UAH</value>
+      <a:documentation>Hryvnia ## Ukraine.</a:documentation>
+      <value>UGX</value>
+      <a:documentation>Uganda Shilling ## Uganda.</a:documentation>
+      <value>USD</value>
+      <a:documentation>US Dollar ## United States, American Samoa, British Indian Ocean Territory, Ecuador, Guam, Marshall Is, Micronesia (Federated States of), Northern Mariana Is, Palau, Puerto Rico, Timor-Leste, Turks and Caicos Is, US Minor Outlying Is, Virgin Is (British), Virgin Is (US).</a:documentation>
+      <value>UYU</value>
+      <a:documentation>Peso Uruguayo ## Uruguay.</a:documentation>
+      <value>UZS</value>
+      <a:documentation>Uzbekistan Sum ## Uzbekistan.</a:documentation>
+      <value>VEB</value>
+      <a:documentation>Bolivar ## Deprecated, replaced by VEF.</a:documentation>
+      <value>VEF</value>
+      <a:documentation>Bolivar fuerte ## Venezuela.</a:documentation>
+      <value>VND</value>
+      <a:documentation>Dong ## Viet Nam.</a:documentation>
+      <value>VUV</value>
+      <a:documentation>Vatu ## Vanuatu.</a:documentation>
+      <value>WST</value>
+      <a:documentation>Tala ## Samoa.</a:documentation>
+      <value>XAF</value>
+      <a:documentation>CFA Franc BEAC ## Cameroon, Central African Republic, Chad, Congo, Equatorial Guinea, Gabon.</a:documentation>
+      <value>XCD</value>
+      <a:documentation>East Caribbean Dollar ## Anguilla, Antigua and Barbuda, Dominica, Grenada, Montserrat, Saint Kitts and Nevis, Saint Lucia, Saint Vincent and the Grenadines.</a:documentation>
+      <value>XOF</value>
+      <a:documentation>CFA Franc BCEAO ## Benin, Burkina Faso, Côte D’Ivoire, Guinea-Bissau, Mali, Niger, Senegal, Togo.</a:documentation>
+      <value>XPF</value>
+      <a:documentation>CFP Franc ## French Polynesia, New Caledonia, Wallis and Futuna.</a:documentation>
+      <value>YER</value>
+      <a:documentation>Yemeni Rial ## Yemen.</a:documentation>
+      <value>YUM</value>
+      <a:documentation>Yugoslavian Dinar ## DEPRECATED, replaced by CSD.</a:documentation>
+      <value>ZAR</value>
+      <a:documentation>Rand ## South Africa.</a:documentation>
+      <value>ZMK</value>
+      <a:documentation>Kwacha ## Zambia.</a:documentation>
+      <value>ZWD</value>
+      <a:documentation>Zimbabwe Dollar ## Deprecated, replaced with ZWL.</a:documentation>
+      <value>ZWL</value>
+      <a:documentation>Zimbabwe Dollar ## Zimbabwe.</a:documentation>
+    </choice>
+  </define>
+</grammar>
