@@ -39,13 +39,9 @@ module IMML
       end
     end
 
-    class Text
-      def initialize(text)
-        @text=text
-      end
-
+    class Text < String
       def like?(t)
-        dist=Levenshtein.distance(@text, t)
+        dist=Levenshtein.distance(self, t)
         if dist < @text.length * 0.1
           true
         else
@@ -54,23 +50,11 @@ module IMML
       end
 
       def without_html
-        Text.new(@text.gsub(/&nbsp;/," ").gsub(/<[^>]*(>+|\s*\z)/m, ''))
+        Text.new(self.gsub(/&nbsp;/," ").gsub(/<[^>]*(>+|\s*\z)/m, ''))
       end
 
       def with_stripped_spaces
-        Text.new(@text.gsub(/\s+/," ").strip)
-      end
-
-      def length
-        @text.length
-      end
-
-      def strip
-        @text.strip
-      end
-
-      def to_s
-        @text
+        Text.new(self.gsub(/\s+/," ").strip)
       end
     end
 
