@@ -28,10 +28,8 @@ imml.message.attributes =
 imml.message.header =
    element header {
       attribute sender-id { imml.message.sender.id.datatype }
-      ## message-id may typically contain a timestamp
     & attribute message-id { imml.message.id.datatype }
    }
-
 
 imml.message.content =
    imml.book
