@@ -65,6 +65,10 @@ module IMML
         @text.length
       end
 
+      def strip
+        @text.strip
+      end
+
       def to_s
         @text
       end
