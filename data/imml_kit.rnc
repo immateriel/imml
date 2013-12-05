@@ -1,0 +1,2224 @@
+#default namespace = "http://ns.immateriel.fr/imml"
+namespace x = "http://www.w3.org/1999/xhtml" 
+
+## book and order subschemas may be changed independently in the calling schema
+## example : imml.book.schema.version |= "2.0"
+imml.book.schema.version = notAllowed
+imml.order.schema.version = notAllowed
+
+## when an element is not supported at the emitter end, it must have
+## an unsupported attribute with "true" value. Otherwise, it may explicitly 
+## indicate support with a "false" value, but absence of this att is ok too.
+imml.unsupported = attribute unsupported { "true" } & anyContent
+imml.not_unsupported = attribute unsupported { "false" }? 
+
+start = 
+   element imml { 
+      imml.message.attributes
+    & imml.message.header?
+    & imml.message.content
+}
+
+imml.message.attributes = 
+   attribute timestamp { xsd:dateTime }?
+
+############ 
+## Header ##
+############
+imml.message.header =
+   element header {
+      attribute sender-id { imml.message.sender.id.datatype }
+      ## message-id may typically contain a timestamp
+    & attribute message-id { imml.message.id.datatype }
+   }
+
+
+imml.message.content =
+   imml.book
+ | imml.order
+
+##########
+## Book ##
+##########
+
+imml.book =
+   # the version attribute is a child of <imml>
+   attribute version { imml.book.schema.version }
+ & element book {
+      attribute ean { imml.book.ean.datatype }
+    & attribute uid { imml.book.id.datatype }
+    & imml.book.metadata
+    & imml.book.assets
+    & imml.book.offer
+   }
+####
+# Book metadata
+####
+imml.book.metadata =
+   element metadata {
+      imml.book.metadata.title
+    & imml.book.metadata.subtitle?
+    & imml.book.metadata.collection?
+    & imml.book.metadata.language
+    & imml.book.metadata.publisher
+    & imml.book.metadata.contributors
+    & imml.book.metadata.topics
+    & imml.book.metadata.description
+   }
+# Book title
+imml.book.metadata.title =
+   element title { text }
+# Book subtitle
+imml.book.metadata.subtitle =
+   element subtitle { text }
+imml.book.metadata.publisher =
+   element publisher {
+      attribute uid {
+         imml.book.metadata.publisher.id.datatype
+      }
+    & text
+   }
+# Book collection
+imml.book.metadata.collection =
+   element collection { 
+      attribute uid { imml.book.metadata.collection.id.datatype }?
+    & text
+   }
+# Book language
+imml.book.metadata.language =
+   element language { imml.book.metadata.language.datatype }
+ | attribute lang { imml.book.metadata.language.datatype }
+
+# Book contributors
+imml.book.metadata.contributors =
+   element contributors {
+      imml.book.metadata.contributor+
+   }
+imml.book.metadata.contributor =
+   element contributor {
+      imml.book.metadata.contributor.uid
+    & imml.book.metadata.contributor.name
+    & imml.book.metadata.contributor.role
+   }
+imml.book.metadata.contributor.uid =
+   attribute uid {
+      imml.book.contributor.id.datatype
+   }
+imml.book.metadata.contributor.name =
+   element name { text }
+imml.book.metadata.contributor.role =
+   element role {
+      imml.unsupported | ( imml.not_unsupported & imml.book.contributor.datatype )
+   }
+ 
+# Book topics
+imml.book.metadata.topics =
+   element topics {
+      imml.unsupported | ( imml.not_unsupported & imml.book.metadata.topic+ )
+   }
+imml.book.metadata.topic =
+   element topic {
+      imml.book.metadata.topic.class
+   }
+imml.book.metadata.topic.class =
+      imml.book.metadata.topic.bisac
+    | imml.book.metadata.topic.clil
+    | imml.book.metadata.topic.keyword
+
+imml.book.metadata.topic.bisac =
+   attribute type { "bisac" }
+ & ( imml.unsupported | ( imml.not_unsupported & imml.bisac.id.datatype ) )
+
+imml.book.metadata.topic.clil =
+   attribute type { "clil" }
+ & ( imml.unsupported | ( imml.not_unsupported & imml.clil.id.datatype ) )
+
+imml.book.metadata.topic.keyword =
+   attribute type { "keyword" }
+ & ( imml.unsupported | ( imml.not_unsupported & text ) )
+
+# Book description
+
+imml.book.metadata.description.attributes =
+   ## Default to book language (although ideally bookseller preferred language)
+   attribute lang { imml.book.metadata.language.datatype }?
+ & attribute extent { "short" | "long" | "140" }?
+
+imml.book.metadata.description =
+   element description {
+      # imml.book.metadata.description.attributes &
+      imml.book.metadata.description.content
+   }
+
+imml.book.metadata.description.content =
+   imml.book.metadata.description.content.xhtml 
+ | imml.book.metadata.description.content.text
+
+imml.book.metadata.description.content.xhtml =
+   attribute format { "xhtml" }
+   & ( imml.unsupported | 
+      ( imml.not_unsupported & anyXHTMLElement ) ) 
+
+imml.book.metadata.description.content.text =
+   text
+
+###
+# Book assets
+###
+imml.book.assets =
+   element assets {
+      imml.book.assets.cover
+    & imml.book.assets.extract*
+    & imml.book.assets.full*
+   }
+## Cover files are made available to the receiving reseller via an ad hoc url
+imml.book.assets.cover =
+   element cover {
+      imml.book.assets.url
+    & imml.book.assets.mimetype
+   }
+
+## Extract files are made available to the receiving reseller via an ad hoc url
+imml.book.assets.extract =
+   element extract {
+      imml.unsupported | ( imml.not_unsupported & imml.book.assets.extract.content )
+   }
+imml.book.assets.extract.content =
+      imml.book.assets.url
+    & imml.book.assets.mimetype
+
+## Content files are made available via an ad hoc url tailored for the receiving warehouse
+imml.book.assets.full =
+   element full {
+      imml.unsupported | ( imml.not_unsupported & imml.book.assets.full.content )
+   }
+imml.book.assets.full.content =
+      imml.book.assets.url
+    & imml.book.assets.mimetype
+
+imml.book.assets.mimetype = 
+   attribute mimetype {
+      imml.book.assets.mimetype.datatype
+   }
+imml.book.assets.url = 
+   attribute url {
+      imml.book.assets.url.datatype
+   }
+###
+# Book offer
+###
+imml.book.offer =
+   element offer {
+      # =ex-support
+      imml.book.offer.medium?
+    & imml.book.offer.manifestation?
+    & imml.book.offer.pagination?
+    & imml.book.offer.alternatives?
+      # if not ready for sale, allow price to be missing
+    & ( (element ready_for_sale { "false" })
+       |(element ready_for_sale { xsd:boolean } & imml.book.offer.prices ) )
+    & imml.book.offer.sales_start_at
+   }
+## Book medium (for now, printed|digital)
+imml.book.offer.medium =
+   element medium {
+      imml.book.offer.medium.datatype
+   }
+## Manifestation
+imml.book.offer.manifestation =
+   element format {
+      imml.book.offer.manifestation.datatype
+   }
+## Pagination of whatever alternative format where it makes sense
+imml.book.offer.pagination =
+   element pagination {
+      imml.book.offer.pagination.datatype
+   }
+## Alternative offers for the same content
+imml.book.offer.alternatives = 
+   element alternatives {
+      imml.book.offer.alternative+
+   }
+imml.book.offer.alternative =
+   element alternative {
+      attribute ean { imml.book.ean.datatype }
+    & attribute medium { imml.book.offer.medium.datatype }?
+    & attribute format { imml.book.offer.manifestation.datatype }?
+   }
+## Date d'effet
+imml.book.offer.sales_start_at =
+   element sales_start_at {
+      imml.unsupported | ( imml.not_unsupported & xsd:date )
+   }
+## Book prices
+imml.book.offer.prices = 
+   element prices {
+      imml.book.offer.price+
+   }
+imml.book.offer.price =
+   element price {
+      imml.book.offer.price.currency
+    & imml.book.offer.price.current_amount
+    & imml.book.offer.price.territories
+   }
+
+# Currency
+imml.book.offer.price.currency =
+   attribute currency {
+      imml.book.offer.price.currency.datatype
+   }
+# Public price amount 
+imml.book.offer.price.current_amount =
+   element current_amount { 
+      imml.book.offer.price.datatype 
+   }
+## Book territories
+imml.book.offer.price.territories =
+   element territories {
+      imml.book.offer.territory.datatype
+   }
+
+###########
+## Order ##
+###########
+# As of version 0, nothing interesting
+imml.order = 
+   # the version attribute is a child of <imml>
+   attribute version { imml.order.schema.version }
+ & element order {
+      anyContent
+   } 
+
+########################################
+## Tools for expressing "whatever child"
+## See http://www.relaxng.org/compact-tutorial-20030326.html#id2816343
+anyElement =
+  element * {
+    (attribute * { text }
+     | text
+     | anyElement)*
+  }
+anyXHTMLElement =
+  element x:* { 
+     (attribute * { text }
+      | text
+      | anyXHTMLElement)*
+  }
+anyContent =
+   (attribute * { text }
+    | text
+    | anyElement)*
+
+###############
+## Datatypes ##
+###############
+imml.book.assets.url.datatype = xsd:anyURI
+imml.book.assets.mimetype.datatype = 
+   "image/jpeg" 
+ | "image/png" 
+ | "audio/mpeg"
+ | "video/mpeg"
+ | "video/mp4"
+ | "video/x-flv"
+ | "application/pdf" 
+ | "text/html" 
+ | "application/zip" 
+ | "application/x-mobipocket" 
+ | "application/x-mobipocket-ebook" 
+ | "application/x-rar-compressed" 
+ | "application/epub+zip"
+
+imml.book.contributor.datatype = "author" | "translator" | "editor" | "typesetter"
+imml.bisac.id.datatype = xsd:token { pattern="[A-Z]{3}[0-9]{6}" } 
+imml.clil.id.datatype = xsd:token { pattern="[0-9]{4}" } 
+imml.book.offer.medium.datatype = "printed" | "digital"
+imml.book.offer.manifestation.datatype = "epub" | "pdf" | "streaming" | "bundle"
+imml.book.offer.pagination.datatype = xsd:integer { minInclusive="0" }
+imml.book.offer.price.datatype =  xsd:decimal { minInclusive="0" fractionDigits="2" }
+imml.book.metadata.language.datatype = list { List74+ }
+imml.uid.datatype = xsd:token { pattern="C[A-Z]{1}[0-9]+" }
+imml.message.sender.id.datatype = xsd:NMTOKEN
+imml.message.id.datatype = xsd:NMTOKEN
+imml.book.id.datatype = xsd:token { pattern="C[B][0-9]+" }
+imml.book.metadata.publisher.id.datatype = xsd:token { pattern="C[P][0-9]+" }
+imml.book.metadata.collection.id.datatype = xsd:token { pattern="C[C][0-9]+" }
+imml.book.contributor.id.datatype = imml.uid.datatype 
+imml.book.ean.datatype = xsd:token { length="13" pattern="3[0-9]{12}|97[8-9][0-9]{10}" } 
+
+imml.book.offer.territory.datatype = "WORLD" | imml.book.offer.country.datatype 
+imml.book.offer.country.datatype = list { List91+ }
+## Country code – ISO 3166-1 from ONIX Code List 91
+List91 =
+   ## Andorra ##
+"AD" | 
+   ## United Arab Emirates ##
+"AE" | 
+   ## Afghanistan ##
+"AF" | 
+   ## Antigua and Barbuda ##
+"AG" | 
+   ## Anguilla ##
+"AI" | 
+   ## Albania ##
+"AL" | 
+   ## Armenia ##
+"AM" | 
+   ## Netherlands Antilles ## Deprecated – use BQ, CW or SX as appropriate.
+"AN" | 
+   ## Angola ##
+"AO" | 
+   ## Antarctica ## 
+"AQ" | 
+   ## Argentina ##
+"AR" | 
+   ## American Samoa ##
+"AS" | 
+   ## Austria ##
+"AT" | 
+   ## Australia ##
+"AU" | 
+   ## Aruba ##
+"AW" | 
+   ## Åland Islands ##
+"AX" | 
+   ## Azerbaijan ##
+"AZ" | 
+   ## Bosnia and Herzegovina ##
+"BA" | 
+   ## Barbados ##
+"BB" | 
+   ## Bangladesh ##
+"BD" | 
+   ## Belgium ##
+"BE" | 
+   ## Burkina Faso ##
+"BF" | 
+   ## Bulgaria ##
+"BG" | 
+   ## Bahrain ##
+"BH" | 
+   ## Burundi ##
+"BI" | 
+   ## Benin ##
+"BJ" | 
+   ## Saint Barthélemy ##
+"BL" | 
+   ## Bermuda ##
+"BM" | 
+   ## Brunei Darussalam ##
+"BN" | 
+   ## Bolivia, Plurinational State of ##
+"BO" | 
+   ## Bonaire, Sint Eustatius, Saba ##
+"BQ" | 
+   ## Brazil ##
+"BR" | 
+   ## Bahamas ##
+"BS" | 
+   ## Bhutan ##
+"BT" | 
+   ## Bouvet Island ##
+"BV" | 
+   ## Botswana ##
+"BW" | 
+   ## Belarus ##
+"BY" | 
+   ## Belize ##
+"BZ" | 
+   ## Canada ##
+"CA" | 
+   ## Cocos (Keeling) Islands ##
+"CC" | 
+   ## Congo, Democratic Republic of the ##
+"CD" | 
+   ## Central African Republic ##
+"CF" | 
+   ## Congo ##
+"CG" | 
+   ## Switzerland ##
+"CH" | 
+   ## Cote D’Ivoire ##
+"CI" | 
+   ## Cook Islands ##
+"CK" | 
+   ## Chile ##
+"CL" | 
+   ## Cameroon ##
+"CM" | 
+   ## China ##
+"CN" | 
+   ## Colombia ##
+"CO" | 
+   ## Costa Rica ##
+"CR" | 
+   ## Serbia and Montenegro ## DEPRECATED, replaced by ME – Montenegro and RS – Serbia.
+"CS" | 
+   ## Cuba ##
+"CU" | 
+   ## Cape Verde ##
+"CV" | 
+   ## Curaçao ##
+"CW" | 
+   ## Christmas Island ##
+"CX" | 
+   ## Cyprus ##
+"CY" | 
+   ## Czech Republic ##
+"CZ" | 
+   ## Germany ##
+"DE" | 
+   ## Djibouti ##
+"DJ" | 
+   ## Denmark ##
+"DK" | 
+   ## Dominica ##
+"DM" | 
+   ## Dominican Republic ##
+"DO" | 
+   ## Algeria ##
+"DZ" | 
+   ## Ecuador ##
+"EC" | 
+   ## Estonia ##
+"EE" | 
+   ## Egypt ##
+"EG" | 
+   ## Western Sahara ##
+"EH" | 
+   ## Eritrea ##
+"ER" | 
+   ## Spain ##
+"ES" | 
+   ## Ethiopia ##
+"ET" | 
+   ## Finland ##
+"FI" | 
+   ## Fiji ##
+"FJ" | 
+   ## Falkland Islands (Malvinas) ##
+"FK" | 
+   ## Micronesia, Federated States of ##
+"FM" | 
+   ## Faroe Islands ##
+"FO" | 
+   ## France ##
+"FR" | 
+   ## Gabon ##
+"GA" | 
+   ## United Kingdom ##
+"GB" | 
+   ## Grenada ##
+"GD" | 
+   ## Georgia ##
+"GE" | 
+   ## French Guiana ##
+"GF" | 
+   ## Guernsey ##
+"GG" | 
+   ## Ghana ##
+"GH" | 
+   ## Gibraltar ##
+"GI" | 
+   ## Greenland ##
+"GL" | 
+   ## Gambia ##
+"GM" | 
+   ## Guinea ##
+"GN" | 
+   ## Guadeloupe ##
+"GP" | 
+   ## Equatorial Guinea ##
+"GQ" | 
+   ## Greece ##
+"GR" | 
+   ## South Georgia and the South Sandwich Islands ##
+"GS" | 
+   ## Guatemala ##
+"GT" | 
+   ## Guam ##
+"GU" | 
+   ## Guinea-Bissau ##
+"GW" | 
+   ## Guyana ##
+"GY" | 
+   ## Hong Kong ##
+"HK" | 
+   ## Heard Island and McDonald Islands ##
+"HM" | 
+   ## Honduras ##
+"HN" | 
+   ## Croatia ##
+"HR" | 
+   ## Haiti ##
+"HT" | 
+   ## Hungary ##
+"HU" | 
+   ## Indonesia ##
+"ID" | 
+   ## Ireland ##
+"IE" | 
+   ## Israel ##
+"IL" | 
+   ## Isle of Man ##
+"IM" | 
+   ## India ##
+"IN" | 
+   ## British Indian Ocean Territory ##
+"IO" | 
+   ## Iraq ##
+"IQ" | 
+   ## Iran, Islamic Republic of ##
+"IR" | 
+   ## Iceland ##
+"IS" | 
+   ## Italy ##
+"IT" | 
+   ## Jersey ##
+"JE" | 
+   ## Jamaica ##
+"JM" | 
+   ## Jordan ##
+"JO" | 
+   ## Japan ##
+"JP" | 
+   ## Kenya ##
+"KE" | 
+   ## Kyrgyzstan ##
+"KG" | 
+   ## Cambodia ##
+"KH" | 
+   ## Kiribati ##
+"KI" | 
+   ## Comoros ##
+"KM" | 
+   ## Saint Kitts and Nevis ##
+"KN" | 
+   ## Korea, Democratic People’s Republic of ##
+"KP" | 
+   ## Korea, Republic of ##
+"KR" | 
+   ## Kuwait ##
+"KW" | 
+   ## Cayman Islands ##
+"KY" | 
+   ## Kazakhstan ##
+"KZ" | 
+   ## Lao People’s Democratic Republic ##
+"LA" | 
+   ## Lebanon ##
+"LB" | 
+   ## Saint Lucia ##
+"LC" | 
+   ## Liechtenstein ##
+"LI" | 
+   ## Sri Lanka ##
+"LK" | 
+   ## Liberia ##
+"LR" | 
+   ## Lesotho ##
+"LS" | 
+   ## Lithuania ##
+"LT" | 
+   ## Luxembourg ##
+"LU" | 
+   ## Latvia ##
+"LV" | 
+   ## Libyan Arab Jamahiriya ##
+"LY" | 
+   ## Morocco ##
+"MA" | 
+   ## Monaco ##
+"MC" | 
+   ## Moldova ##
+"MD" | 
+   ## Montenegro ##
+"ME" | 
+   ## Saint Martin, French part ##
+"MF" | 
+   ## Madagascar ##
+"MG" | 
+   ## Marshall Islands ##
+"MH" | 
+   ## Macedonia, the former Yugoslav Republic of ##
+"MK" | 
+   ## Mali ##
+"ML" | 
+   ## Myanmar ##
+"MM" | 
+   ## Mongolia ##
+"MN" | 
+   ## Macao ##
+"MO" | 
+   ## Northern Mariana Islands ##
+"MP" | 
+   ## Martinique ##
+"MQ" | 
+   ## Mauritania ##
+"MR" | 
+   ## Montserrat ##
+"MS" | 
+   ## Malta ##
+"MT" | 
+   ## Mauritius ##
+"MU" | 
+   ## Maldives ##
+"MV" | 
+   ## Malawi ##
+"MW" | 
+   ## Mexico ##
+"MX" | 
+   ## Malaysia ##
+"MY" | 
+   ## Mozambique ##
+"MZ" | 
+   ## Namibia ##
+"NA" | 
+   ## New Caledonia ##
+"NC" | 
+   ## Niger ##
+"NE" | 
+   ## Norfolk Island ##
+"NF" | 
+   ## Nigeria ##
+"NG" | 
+   ## Nicaragua ##
+"NI" | 
+   ## Netherlands ##
+"NL" | 
+   ## Norway ##
+"NO" | 
+   ## Nepal ##
+"NP" | 
+   ## Nauru ##
+"NR" | 
+   ## Niue ##
+"NU" | 
+   ## New Zealand ##
+"NZ" | 
+   ## Oman ##
+"OM" | 
+   ## Panama ##
+"PA" | 
+   ## Peru ##
+"PE" | 
+   ## French Polynesia ##
+"PF" | 
+   ## Papua New Guinea ##
+"PG" | 
+   ## Philippines ##
+"PH" | 
+   ## Pakistan ##
+"PK" | 
+   ## Poland ##
+"PL" | 
+   ## Saint Pierre and Miquelon ##
+"PM" | 
+   ## Pitcairn ##
+"PN" | 
+   ## Puerto Rico ##
+"PR" | 
+   ## Palestinian Territory, Occupied ##
+"PS" | 
+   ## Portugal ##
+"PT" | 
+   ## Palau ##
+"PW" | 
+   ## Paraguay ##
+"PY" | 
+   ## Qatar ##
+"QA" | 
+   ## Réunion ##
+"RE" | 
+   ## Romania ##
+"RO" | 
+   ## Serbia ##
+"RS" | 
+   ## Russian Federation ##
+"RU" | 
+   ## Rwanda ##
+"RW" | 
+   ## Saudi Arabia ##
+"SA" | 
+   ## Solomon Islands ##
+"SB" | 
+   ## Seychelles ##
+"SC" | 
+   ## Sudan ##
+"SD" | 
+   ## Sweden ##
+"SE" | 
+   ## Singapore ##
+"SG" | 
+   ## Saint Helena, Ascension, Tristan da Cunha ##
+"SH" | 
+   ## Slovenia ##
+"SI" | 
+   ## Svalbard and Jan Mayen ##
+"SJ" | 
+   ## Slovakia ##
+"SK" | 
+   ## Sierra Leone ##
+"SL" | 
+   ## San Marino ##
+"SM" | 
+   ## Senegal ##
+"SN" | 
+   ## Somalia ##
+"SO" | 
+   ## Suriname ##
+"SR" | 
+   ## South Sudan ##
+"SS" | 
+   ## Sao Tome and Principe ##
+"ST" | 
+   ## El Salvador ##
+"SV" | 
+   ## Sint Maarten (Dutch part) ##
+"SX" | 
+   ## Syrian Arab Republic ##
+"SY" | 
+   ## Swaziland ##
+"SZ" | 
+   ## Turks and Caicos Islands ##
+"TC" | 
+   ## Chad ##
+"TD" | 
+   ## French Southern Territories ##
+"TF" | 
+   ## Togo ##
+"TG" | 
+   ## Thailand ##
+"TH" | 
+   ## Tajikistan ##
+"TJ" | 
+   ## Tokelau ##
+"TK" | 
+   ## Timor-Leste ##
+"TL" | 
+   ## Turkmenistan ##
+"TM" | 
+   ## Tunisia ##
+"TN" | 
+   ## Tonga ##
+"TO" | 
+   ## Turkey ##
+"TR" | 
+   ## Trinidad and Tobago ##
+"TT" | 
+   ## Tuvalu ##
+"TV" | 
+   ## Taiwan, Province of China ##
+"TW" | 
+   ## Tanzania, United Republic of ##
+"TZ" | 
+   ## Ukraine ##
+"UA" | 
+   ## Uganda ##
+"UG" | 
+   ## United States Minor Outlying Islands ##
+"UM" | 
+   ## United States ##
+"US" | 
+   ## Uruguay ##
+"UY" | 
+   ## Uzbekistan ##
+"UZ" | 
+   ## Holy See (Vatican City State) ##
+"VA" | 
+   ## Saint Vincent and the Grenadines ##
+"VC" | 
+   ## Venezuela, Bolivarian Republic of ##
+"VE" | 
+   ## Virgin Islands, British ##
+"VG" | 
+   ## Virgin Islands, US ##
+"VI" | 
+   ## Viet Nam ##
+"VN" | 
+   ## Vanuatu ##
+"VU" | 
+   ## Wallis and Futuna ##
+"WF" | 
+   ## Samoa ##
+"WS" | 
+   ## Yemen ##
+"YE" | 
+   ## Mayotte ##
+"YT" | 
+   ## Yugoslavia ## DEPRECATED, replaced by ME – Montenegro and RS – Serbia.
+"YU" | 
+   ## South Africa ##
+"ZA" | 
+   ## Zambia ##
+"ZM" | 
+   ## Zimbabwe ##
+"ZW"
+
+imml.book.offer.language.datatype = list { List74+ }
+## Language code – ISO 639-2/B from ONIX Code List 74
+List74 =
+   ## Afar ##
+"aar" | 
+   ## Abkhaz ##
+"abk" |
+   ## Achinese ##
+"ace" |
+   ## Acoli ##
+"ach" |
+   ## Adangme ##
+"ada" |
+   ## Adygei ##
+"ady" |
+   ## Afro-Asiatic languages ## Collective name.
+"afa" |
+   ## Afrihili ## Artificial language.
+"afh" |
+   ## Afrikaans ##
+"afr" |
+   ## Ainu ##
+"ain" |
+   ## Akan ##
+"aka" |
+   ## Akkadian ##
+"akk" |
+   ## Albanian ##
+"alb" |
+   ## Aleut ##
+"ale" |
+   ## Algonquian languages ## Collective name.
+"alg" |
+   ## Southern Altai ##
+"alt" |
+   ## Amharic ##
+"amh" |
+   ## English, Old (ca. 450-1100) ##
+"ang" |
+   ## Angika ##
+"anp" |
+   ## Apache languages ## Collective name.
+"apa" |
+   ## Arabic ##
+"ara" |
+   ## Official Aramaic; Imperial Aramaic (700-300 BCE) ##
+"arc" |
+   ## Aragonese ##
+"arg" |
+   ## Armenian ##
+"arm" |
+   ## Mapudungun; Mapuche ##
+"arn" |
+   ## Arapaho ##
+"arp" |
+   ## Artificial languages ## Collective name.
+"art" |
+   ## Arawak ##
+"arw" |
+   ## Assamese ##
+"asm" |
+   ## Asturian; Bable; Leonese; Asturleonese ##
+"ast" |
+   ## Athapascan languages ## Collective name.
+"ath" |
+   ## Australian languages ## Collective name.
+"aus" |
+   ## Avaric ##
+"ava" |
+   ## Avestan ##
+"ave" |
+   ## Awadhi ##
+"awa" |
+   ## Aymara ##
+"aym" |
+   ## Azerbaijani ##
+"aze" |
+   ## Banda languages ## Collective name.
+"bad" |
+   ## Bamileke languages ## Collective name.
+"bai" |
+   ## Bashkir ##
+"bak" |
+   ## Baluchi ##
+"bal" |
+   ## Bambara ##
+"bam" |
+   ## Balinese ##
+"ban" |
+   ## Basque ##
+"baq" |
+   ## Basa ##
+"bas" |
+   ## Baltic languages ## Collective name.
+"bat" |
+   ## Beja; Bedawiyet ##
+"bej" |
+   ## Belarusian ##
+"bel" |
+   ## Bemba ##
+"bem" |
+   ## Bengali ##
+"ben" |
+   ## Berber languages ## Collective name.
+"ber" |
+   ## Bhojpuri ##
+"bho" |
+   ## Bihari languages ## Collective name.
+"bih" |
+   ## Bikol ##
+"bik" |
+   ## Bini; Edo ##
+"bin" |
+   ## Bislama ##
+"bis" |
+   ## Siksika ##
+"bla" |
+   ## Bantu languages ## Collective name.
+"bnt" |
+   ## Bosnian ##
+"bos" |
+   ## Braj ##
+"bra" |
+   ## Breton ##
+"bre" |
+   ## Batak languages ## Collective name.
+"btk" |
+   ## Buriat ##
+"bua" |
+   ## Buginese ##
+"bug" |
+   ## Bulgarian ##
+"bul" |
+   ## Burmese ##
+"bur" |
+   ## Blin; Bilin ##
+"byn" |
+   ## Caddo ##
+"cad" |
+   ## Central American Indian languages ## Collective name.
+"cai" |
+   ## Galibi Carib ##
+"car" |
+   ## Catalan ##
+"cat" |
+   ## Caucasian languages ## Collective name.
+"cau" |
+   ## Cebuano ##
+"ceb" |
+   ## Celtic languages ## Collective name.
+"cel" |
+   ## Chamorro ##
+"cha" |
+   ## Chibcha ##
+"chb" |
+   ## Chechen ##
+"che" |
+   ## Chagatai ##
+"chg" |
+   ## Chinese ##
+"chi" |
+   ## Chuukese (Truk) ##
+"chk" |
+   ## Mari ##
+"chm" |
+   ## Chinook jargon ##
+"chn" |
+   ## Choctaw ##
+"cho" |
+   ## Chipewyan; Dene Suline ##
+"chp" |
+   ## Cherokee ##
+"chr" |
+   ## Church Slavic; Old Slavonic; Church Slavonic; Old Bulgarian; Old Church Slavonic ##
+"chu" |
+   ## Chuvash ##
+"chv" |
+   ## Cheyenne ##
+"chy" |
+   ## Chamic languages ## Collective name.
+"cmc" |
+   ## Coptic ##
+"cop" |
+   ## Cornish ##
+"cor" |
+   ## Corsican ##
+"cos" |
+   ## Creoles and pidgins, English-based ## Collective name.
+"cpe" |
+   ## Creoles and pidgins, French-based ## Collective name.
+"cpf" |
+   ## Creoles and pidgins, Portuguese-based ## Collective name.
+"cpp" |
+   ## Cree ##
+"cre" |
+   ## Crimean Turkish; Crimean Tatar ##
+"crh" |
+   ## Creoles and pidgins ## Collective name.
+"crp" |
+   ## Kashubian ##
+"csb" |
+   ## Cushitic languages ## Collective name.
+"cus" |
+   ## Czech ##
+"cze" |
+   ## Dakota ##
+"dak" |
+   ## Danish ##
+"dan" |
+   ## Dargwa ##
+"dar" |
+   ## Land Dayak languages ## Collective name.
+"day" |
+   ## Delaware ##
+"del" |
+   ## Slave (Athapascan) ##
+"den" |
+   ## Dogrib ##
+"dgr" |
+   ## Dinka ##
+"din" |
+   ## Divehi; Dhivehi; Maldivian ##
+"div" |
+   ## Dogri ##
+"doi" |
+   ## Dravidian languages ## Collective name.
+"dra" |
+   ## Lower Sorbian ##
+"dsb" |
+   ## Duala ##
+"dua" |
+   ## Dutch, Middle (ca. 1050-1350) ##
+"dum" |
+   ## Dutch; Flemish ##
+"dut" |
+   ## Dyula ##
+"dyu" |
+   ## Dzongkha ##
+"dzo" |
+   ## Efik ##
+"efi" |
+   ## Egyptian (Ancient) ##
+"egy" |
+   ## Ekajuk ##
+"eka" |
+   ## Elamite ##
+"elx" |
+   ## English ##
+"eng" |
+   ## English, Middle (1100-1500) ##
+"enm" |
+   ## Esperanto ## Artificial language.
+"epo" |
+   ## Estonian ##
+"est" |
+   ## Ewe ##
+"ewe" |
+   ## Ewondo ##
+"ewo" |
+   ## Fang ##
+"fan" |
+   ## Faroese ##
+"fao" |
+   ## Fanti ##
+"fat" |
+   ## Fijian ##
+"fij" |
+   ## Filipino; Pilipino ##
+"fil" |
+   ## Finnish ##
+"fin" |
+   ## Finno-Ugrian languages ## Collective name.
+"fiu" |
+   ## Fon ##
+"fon" |
+   ## French ##
+"fre" |
+   ## French, Middle (ca. 1400-1600) ##
+"frm" |
+   ## French, Old (ca. 842-1400) ##
+"fro" |
+   ## Northern Frisian ##
+"frr" |
+   ## Eastern Frisian ##
+"frs" |
+   ## Western Frisian ##
+"fry" |
+   ## Fulah ##
+"ful" |
+   ## Friulian ##
+"fur" |
+   ## Gã ##
+"gaa" |
+   ## Gayo ##
+"gay" |
+   ## Gbaya ##
+"gba" |
+   ## Germanic languages ## Collective name.
+"gem" |
+   ## Georgian ##
+"geo" |
+   ## German ##
+"ger" |
+   ## Ethiopic (Ge’ez) ##
+"gez" |
+   ## Gilbertese ##
+"gil" |
+   ## Scottish Gaelic ##
+"gla" |
+   ## Irish ##
+"gle" |
+   ## Galician ##
+"glg" |
+   ## Manx ##
+"glv" |
+   ## German, Middle High (ca. 1050-1500) ##
+"gmh" |
+   ## German, Old High (ca. 750-1050) ##
+"goh" |
+   ## Gondi ##
+"gon" |
+   ## Gorontalo ##
+"gor" |
+   ## Gothic ##
+"got" |
+   ## Grebo ##
+"grb" |
+   ## Greek, Ancient (to 1453) ##
+"grc" |
+   ## Greek, Modern (1453-) ##
+"gre" |
+   ## Guarani ##
+"grn" |
+   ## Swiss German; Alemannic ##
+"gsw" |
+   ## Gujarati ##
+"guj" |
+   ## Gwich’in ##
+"gwi" |
+   ## Haida ##
+"hai" |
+   ## Haitian French Creole ##
+"hat" |
+   ## Hausa ##
+"hau" |
+   ## Hawaiian ##
+"haw" |
+   ## Hebrew ##
+"heb" |
+   ## Herero ##
+"her" |
+   ## Hiligaynon ##
+"hil" |
+   ## Himachali languages; Western Pahari languages ## Collective name.
+"him" |
+   ## Hindi ##
+"hin" |
+   ## Hittite ##
+"hit" |
+   ## Hmong; Mong ##
+"hmn" |
+   ## Hiri Motu ##
+"hmo" |
+   ## Croatian ##
+"hrv" |
+   ## Upper Sorbian ##
+"hsb" |
+   ## Hungarian ##
+"hun" |
+   ## Hupa ##
+"hup" |
+   ## Iban ##
+"iba" |
+   ## Igbo ##
+"ibo" |
+   ## Icelandic ##
+"ice" |
+   ## Ido ## Artificial language.
+"ido" |
+   ## Sichuan Yi; Nuosu ##
+"iii" |
+   ## Ijo languages ## Collective name.
+"ijo" |
+   ## Inuktitut ##
+"iku" |
+   ## Interlingue; Occidental ## Artificial language.
+"ile" |
+   ## Iloko ##
+"ilo" |
+   ## Interlingua (International Auxiliary Language Association) ## Artificial language.
+"ina" |
+   ## Indic languages ## Collective name.
+"inc" |
+   ## Indonesian ##
+"ind" |
+   ## Indo-European languages ## Collective name.
+"ine" |
+   ## Ingush ##
+"inh" |
+   ## Inupiaq ##
+"ipk" |
+   ## Iranian languages ## Collective name.
+"ira" |
+   ## Iroquoian languages ## Collective name.
+"iro" |
+   ## Italian ##
+"ita" |
+   ## Javanese ##
+"jav" |
+   ## Lojban ##
+"jbo" |
+   ## Japanese ##
+"jpn" |
+   ## Judeo-Persian ##
+"jpr" |
+   ## Judeo-Arabic ##
+"jrb" |
+   ## Kara-Kalpak ##
+"kaa" |
+   ## Kabyle ##
+"kab" |
+   ## Kachin; Jingpho ##
+"kac" |
+   ## Kalâtdlisut; Greenlandic ##
+"kal" |
+   ## Kamba ##
+"kam" |
+   ## Kannada ##
+"kan" |
+   ## Karen languages ## Collective name.
+"kar" |
+   ## Kashmiri ##
+"kas" |
+   ## Kanuri ##
+"kau" |
+   ## Kawi ##
+"kaw" |
+   ## Kazakh ##
+"kaz" |
+   ## Kabardian (Circassian) ##
+"kbd" |
+   ## Khasi ##
+"kha" |
+   ## Khoisan languages ## Collective name.
+"khi" |
+   ## Central Khmer ##
+"khm" |
+   ## Khotanese; Sakan ##
+"kho" |
+   ## Kikuyu; Gikuyu ##
+"kik" |
+   ## Kinyarwanda ##
+"kin" |
+   ## Kirghiz; Kyrgyz ##
+"kir" |
+   ## Kimbundu ##
+"kmb" |
+   ## Konkani ##
+"kok" |
+   ## Komi ##
+"kom" |
+   ## Kongo ##
+"kon" |
+   ## Korean ##
+"kor" |
+   ## Kusaiean (Caroline Islands) ##
+"kos" |
+   ## Kpelle ##
+"kpe" |
+   ## Karachay-Balkar ##
+"krc" |
+   ## Karelian ##
+"krl" |
+   ## Kru languages ## Collective name.
+"kro" |
+   ## Kurukh ##
+"kru" |
+   ## Kuanyama ##
+"kua" |
+   ## Kumyk ##
+"kum" |
+   ## Kurdish ##
+"kur" |
+   ## Kutenai ##
+"kut" |
+   ## Ladino ##
+"lad" |
+   ## Lahnda ##
+"lah" |
+   ## Lamba ##
+"lam" |
+   ## Lao ##
+"lao" |
+   ## Latin ##
+"lat" |
+   ## Latvian ##
+"lav" |
+   ## Lezgian ##
+"lez" |
+   ## Limburgish ##
+"lim" |
+   ## Lingala ##
+"lin" |
+   ## Lithuanian ##
+"lit" |
+   ## Mongo-Nkundu ##
+"lol" |
+   ## Lozi ##
+"loz" |
+   ## Luxembourgish; Letzeburgesch ##
+"ltz" |
+   ## Luba-Lulua ##
+"lua" |
+   ## Luba-Katanga ##
+"lub" |
+   ## Ganda ##
+"lug" |
+   ## Luiseño ##
+"lui" |
+   ## Lunda ##
+"lun" |
+   ## Luo (Kenya and Tanzania) ##
+"luo" |
+   ## Lushai ##
+"lus" |
+   ## Macedonian ##
+"mac" |
+   ## Madurese ##
+"mad" |
+   ## Magahi ##
+"mag" |
+   ## Marshallese ##
+"mah" |
+   ## Maithili ##
+"mai" |
+   ## Makasar ##
+"mak" |
+   ## Malayalam ##
+"mal" |
+   ## Mandingo ##
+"man" |
+   ## Maori ##
+"mao" |
+   ## Austronesian languages ## Collective name.
+"map" |
+   ## Marathi ##
+"mar" |
+   ## Masai ##
+"mas" |
+   ## Malay ##
+"may" |
+   ## Moksha ##
+"mdf" |
+   ## Mandar ##
+"mdr" |
+   ## Mende ##
+"men" |
+   ## Irish, Middle (ca. 1100-1550) ##
+"mga" |
+   ## Mi’kmaq; Micmac ##
+"mic" |
+   ## Minangkabau ##
+"min" |
+   ## Uncoded languages ##
+"mis" |
+   ## Mon-Khmer languages ## Collective name.
+"mkh" |
+   ## Malagasy ##
+"mlg" |
+   ## Maltese ##
+"mlt" |
+   ## Manchu ##
+"mnc" |
+   ## Manipuri ##
+"mni" |
+   ## Manobo languages ## Collective name.
+"mno" |
+   ## Mohawk ##
+"moh" |
+   ## Moldavian; Moldovan ## DEPRECATED – use rum.
+"mol" |
+   ## Mongolian ##
+"mon" |
+   ## Mooré; Mossi ##
+"mos" |
+   ## Multiple languages ##
+"mul" |
+   ## Munda languages ## Collective name.
+"mun" |
+   ## Creek ##
+"mus" |
+   ## Mirandese ##
+"mwl" |
+   ## Marwari ##
+"mwr" |
+   ## Mayan languages ## Collective name.
+"myn" |
+   ## Erzya ##
+"myv" |
+   ## Nahuatl languages ## Collective name.
+"nah" |
+   ## North American Indian languages ## Collective name.
+"nai" |
+   ## Neapolitan ##
+"nap" |
+   ## Nauruan ##
+"nau" |
+   ## Navajo ##
+"nav" |
+   ## Ndebele, South ##
+"nbl" |
+   ## Ndebele, North ##
+"nde" |
+   ## Ndonga ##
+"ndo" |
+   ## Low German; Low Saxon ##
+"nds" |
+   ## Nepali ##
+"nep" |
+   ## Newari; Nepal Bhasa ##
+"new" |
+   ## Nias ##
+"nia" |
+   ## Niger-Kordofanian languages ## Collective name.
+"nic" |
+   ## Niuean ##
+"niu" |
+   ## Norwegian Nynorsk ##
+"nno" |
+   ## Norwegian Bokmål ##
+"nob" |
+   ## Nogai ##
+"nog" |
+   ## Old Norse ##
+"non" |
+   ## Norwegian ##
+"nor" |
+   ## N’Ko ##
+"nqo" |
+   ## Pedi; Sepedi; Northern Sotho ##
+"nso" |
+   ## Nubian languages ## Collective name.
+"nub" |
+   ## Classical Newari; Old Newari; Classical Nepal Bhasa ##
+"nwc" |
+   ## Chichewa; Chewa; Nyanja ##
+"nya" |
+   ## Nyamwezi ##
+"nym" |
+   ## Nyankole ##
+"nyn" |
+   ## Nyoro ##
+"nyo" |
+   ## Nzima ##
+"nzi" |
+   ## Occitan (post 1500) ##
+"oci" |
+   ## Ojibwa ##
+"oji" |
+   ## Oriya ##
+"ori" |
+   ## Oromo ##
+"orm" |
+   ## Osage ##
+"osa" |
+   ## Ossetian; Ossetic ##
+"oss" |
+   ## Turkish, Ottoman ##
+"ota" |
+   ## Otomian languages ## Collective name.
+"oto" |
+   ## Papuan languages ## Collective name.
+"paa" |
+   ## Pangasinan ##
+"pag" |
+   ## Pahlavi ##
+"pal" |
+   ## Pampanga; Kapampangan ##
+"pam" |
+   ## Panjabi ##
+"pan" |
+   ## Papiamento ##
+"pap" |
+   ## Palauan ##
+"pau" |
+   ## Old Persian (ca. 600-400 B.C.) ##
+"peo" |
+   ## Persian ##
+"per" |
+   ## Philippine languages ## Collective name.
+"phi" |
+   ## Phoenician ##
+"phn" |
+   ## Pali ##
+"pli" |
+   ## Polish ##
+"pol" |
+   ## Ponapeian ##
+"pon" |
+   ## Portuguese ##
+"por" |
+   ## Prakrit languages ## Collective name.
+"pra" |
+   ## Provençal, Old (to 1500); Occitan, Old (to 1500) ##
+"pro" |
+   ## Pushto; Pashto ##
+"pus" |
+   ## Aranés ## ONIX local code.
+"qar" |
+   ## Valencian ## ONIX local code.
+"qav" |
+   ## Quechua ##
+"que" |
+   ## Rajasthani ##
+"raj" |
+   ## Rapanui ##
+"rap" |
+   ## Rarotongan; Cook Islands Maori ##
+"rar" |
+   ## Romance languages ## Collective name.
+"roa" |
+   ## Romansh ##
+"roh" |
+   ## Romany ##
+"rom" |
+   ## Romanian ##
+"rum" |
+   ## Rundi ##
+"run" |
+   ## Aromanian; Arumanian; Macedo-Romanian ##
+"rup" |
+   ## Russian ##
+"rus" |
+   ## Sandawe ##
+"sad" |
+   ## Sango ##
+"sag" |
+   ## Yakut ##
+"sah" |
+   ## South American Indian languages ## Collective name.
+"sai" |
+   ## Salishan languages ## Collective name.
+"sal" |
+   ## Samaritan Aramaic ##
+"sam" |
+   ## Sanskrit ##
+"san" |
+   ## Sasak ##
+"sas" |
+   ## Santali ##
+"sat" |
+   ## Serbian ## DEPRECATED – use srp.
+"scc" |
+   ## Sicilian ##
+"scn" |
+   ## Scots (lallans) ##
+"sco" |
+   ## Croatian ## DEPRECATED – use hrv.
+"scr" |
+   ## Selkup ##
+"sel" |
+   ## Semitic languages ## Collective name.
+"sem" |
+   ## Irish, Old (to 1100) ##
+"sga" |
+   ## Sign languages ## Collective name.
+"sgn" |
+   ## Shan ##
+"shn" |
+   ## Sidamo ##
+"sid" |
+   ## Sinhala; Sinhalese ##
+"sin" |
+   ## Siouan languages ## Collective name.
+"sio" |
+   ## Sino-Tibetan languages ## Collective name.
+"sit" |
+   ## Slavic languages ## Collective name.
+"sla" |
+   ## Slovak ##
+"slo" |
+   ## Slovenian ##
+"slv" |
+   ## Southern Sami ##
+"sma" |
+   ## Northern Sami ##
+"sme" |
+   ## Sami languages ## Collective name.
+"smi" |
+   ## Lule Sami ##
+"smj" |
+   ## Inari Sami ##
+"smn" |
+   ## Samoan ##
+"smo" |
+   ## Skolt Sami ##
+"sms" |
+   ## Shona ##
+"sna" |
+   ## Sindhi ##
+"snd" |
+   ## Soninke ##
+"snk" |
+   ## Sogdian ##
+"sog" |
+   ## Somali ##
+"som" |
+   ## Songhai languages ## Collective name.
+"son" |
+   ## Sotho; Sesotho ##
+"sot" |
+   ## Spanish ##
+"spa" |
+   ## Sardinian ##
+"srd" |
+   ## Sranan Tongo ##
+"srn" |
+   ## Serbian ##
+"srp" |
+   ## Serer ##
+"srr" |
+   ## Nilo-Saharan languages ## Collective name.
+"ssa" |
+   ## Swazi; Swati ##
+"ssw" |
+   ## Sukuma ##
+"suk" |
+   ## Sundanese ##
+"sun" |
+   ## Susu ##
+"sus" |
+   ## Sumerian ##
+"sux" |
+   ## Swahili ##
+"swa" |
+   ## Swedish ##
+"swe" |
+   ## Classical Syriac ##
+"syc" |
+   ## Syriac ##
+"syr" |
+   ## Tahitian ##
+"tah" |
+   ## Tai languages ## Collective name.
+"tai" |
+   ## Tamil ##
+"tam" |
+   ## Tatar ##
+"tat" |
+   ## Telugu ##
+"tel" |
+   ## Temne; Time ##
+"tem" |
+   ## Terena ##
+"ter" |
+   ## Tetum ##
+"tet" |
+   ## Tajik ##
+"tgk" |
+   ## Tagalog ##
+"tgl" |
+   ## Thai ##
+"tha" |
+   ## Tibetan ##
+"tib" |
+   ## Tigré ##
+"tig" |
+   ## Tigrinya ##
+"tir" |
+   ## Tiv ##
+"tiv" |
+   ## Tokelauan ##
+"tkl" |
+   ## Klingon; tlhIngan-Hol ## Artificial language.
+"tlh" |
+   ## Tlingit ##
+"tli" |
+   ## Tamashek ##
+"tmh" |
+   ## Tonga (Nyasa) ##
+"tog" |
+   ## Tongan ##
+"ton" |
+   ## Tok Pisin ##
+"tpi" |
+   ## Tsimshian ##
+"tsi" |
+   ## Tswana ## AKA Setswana.
+"tsn" |
+   ## Tsonga ##
+"tso" |
+   ## Turkmen ##
+"tuk" |
+   ## Tumbuka ##
+"tum" |
+   ## Tupi languages ## Collective name.
+"tup" |
+   ## Turkish ##
+"tur" |
+   ## Altaic languages ##
+"tut" |
+   ## Tuvaluan ##
+"tvl" |
+   ## Twi ##
+"twi" |
+   ## Tuvinian ##
+"tyv" |
+   ## Udmurt ##
+"udm" |
+   ## Ugaritic ##
+"uga" |
+   ## Uighur; Uyghur ##
+"uig" |
+   ## Ukrainian ##
+"ukr" |
+   ## Umbundu ##
+"umb" |
+   ## Undetermined language ##
+"und" |
+   ## Urdu ##
+"urd" |
+   ## Uzbek ##
+"uzb" |
+   ## Vai ##
+"vai" |
+   ## Venda ##
+"ven" |
+   ## Vietnamese ##
+"vie" |
+   ## Volapük ## Artificial language.
+"vol" |
+   ## Votic ##
+"vot" |
+   ## Wakashan languages ## Collective name.
+"wak" |
+   ## Wolaitta; Wolaytta ##
+"wal" |
+   ## Waray ##
+"war" |
+   ## Washo ##
+"was" |
+   ## Welsh ##
+"wel" |
+   ## Sorbian languages ## Collective name.
+"wen" |
+   ## Walloon ##
+"wln" |
+   ## Wolof ##
+"wol" |
+   ## Kalmyk ##
+"xal" |
+   ## Xhosa ##
+"xho" |
+   ## Yao ##
+"yao" |
+   ## Yapese ##
+"yap" |
+   ## Yiddish ##
+"yid" |
+   ## Yoruba ##
+"yor" |
+   ## Yupik languages ## Collective name.
+"ypk" |
+   ## Zapotec ##
+"zap" |
+   ## Blissymbols; Blissymbolics; Bliss ## Artificial language.
+"zbl" |
+   ## Zenaga ##
+"zen" |
+   ## Zhuang; Chuang ##
+"zha" |
+   ## Zande languages ## Collective name.
+"znd" |
+   ## Zulu ##
+"zul" |
+   ## Zuni ##
+"zun" |
+   ## No linguistic content ##
+"zxx" |
+   ## Zaza; Dimili; Dimli; Kirdki; Kirmanjki; Zazaki ##
+"zza"
+
+imml.book.offer.price.currency.datatype = list { List96+ } 
+## Currency code – ISO 4217 from ONIX Code List 96
+List96 =
+   ## UAE Dirham ## United Arab Emirates.
+"AED" |
+   ## Afghani ## DEPRECATED, replaced by AFN.
+"AFA" |
+   ## Afghani ## Afghanistan.
+"AFN" |
+   ## Lek ## Albania.
+"ALL" |
+   ## Armenian Dram ## Armenia.
+"AMD" |
+   ## Netherlands Antillian Guilder ## Curaçao, Sint Maarten.
+"ANG" |
+   ## Angolan Kwanza ## Angola.
+"AOA" |
+   ## Argentine Peso ## Argentina.
+"ARS" |
+   ## Austria, Schilling ## Now replaced by the Euro (EUR): use only for historical prices that pre-date the introduction of the Euro.
+"ATS" |
+   ## Australian Dollar ## Australia, Christmas Island, Cocos (Keeling) Islands, Heard Island and McDonald Islands, Kiribati, Nauru, Norfolk Island, Tuvalu.
+"AUD" |
+   ## Aruban Florin ## Aruba.
+"AWG" |
+   ## Azerbaijanian Manat ## Azerbaijan.
+"AZN" |
+   ## Convertible Marks ## Bosnia and Herzegovina.
+"BAM" |
+   ## Barbados Dollar ## Barbados.
+"BBD" |
+   ## Taka ## Bangladesh.
+"BDT" |
+   ## Belgium, Franc ## Now replaced by the Euro (EUR): use only for historical prices that pre-date the introduction of the Euro.
+"BEF" |
+   ## Lev ## DEPRECATED, replaced by BGN.
+"BGL" |
+   ## Lev ## Bulgaria.
+"BGN" |
+   ## Bahraini Dinar ## Bahrain.
+"BHD" |
+   ## Burundi Franc ## Burundi.
+"BIF" |
+   ## Bermuda Dollar ## Bermuda.
+"BMD" |
+   ## Brunei Dollar ## Brunei Darussalam.
+"BND" |
+   ## Boliviano ## Bolivia.
+"BOB" |
+   ## Brazilian Real ## Brazil.
+"BRL" |
+   ## Bahamian Dollar ## Bahamas.
+"BSD" |
+   ## Ngultrun ## Bhutan.
+"BTN" |
+   ## Pula ## Botswana.
+"BWP" |
+   ## Belarussian Ruble ## Belarus.
+"BYR" |
+   ## Belize Dollar ## Belize.
+"BZD" |
+   ## Canadian Dollar ## Canada.
+"CAD" |
+   ## Franc Congolais ## Congo (Democratic Republic of the).
+"CDF" |
+   ## Swiss Franc ## Switzerland, Liechtenstein.
+"CHF" |
+   ## Chilean Peso ## Chile.
+"CLP" |
+   ## Yuan Renminbi ## China.
+"CNY" |
+   ## Colombian Peso ## Colombia.
+"COP" |
+   ## Costa Rican Colon ## Costa Rica.
+"CRC" |
+   ## Serbian Dinar ## Deprecated, replaced by RSD.
+"CSD" |
+   ## Cuban Convertible Peso ## Cuba (alternative currency).
+"CUC" |
+   ## Cuban Peso ## Cuba.
+"CUP" |
+   ## Cape Verde Escudo ## Cape Verde.
+"CVE" |
+   ## Cyprus Pound ## Now replaced by the Euro (EUR): use only for historical prices that pre-date the introduction of the Euro.
+"CYP" |
+   ## Czech Koruna ## Czech Republic.
+"CZK" |
+   ## Germany, Mark ## Now replaced by the Euro (EUR): use only for historical prices that pre-date the introduction of the Euro.
+"DEM" |
+   ## Djibouti Franc ## Djibouti.
+"DJF" |
+   ## Danish Krone ## Denmark, Faroe Islands, Greenland.
+"DKK" |
+   ## Dominican Peso ## Dominican Republic.
+"DOP" |
+   ## Algerian Dinar ## Algeria.
+"DZD" |
+   ## Kroon ## Estonia – now replaced by the Euro (EUR): use only for historical prices that pre-date the introduction of the Euro.
+"EEK" |
+   ## Egyptian Pound ## Egypt.
+"EGP" |
+   ## Nakfa ## Eritrea.
+"ERN" |
+   ## Spain, Peseta ## Now replaced by the Euro (EUR): use only for historical prices that pre-date the introduction of the Euro.
+"ESP" |
+   ## Ethiopian Birr ## Ethiopia.
+"ETB" |
+   ## Euro ## Andorra, Austria, Belgium, Cyprus, Estonia, Finland, France, Fr Guiana, Fr S Territories, Germany, Greece, Guadeloupe, Holy See (Vatican City), Ireland, Italy, Luxembourg, Martinique, Malta, Mayotte, Monaco, Montenegro, Netherlands, Portugal, Réunion, St Pierre and Miquelon, San Marino, Spain.
+"EUR" |
+   ## Finland, Markka ## Now replaced by the Euro (EUR): use only for historical prices that pre-date the introduction of the Euro.
+"FIM" |
+   ## Fiji Dollar ## Fiji.
+"FJD" |
+   ## Falkland Islands Pound ## Falkland Islands (Malvinas).
+"FKP" |
+   ## France, Franc ## Now replaced by the Euro (EUR): use only for historical prices that pre-date the introduction of the Euro.
+"FRF" |
+   ## Pound Sterling ## United Kingdom, Isle of Man, Channel Islands, South Georgia, South Sandwich Islands, Brisish Indian Ocean Territory.
+"GBP" |
+   ## Lari ## Georgia.
+"GEL" |
+   ## Cedi ## Deprecated, replaced by GHS.
+"GHC" |
+   ## Cedi ## Ghana.
+"GHS" |
+   ## Gibraltar Pound ## Gibraltar.
+"GIP" |
+   ## Dalasi ## Gambia.
+"GMD" |
+   ## Guinea Franc ## Guinea.
+"GNF" |
+   ## Greece, Drachma ## Now replaced by the Euro (EUR): use only for historical prices that pre-date the introduction of the Euro.
+"GRD" |
+   ## Quetzal ## Guatemala.
+"GTQ" |
+   ## Guinea-Bissau Peso ## Now replaced by the CFA Franc BCEAO XOF use only for historical prices that pre-date use of the CFA Franc.
+"GWP" |
+   ## Guyana Dollar ## Guyana.
+"GYD" |
+   ## Hong Kong Dollar ## Hong Kong, Macao.
+"HKD" |
+   ## Lempira ## Honduras.
+"HNL" |
+   ## Croatian Kuna ## Croatia.
+"HRK" |
+   ## Gourde ## Haiti.
+"HTG" |
+   ## Forint ## Hungary.
+"HUF" |
+   ## Rupiah ## Indonesia.
+"IDR" |
+   ## Ireland, Punt ## Now replaced by the Euro (EUR): use only for historical prices that pre-date the introduction of the Euro.
+"IEP" |
+   ## Israeli Sheqel ## Israel.
+"ILS" |
+   ## Indian Rupee ## India.
+"INR" |
+   ## Iraqi Dinar ## Iraq.
+"IQD" |
+   ## Iranian Rial ## Iran (Islamic Republic of).
+"IRR" |
+   ## Iceland Krona ## Iceland.
+"ISK" |
+   ## Italy, Lira ## Now replaced by the Euro (EUR): use only for historical prices that pre-date the introduction of the Euro.
+"ITL" |
+   ## Jamaican Dollar ## Jamaica.
+"JMD" |
+   ## Jordanian Dinar ## Jordan.
+"JOD" |
+   ## Yen ## Japan.
+"JPY" |
+   ## Kenyan Shilling ## Kenya.
+"KES" |
+   ## Som ## Kyrgyzstan.
+"KGS" |
+   ## Riel ## Cambodia.
+"KHR" |
+   ## Comoro Franc ## Comoros.
+"KMF" |
+   ## North Korean Won ## Korea (Democratic People’s Republic of).
+"KPW" |
+   ## Won ## Korea (Republic of).
+"KRW" |
+   ## Kuwaiti Dinar ## Kuwait.
+"KWD" |
+   ## Cayman Islands Dollar ## Cayman Islands.
+"KYD" |
+   ## Tenge ## Kazakstan.
+"KZT" |
+   ## Kip ## Lao People’s Democratic Republic.
+"LAK" |
+   ## Lebanese Pound ## Lebanon.
+"LBP" |
+   ## Sri Lanka Rupee ## Sri Lanka.
+"LKR" |
+   ## Liberian Dollar ## Liberia.
+"LRD" |
+   ## Loti ## Lesotho.
+"LSL" |
+   ## Lithuanian Litus ## Lithuania.
+"LTL" |
+   ## Luxembourg, Franc ## Now replaced by the Euro (EUR): use only for historical prices that pre-date the introduction of the Euro.
+"LUF" |
+   ## Latvian Lats ## Latvia.
+"LVL" |
+   ## Libyan Dinar ## Libyan Arab Jamahiriya.
+"LYD" |
+   ## Moroccan Dirham ## Morocco, Western Sahara.
+"MAD" |
+   ## Moldovan Leu ## Moldova, Republic of.
+"MDL" |
+   ## Ariary ## Madagascar.
+"MGA" |
+   ## Malagasy Franc ## Now replaced by the Ariary (MGA).
+"MGF" |
+   ## Denar ## Macedonia (former Yugoslav Republic of).
+"MKD" |
+   ## Kyat ## Myanmar.
+"MMK" |
+   ## Tugrik ## Mongolia.
+"MNT" |
+   ## Pataca ## Macau.
+"MOP" |
+   ## Ouguiya ## Mauritania.
+"MRO" |
+   ## Maltese Lira ## Malta – now replaced by the Euro (EUR): use only for historical prices that pre-date the introduction of the Euro.
+"MTL" |
+   ## Mauritius Rupee ## Mauritius.
+"MUR" |
+   ## Rufiyaa ## Maldives.
+"MVR" |
+   ## Kwacha ## Malawi.
+"MWK" |
+   ## Mexican Peso ## Mexico.
+"MXN" |
+   ## Malaysian Ringgit ## Malaysia.
+"MYR" |
+   ## Metical ## Mozambique.
+"MZN" |
+   ## Namibia Dollar ## Namibia.
+"NAD" |
+   ## Naira ## Nigeria.
+"NGN" |
+   ## Cordoba Oro ## Nicaragua.
+"NIO" |
+   ## Netherlands, Guilder ## Now replaced by the Euro (EUR): use only for historical prices that pre-date the introduction of the Euro.
+"NLG" |
+   ## Norwegian Krone ## Norway, Bouvet Island, Svalbard and Jan Mayen.
+"NOK" |
+   ## Nepalese Rupee ## Nepal.
+"NPR" |
+   ## New Zealand Dollar ## New Zealand, Cook Islands, Niue, Pitcairn, Tokelau.
+"NZD" |
+   ## Rial Omani ## Oman.
+"OMR" |
+   ## Balboa ## Panama.
+"PAB" |
+   ## Nuevo Sol ## Peru.
+"PEN" |
+   ## Kina ## Papua New Guinea.
+"PGK" |
+   ## Philippine Peso ## Philippines.
+"PHP" |
+   ## Pakistan Rupee ## Pakistan.
+"PKR" |
+   ## Zloty ## Poland.
+"PLN" |
+   ## Portugal, Escudo ## Now replaced by the Euro (EUR): use only for historical prices that pre-date the introduction of the Euro.
+"PTE" |
+   ## Guarani ## Paraguay.
+"PYG" |
+   ## Qatari Rial ## Qatar.
+"QAR" |
+   ## Old Leu ## Deprecated, replaced by RON.
+"ROL" |
+   ## New Leu ## Romania.
+"RON" |
+   ## Serbian Dinar ## Serbia.
+"RSD" |
+   ## Russian Ruble ## Russian Federation.
+"RUB" |
+   ## Russian Ruble ## DEPRECATED, replaced by RUB.
+"RUR" |
+   ## Rwanda Franc ## Rwanda.
+"RWF" |
+   ## Saudi Riyal ## Saudi Arabia.
+"SAR" |
+   ## Solomon Islands Dollar ## Solomon Islands.
+"SBD" |
+   ## Seychelles Rupee ## Seychelles.
+"SCR" |
+   ## Sudanese Dinar ## Now replaced by the Sudanese Pound (SDG).
+"SDD" |
+   ## Sudanese Pound ## Sudan.
+"SDG" |
+   ## Swedish Krona ## Sweden.
+"SEK" |
+   ## Singapore Dollar ## Singapore.
+"SGD" |
+   ## Saint Helena Pound ## Saint Helena.
+"SHP" |
+   ## Tolar ## Now replaced by the Euro (EUR): use only for historical prices that pre-date the introduction of the Euro.
+"SIT" |
+   ## Slovak Koruna ## Now replaced by the Euro (EUR): use only for historical prices that pre-date the introduction of the Euro.
+"SKK" |
+   ## Leone ## Sierra Leone.
+"SLL" |
+   ## Somali Shilling ## Somalia.
+"SOS" |
+   ## Suriname Guilder ## Suriname.
+"SRD" |
+   ## Suriname Guilder ## DEPRECATED, replaced by SRD.
+"SRG" |
+   ## Dobra ## São Tome and Principe.
+"STD" |
+   ## El Salvador Colon ## El Salvador.
+"SVC" |
+   ## Syrian Pound ## Syrian Arab Republic.
+"SYP" |
+   ## Lilangeni ## Swaziland.
+"SZL" |
+   ## Baht ## Thailand.
+"THB" |
+   ## Somoni ## Tajikistan.
+"TJS" |
+   ## Manat ## Deprecated, replaced by TMT.
+"TMM" |
+   ## Manat ## Turkmenistan.
+"TMT" |
+   ## Tunisian Dinar ## Tunisia.
+"TND" |
+   ## Pa’anga ## Tonga.
+"TOP" |
+   ## Timor Escudo ## NO LONGER VALID, Timor-Leste now uses the US Dollar.
+"TPE" |
+   ## Turkish Lira (old) ## Deprecated, replaced by TRY.
+"TRL" |
+   ## Turkish Lira (new) ## Turkey, from 1 January 2005.
+"TRY" |
+   ## Trinidad and Tobago Dollar ## Trinidad and Tobago.
+"TTD" |
+   ## New Taiwan Dollar ## Taiwan (Province of China).
+"TWD" |
+   ## Tanzanian Shilling ## Tanzania (United Republic of).
+"TZS" |
+   ## Hryvnia ## Ukraine.
+"UAH" |
+   ## Uganda Shilling ## Uganda.
+"UGX" |
+   ## US Dollar ## United States, American Samoa, British Indian Ocean Territory, Ecuador, Guam, Marshall Is, Micronesia (Federated States of), Northern Mariana Is, Palau, Puerto Rico, Timor-Leste, Turks and Caicos Is, US Minor Outlying Is, Virgin Is (British), Virgin Is (US).
+"USD" |
+   ## Peso Uruguayo ## Uruguay.
+"UYU" |
+   ## Uzbekistan Sum ## Uzbekistan.
+"UZS" |
+   ## Bolivar ## Deprecated, replaced by VEF.
+"VEB" |
+   ## Bolivar fuerte ## Venezuela.
+"VEF" |
+   ## Dong ## Viet Nam.
+"VND" |
+   ## Vatu ## Vanuatu.
+"VUV" |
+   ## Tala ## Samoa.
+"WST" |
+   ## CFA Franc BEAC ## Cameroon, Central African Republic, Chad, Congo, Equatorial Guinea, Gabon.
+"XAF" |
+   ## East Caribbean Dollar ## Anguilla, Antigua and Barbuda, Dominica, Grenada, Montserrat, Saint Kitts and Nevis, Saint Lucia, Saint Vincent and the Grenadines.
+"XCD" |
+   ## CFA Franc BCEAO ## Benin, Burkina Faso, Côte D’Ivoire, Guinea-Bissau, Mali, Niger, Senegal, Togo.
+"XOF" |
+   ## CFP Franc ## French Polynesia, New Caledonia, Wallis and Futuna.
+"XPF" |
+   ## Yemeni Rial ## Yemen.
+"YER" |
+   ## Yugoslavian Dinar ## DEPRECATED, replaced by CSD.
+"YUM" |
+   ## Rand ## South Africa.
+"ZAR" |
+   ## Kwacha ## Zambia.
+"ZMK" |
+   ## Zimbabwe Dollar ## Deprecated, replaced with ZWL.
+"ZWD" |
+   ## Zimbabwe Dollar ## Zimbabwe.
+"ZWL"
+  

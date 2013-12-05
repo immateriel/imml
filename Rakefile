@@ -8,7 +8,7 @@ begin
     gem.email = "jboulnois@immateriel.fr"
     gem.homepage = "http://github.com/immateriel/imml"
     gem.authors = ["julbouln"]
-    gem.files = Dir.glob('bin/**/*') + Dir.glob('lib/**/*')
+    gem.files = Dir.glob('bin/**/*') + Dir.glob('lib/**/*') + Dir.glob('data/**/*')
 
     gem.add_dependency "nokogiri"
     gem.add_dependency "levenshtein"

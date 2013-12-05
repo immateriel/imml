@@ -32,6 +32,13 @@ module IMML
       end
     end
 
+    def validate(xml)
+      schema = Nokogiri::XML::RelaxNG(File.open("data/imml.rng"))
+      schema.validate(xml).each do |error|
+        puts error.message
+      end
+    end
+
     def parse_data(data)
       xml=Nokogiri::XML.parse(data)
       self.parse(xml)

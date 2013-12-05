@@ -1,0 +1,23 @@
+## Here, one can customize imml schema.  
+## Typical uses are upgrading versions without modifying current kit version 
+## or creating a special schema that validates only offers for one publisher, 
+## with fixed supplier-id or fixed publisher-id.
+
+#default namespace = "http://ns.immateriel.fr/imml"
+include "imml_kit.rnc"
+imml.book.schema.version |= "2.0"
+imml.order.schema.version |= "1.1"
+
+#####
+### example of crazy overload: add a "numilog" topic type
+###
+#imml.book.schema.version |= "5.437"
+#
+### Create the new def
+#imml.book.metadata.topic.numilog =
+#   attribute type { "numilog" }
+# & ( imml.unsupported | ( imml.not_unsupported & ("DRM" | "NOK") ) )
+#
+### Add the new def to the topic class
+#imml.book.metadata.topic.class |= imml.book.metadata.topic.numilog
+
