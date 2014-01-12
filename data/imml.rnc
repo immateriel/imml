@@ -4,7 +4,21 @@
 ## with fixed supplier-id or fixed publisher-id.
 
 #default namespace = "http://ns.immateriel.fr/imml"
-include "imml_kit.rnc"
+include "imml_kit.rnc" {
+   imml.header.test =
+      element test {
+         element webhooks {
+            element receive { imml.header.url.attribute }
+          & element check { imml.header.url.attribute }
+          & element sales { imml.header.url.attribute }
+         }
+      }
+}
+
+imml.header.url.attribute =
+   attribute url { imml.header.url.datatype }
+ & empty
+
 imml.book.schema.version |= "2.0"
 imml.order.schema.version |= "0.0"
 
