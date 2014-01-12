@@ -22,21 +22,44 @@ imml.not_unsupported = attribute unsupported { "false" }?
 
 start = 
    element imml { 
-      imml.message.attributes
-    & imml.message.header?
-    & imml.message.content
+      imml.message.attributes, 
+      imml.message.header,
+      imml.message.content
 }
 
 imml.message.attributes = 
    attribute timestamp { xsd:dateTime }?
+ & attribute message-id { imml.message.id.datatype }?
 
-############ 
-## Header ##
-############
+# # # #  #
+# Header #
+# # # #  #
 imml.message.header =
    element header {
-      attribute sender-id { imml.message.sender.id.datatype }
-    & attribute message-id { imml.message.id.datatype }
+      attribute reason { imml.header.reason.datatype }
+    & imml.header.emitter_or_recipient
+    & imml.header.authentication
+    & imml.header.test?
+   }
+
+imml.header.emitter_or_recipient =
+   element emitter { imml.header.emitter_or_recipient.id }
+ | element recipient { imml.header.emitter_or_recipient.id }
+
+imml.header.emitter_or_recipient.id =
+   attribute reseller_id { imml.reseller.id.datatype }
+ | attribute reseller_dilicom_gencod { imml.reseller.clil_gencod.datatype }
+ 
+imml.header.authentication =
+   element authentication { imml.authentification.key.datatype } 
+
+imml.header.test =
+   element test {
+      element webhooks {
+         element receive_url { imml.header.url.datatype }
+       & element check_url { imml.header.url.datatype }
+       & element sales_url { imml.header.url.datatype }
+      }
    }
 
 imml.message.content =
@@ -387,8 +410,16 @@ imml.book.offer.pagination.datatype = xsd:integer { minInclusive="0" }
 imml.book.offer.price.datatype =  xsd:decimal { minInclusive="0" fractionDigits="2" }
 imml.book.metadata.language.datatype = list { List74+ }
 imml.uid.datatype = xsd:token { pattern="C[A-Z]{1}[0-9]+" }
-imml.message.sender.id.datatype = xsd:NMTOKEN
 imml.message.id.datatype = xsd:NMTOKEN
+imml.header.reason.datatype = 
+   "creation" | "update" | "temporary_fail" | "metadata_error" | "partner_ask" | "random"
+
+imml.reseller.id.datatype = xsd:NMTOKEN
+# Diffuseurs/distributeurs commencent par 301, libraires par 302, éditeurs par 305.
+imml.reseller.clil_gencod.datatype = xsd:token { pattern="302[0-9]{10}"}
+imml.authentification.key.datatype = xsd:NMTOKEN
+imml.header.url.datatype = xsd:anyURI
+
 imml.book.id.datatype = xsd:token { pattern="C[B][0-9]+" }
 imml.book.metadata.publisher.id.datatype = xsd:token { pattern="C[P][0-9]+" }
 imml.book.metadata.collection.id.datatype = xsd:token { pattern="C[C][0-9]+" }
