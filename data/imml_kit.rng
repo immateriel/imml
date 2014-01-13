@@ -38,37 +38,123 @@ indicate support with a "false" value, but absence of this att is ok too.</a:doc
   </define>
   <start>
     <element name="imml">
-      <interleave>
-        <ref name="imml.message.attributes"/>
-        <optional>
-          <ref name="imml.message.header"/>
-        </optional>
-        <ref name="imml.message.content"/>
-      </interleave>
+      <ref name="imml.message.attributes"/>
+      <ref name="imml.message.header"/>
+      <ref name="imml.message.content"/>
     </element>
   </start>
   <define name="imml.message.attributes">
-    <optional>
-      <attribute name="timestamp">
-        <data type="dateTime"/>
-      </attribute>
-    </optional>
-  </define>
-  <define name="imml.message.header">
-    <a:documentation>
-Header ##
-</a:documentation>
-    <element name="header">
-      <interleave>
-        <attribute name="sender-id">
-          <ref name="imml.message.sender.id.datatype"/>
+    <interleave>
+      <optional>
+        <attribute name="timestamp">
+          <data type="dateTime"/>
         </attribute>
+      </optional>
+      <optional>
         <attribute name="message-id">
           <ref name="imml.message.id.datatype"/>
         </attribute>
+      </optional>
+    </interleave>
+  </define>
+  <!--
+    # # # #  # # # # # 
+    Transport Header #
+    # # #  # # # # # #
+  -->
+  <define name="imml.message.header">
+    <element name="header">
+      <interleave>
+        <attribute name="reason">
+          <ref name="imml.header.reason.datatype"/>
+        </attribute>
+        <optional>
+          <ref name="imml.header.attributes"/>
+        </optional>
+        <ref name="imml.header.emitter_or_recipient"/>
+        <ref name="imml.header.authentication"/>
+        <optional>
+          <ref name="imml.header.test"/>
+        </optional>
       </interleave>
     </element>
   </define>
+  <!-- External parameters for requests (instead of typical REST parameters) -->
+  <define name="imml.header.attributes">
+    <element name="attributes">
+      <oneOrMore>
+        <element name="attribute">
+          <interleave>
+            <attribute name="name">
+              <data type="NMTOKEN"/>
+            </attribute>
+            <attribute name="value">
+              <data type="NMTOKEN"/>
+            </attribute>
+          </interleave>
+        </element>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- Emitter or recipient can use immateriel reseller id or clil gencod -->
+  <define name="imml.header.emitter_or_recipient">
+    <choice>
+      <element name="emitter">
+        <ref name="imml.header.emitter_or_recipient.id"/>
+      </element>
+      <element name="recipient">
+        <ref name="imml.header.emitter_or_recipient.id"/>
+      </element>
+    </choice>
+  </define>
+  <define name="imml.header.emitter_or_recipient.id">
+    <choice>
+      <attribute name="reseller_id">
+        <ref name="imml.reseller.id.datatype"/>
+      </attribute>
+      <attribute name="reseller_dilicom_gencod">
+        <ref name="imml.reseller.clil_gencod.datatype"/>
+      </attribute>
+    </choice>
+  </define>
+  <!-- Make sure the emitter is the right one -->
+  <define name="imml.header.authentication">
+    <element name="authentication">
+      <attribute name="api_key">
+        <ref name="imml.authentification.key.datatype"/>
+      </attribute>
+    </element>
+  </define>
+  <!-- For testing new ws urls -->
+  <define name="imml.header.test">
+    <element name="test">
+      <element name="webhooks">
+        <interleave>
+          <element name="receive">
+            <ref name="imml.header.url.attribute"/>
+          </element>
+          <element name="check">
+            <ref name="imml.header.url.attribute"/>
+          </element>
+          <element name="sales">
+            <ref name="imml.header.url.attribute"/>
+          </element>
+        </interleave>
+      </element>
+    </element>
+  </define>
+  <define name="imml.header.url.attribute">
+    <interleave>
+      <attribute name="url">
+        <ref name="imml.header.url.datatype"/>
+      </attribute>
+      <empty/>
+    </interleave>
+  </define>
+  <!--
+    End of Header #
+    # # # # # # # #
+  -->
   <define name="imml.message.content">
     <choice>
       <ref name="imml.book"/>
@@ -751,11 +837,33 @@ Datatypes ##
       <param name="pattern">C[A-Z]{1}[0-9]+</param>
     </data>
   </define>
-  <define name="imml.message.sender.id.datatype">
-    <data type="NMTOKEN"/>
-  </define>
   <define name="imml.message.id.datatype">
     <data type="NMTOKEN"/>
+  </define>
+  <define name="imml.header.reason.datatype">
+    <choice>
+      <value>creation</value>
+      <value>update</value>
+      <value>temporary_fail</value>
+      <value>metadata_error</value>
+      <value>partner_ask</value>
+      <value>random</value>
+    </choice>
+  </define>
+  <define name="imml.reseller.id.datatype">
+    <data type="NMTOKEN"/>
+  </define>
+  <!-- Diffuseurs/distributeurs commencent par 301, libraires par 302, éditeurs par 305. -->
+  <define name="imml.reseller.clil_gencod.datatype">
+    <data type="token">
+      <param name="pattern">302[0-9]{10}</param>
+    </data>
+  </define>
+  <define name="imml.authentification.key.datatype">
+    <data type="NMTOKEN"/>
+  </define>
+  <define name="imml.header.url.datatype">
+    <data type="anyURI"/>
   </define>
   <define name="imml.book.id.datatype">
     <data type="token">

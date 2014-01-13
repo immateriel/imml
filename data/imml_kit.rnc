@@ -31,17 +31,27 @@ imml.message.attributes =
    attribute timestamp { xsd:dateTime }?
  & attribute message-id { imml.message.id.datatype }?
 
-# # # #  #
-# Header #
-# # # #  #
+# # # # #  # # # # # 
+# Transport Header #
+# # # #  # # # # # #
 imml.message.header =
    element header {
       attribute reason { imml.header.reason.datatype }
+    & imml.header.attributes?
     & imml.header.emitter_or_recipient
     & imml.header.authentication
     & imml.header.test?
    }
+# External parameters for requests (instead of typical REST parameters)
+imml.header.attributes =
+   element attributes {
+      element attribute { 
+         attribute name { xsd:NMTOKEN }
+       & attribute value { xsd:NMTOKEN }
+      }+
+   }
 
+# Emitter or recipient can use immateriel reseller id or clil gencod
 imml.header.emitter_or_recipient =
    element emitter { imml.header.emitter_or_recipient.id }
  | element recipient { imml.header.emitter_or_recipient.id }
@@ -50,17 +60,28 @@ imml.header.emitter_or_recipient.id =
    attribute reseller_id { imml.reseller.id.datatype }
  | attribute reseller_dilicom_gencod { imml.reseller.clil_gencod.datatype }
  
+# Make sure the emitter is the right one
 imml.header.authentication =
-   element authentication { imml.authentification.key.datatype } 
+   element authentication { 
+      attribute api_key { imml.authentification.key.datatype } 
+   }
 
+# For testing new ws urls
 imml.header.test =
    element test {
       element webhooks {
-         element receive_url { imml.header.url.datatype }
-       & element check_url { imml.header.url.datatype }
-       & element sales_url { imml.header.url.datatype }
+         element receive { imml.header.url.attribute }
+       & element check { imml.header.url.attribute }
+       & element sales { imml.header.url.attribute }
       }
    }
+
+imml.header.url.attribute =
+   attribute url { imml.header.url.datatype }
+ & empty
+
+# End of Header #
+# # # # # # # # #
 
 imml.message.content =
    imml.book

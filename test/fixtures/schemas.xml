@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<locatingRules xmlns="http://thaiopensource.com/ns/locating-rules/1.0">
+  <uri resource="./fixtures/9781909782471_nh.xml" uri="../data/imml_nh.rnc"/>
+  <uri resource="./fixtures/9781909782471.xml" uri="../data/imml.rnc"/>
+</locatingRules>
+

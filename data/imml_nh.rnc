@@ -3,8 +3,12 @@
 ## or creating a special schema that validates only offers for one publisher, 
 ## with fixed supplier-id or fixed publisher-id.
 
+# Pour valider les fiches sans header, on supprime simplement les définitions de header
+
 #default namespace = "http://ns.immateriel.fr/imml"
-include "imml_kit.rnc"
+include "imml_kit.rnc" {
+   imml.message.header = empty
+}
 
 imml.book.schema.version |= "2.0"
 imml.order.schema.version |= "0.0"

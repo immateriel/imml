@@ -1,7 +1,0 @@
-<?xml version="1.0"?>
-<locatingRules xmlns="http://thaiopensource.com/ns/locating-rules/1.0">
-  <uri resource="9781909782471.xml" uri="Git/data/imml.rnc"/>
-  <uri resource="work.xml" uri="Git/data/imml.rnc"/>
-  <uri resource="tests.xml" uri="tests.rnc"/>
-</locatingRules>
-

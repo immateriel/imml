@@ -1,15 +1,4 @@
 <imml version="2.0">
-  <header reason="random">
-    <recipient reseller_dilicom_gencod="3025595821806"/>
-    <authentication>9044cKazR_672</authentication>
-    <test>
-      <webhooks>
-	<check url="http://truc.im/ws/check"/>
-	<receive url="http://truc.im/ws/receive"/>
-	<sales url="http://truc.im/ws/sales"/>
-      </webhooks>
-    </test>
-  </header>
   <book ean="9781909782471" uid="CB370201">
     <metadata>
       <title>Le faiseur d'anges</title>
