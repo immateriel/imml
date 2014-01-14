@@ -37,15 +37,15 @@ imml.message.attributes =
 imml.message.header =
    element header {
       attribute reason { imml.header.reason.datatype }
-    & imml.header.attributes?
+    & imml.header.params?
     & imml.header.emitter_or_recipient
     & imml.header.authentication
     & imml.header.test?
    }
 # External parameters for requests (instead of typical REST parameters)
-imml.header.attributes =
-   element attributes {
-      element attribute { 
+imml.header.params =
+   element params {
+      element param { 
          attribute name { xsd:NMTOKEN }
        & attribute value { xsd:NMTOKEN }
       }+

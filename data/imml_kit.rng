@@ -69,7 +69,7 @@ indicate support with a "false" value, but absence of this att is ok too.</a:doc
           <ref name="imml.header.reason.datatype"/>
         </attribute>
         <optional>
-          <ref name="imml.header.attributes"/>
+          <ref name="imml.header.params"/>
         </optional>
         <ref name="imml.header.emitter_or_recipient"/>
         <ref name="imml.header.authentication"/>
@@ -80,10 +80,10 @@ indicate support with a "false" value, but absence of this att is ok too.</a:doc
     </element>
   </define>
   <!-- External parameters for requests (instead of typical REST parameters) -->
-  <define name="imml.header.attributes">
-    <element name="attributes">
+  <define name="imml.header.params">
+    <element name="params">
       <oneOrMore>
-        <element name="attribute">
+        <element name="param">
           <interleave>
             <attribute name="name">
               <data type="NMTOKEN"/>

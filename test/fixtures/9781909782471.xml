@@ -1,8 +1,8 @@
 <imml version="2.0">
   <header reason="random">
-    <attributes>
-      <attribute name="since" value="20140101"/>
-    </attributes>
+    <params>
+      <param name="since" value="20140101"/>
+    </params>
     <recipient reseller_dilicom_gencod="3025595821806"/>
     <authentication api_key="9044cKazR_672"/>
     <test>
