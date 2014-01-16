@@ -12,32 +12,38 @@ module IMML
   class Document
     attr_accessor :version,:header, :book, :order
 
-    def parse(xml)
-#      validate(xml)
-      xml.children.each do |root|
-        case root.name
-          when "imml"
-            @version=root["version"].to_f
-            root.children.each do |child|
-              case child.name
-                when "header"
-                when "book"
-                  @book=Book::Book.new
-                  @book.parse(child)
-                when "order"
-
+    def parse(xml, valid=true)
+      errors=[]
+      if valid
+        errors=validate(xml)
+      end
+      if errors.length==0
+        xml.children.each do |root|
+          case root.name
+            when "imml"
+              @version=root["version"].to_f
+              root.children.each do |child|
+                case child.name
+                  when "header"
+                  when "book"
+                    @book=Book::Book.new
+                    @book.parse(child)
+                  when "order"
+                end
               end
-            end
-
+          end
+        end
+      else
+        puts "IMML is invalid: "
+        errors.each do |error|
+          puts " #{error.file}:#{error.line}:#{error.column}: error: #{error.message}"
         end
       end
     end
 
     def validate(xml)
       schema = Nokogiri::XML::RelaxNG(File.open("data/imml.rng"))
-      schema.validate(xml).each do |error|
-        puts "Error: #{error.line} #{error.message}"
-      end
+      schema.validate(xml)
     end
 
     def parse_data(data)
