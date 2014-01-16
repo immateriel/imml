@@ -391,6 +391,8 @@ module IMML
               @medium=child.text
             when "format"
               @format=child.text
+            when "protection"
+              @protection=child.text
             when "pagination"
               @pagination=child.text.to_i
             when "ready_for_sale"
@@ -413,8 +415,17 @@ module IMML
 
       def write(xml)
         xml.offer {
-        if @support
-          xml.support(@support)
+        if @medium
+          xml.medium(@medium)
+        end
+        if @format
+          xml.format(@format)
+        end
+        if @protection
+          xml.protection(@protection)
+        end
+        if @pagination
+          xml.pagination(@pagination)
         end
         if @ready_for_sale
           xml.ready_for_sale(@ready_for_sale)
