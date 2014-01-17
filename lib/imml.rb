@@ -10,7 +10,7 @@ require 'imml/order'
 
 module IMML
   class Document
-    attr_accessor :version,:header, :book, :order
+    attr_accessor :version, :header, :book, :order
 
     def parse(xml, valid=true)
       errors=[]
@@ -25,6 +25,8 @@ module IMML
               root.children.each do |child|
                 case child.name
                   when "header"
+                    @header=Header::Header.new
+                    @header.parse(child)
                   when "book"
                     @book=Book::Book.new
                     @book.parse(child)
@@ -46,13 +48,13 @@ module IMML
       schema.validate(xml)
     end
 
-    def parse_data(data)
+    def parse_data(data, valid=true)
       xml=Nokogiri::XML.parse(data)
-      self.parse(xml)
+      self.parse(xml,valid)
     end
 
-    def parse_file(file)
-      self.parse_data(File.open(file).read)
+    def parse_file(file, valid=true)
+      self.parse_data(File.open(file).read, valid)
     end
   end
 

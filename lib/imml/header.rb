@@ -11,6 +11,7 @@ module IMML
       end
 
       def write(xml)
+        xml.param(:name => @name, :value => @value)
       end
     end
 
@@ -20,20 +21,33 @@ module IMML
       def parse(node)
         @api_key=node[:api_key]
       end
+
+      def write(xml)
+        xml.authentication(:api_key => @api_key)
+      end
     end
 
     class Reseller
       attr_accessor :reseller_id, :reseller_dilicom_gencod
+
       def parse(node)
         @reseller_id=node[:reseller_id]
         @reseller_dilicom_gencod=node[:reseller_dilicom_gencod]
       end
+
     end
 
     class Emitter < Reseller
+
+      def write(xml)
+        xml.emitter(:reseller_id => @reseller_id, :reseller_dilicom_gencod => @reseller_dilicom_gencod)
+      end
     end
 
     class Recipient < Reseller
+      def write(xml)
+        xml.recipient(:reseller_id => @reseller_id, :reseller_dilicom_gencod => @reseller_dilicom_gencod)
+      end
     end
 
     class Test
@@ -51,6 +65,14 @@ module IMML
           end
         end
       end
+
+      def write(xml)
+        xml.receive(:url => @receive_url)
+        xml.check(:url => @check_url)
+        xml.sales(:url => @sales_url)
+
+      end
+
     end
 
     class Reason
@@ -58,6 +80,10 @@ module IMML
 
       def parse(node)
         @type=node[:type]
+      end
+
+      def write(xml)
+        xml.reason(:type => @type)
       end
     end
 
@@ -98,6 +124,31 @@ module IMML
       end
 
       def write(xml)
+
+        xml.header {
+          unless @params.blank?
+            xml.params {
+              @params.each do |param|
+                param.write(xml)
+              end
+            }
+          end
+          if @authentication
+            @authentication.write(xml)
+          end
+          if @emitter
+            @emitter.write(xml)
+          end
+          if @recipient
+            @recipient.write(xml)
+          end
+          if @reason
+            @reason.write(xml)
+          end
+          if @test
+            @test.write(xml)
+          end
+        }
 
       end
     end
