@@ -56,6 +56,24 @@ module IMML
     def parse_file(file, valid=true)
       self.parse_data(File.open(file).read, valid)
     end
+
+    def write(xml)
+      xml.imml {
+        if self.header
+          self.header.write(xml)
+        end
+        if self.book
+          self.book.write(xml)
+        end
+      }
+    end
+
+    def xml_builder
+      builder = Nokogiri::XML::Builder.new do |xml|
+        self.write(xml)
+      end
+      builder
+    end
   end
 
 

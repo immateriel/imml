@@ -126,6 +126,15 @@ module IMML
         @uid=node["uid"]
       end
 
+      def self.create(name,uid=nil)
+        collection=Collection.new
+        collection.name=name
+        if uid
+          collection.uid=uid
+        end
+        collection
+      end
+
       def write(xml)
         super
         if @name
@@ -146,6 +155,13 @@ module IMML
         super
         @type=node["type"]
         @identifier=Text.new(node.text)
+      end
+
+      def self.create(type,identifier)
+        topic=Topic.new
+        topic.type=type
+        topic.identifier=Text.new(identifier)
+        topic
       end
 
       def write(xml)
@@ -169,6 +185,15 @@ module IMML
         @name=Text.new(node.text)
       end
 
+      def self.create(name, uid=nil)
+        publisher=Publisher.new
+        publisher.name=Text.new(name)
+        if uid
+          publisher.uid=uid
+        end
+        publisher
+      end
+
       def write(xml)
         super
         if @name
@@ -189,6 +214,16 @@ module IMML
 
         @contributors=[]
         @topics=[]
+      end
+
+      def self.create(title,language,description,subtitle=nil,publication=nil)
+        metadata=Metadata.new
+        metadata.title=Text.new(title)
+        metadata.language=Text.new(language)
+        metadata.description=Text.new(description)
+        metadata.publication=publication
+        metadata.subtitle=Text.new(subtitle)
+        metadata
       end
 
       def parse(node)
@@ -231,7 +266,6 @@ module IMML
       end
 
       def write(xml)
-
         xml.metadata {
           xml.title(self.title)
           if self.subtitle
@@ -248,7 +282,7 @@ module IMML
           end
 
           xml.topics {
-            @topics.each do |topic|
+            self.topics.each do |topic|
               topic.write(xml)
             end
           }
@@ -257,8 +291,8 @@ module IMML
             self.publisher.write(xml)
           end
 
-          if @description
-            xml.description(@description)
+          if self.description
+            xml.description(self.description)
           end
 
         }
@@ -271,6 +305,13 @@ module IMML
         super
         @mimetype=node["mimetype"]
         @url=node["url"]
+      end
+
+      def self.create(mimetype,url)
+        asset=self.new
+        asset.mimetype=mimetype
+        asset.url=url
+        asset
       end
 
       def write(xml)
@@ -315,6 +356,10 @@ module IMML
       def initialize
         @extracts=[]
         @fulls=[]
+      end
+
+      def self.create
+        Assets.new
       end
 
       def parse(node)
@@ -454,10 +499,10 @@ module IMML
     class Book
       attr_accessor :ean, :metadata, :assets, :offer
 
-      def initialize
-        @metadata=Metadata.new
-        @assets=Assets.new
-        @offer=Offer.new
+      def self.create(ean)
+        book=Book.new
+        book.ean=ean
+        book
       end
 
       def parse(node)
@@ -465,20 +510,29 @@ module IMML
         node.children.each do |child|
           case child.name
             when "metadata"
+              @metadata=Metadata.new
               @metadata.parse(child)
             when "assets"
+              @assets=Assets.new
               @assets.parse(child)
             when "offer"
+              @offer=Offer.new
               @offer.parse(child)
           end
         end
       end
 
       def write(xml)
-        xml.book(:ean=>@ean) {
-          @metadata.write(xml)
-          @assets.write(xml)
-          @offer.write(xml)
+        xml.book(:ean => @ean) {
+          if self.metadata
+            self.metadata.write(xml)
+          end
+          if self.assets
+            self.assets.write(xml)
+          end
+          if self.offer
+            self.offer.write(xml)
+          end
         }
       end
 
