@@ -382,15 +382,15 @@ module IMML
 
       def write(xml)
         xml.assets {
-        if @cover
-          @cover.write(xml)
+        if self.cover
+          self.cover.write(xml)
         end
 
-        @extracts.each do |e|
+        self.extracts.each do |e|
           e.write(xml)
         end
 
-        @fulls.each do |f|
+        self.fulls.each do |f|
           f.write(xml)
         end
         }
@@ -415,8 +415,8 @@ module IMML
       def write(xml)
         super
         xml.price(:currency=>@currency) {
-          xml.current_amount(@current_amount)
-          xml.territories(@territories)
+          xml.current_amount(self.current_amount)
+          xml.territories(self.territories)
         }
       end
     end
@@ -460,26 +460,26 @@ module IMML
 
       def write(xml)
         xml.offer {
-        if @medium
-          xml.medium(@medium)
+        if self.medium
+          xml.medium(self.medium)
         end
-        if @format
-          xml.format(@format)
+        if self.format
+          xml.format(self.format)
         end
-        if @protection
-          xml.protection(@protection)
+        if self.protection
+          xml.protection(self.protection)
         end
-        if @pagination
-          xml.pagination(@pagination)
+        if self.pagination
+          xml.pagination(self.pagination)
         end
-        if @ready_for_sale
-          xml.ready_for_sale(@ready_for_sale)
+        if self.ready_for_sale
+          xml.ready_for_sale(self.ready_for_sale)
         end
-        if @sales_start_at
-          xml.sales_start_at(@sales_start_at)
+        if self.sales_start_at
+          xml.sales_start_at(self.sales_start_at)
         end
         xml.prices {
-        @prices.each do |price|
+          self.prices.each do |price|
           price.write(xml)
         end
         }

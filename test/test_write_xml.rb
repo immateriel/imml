@@ -13,13 +13,16 @@ class TestWriteXml < Test::Unit::TestCase
       @doc.book.metadata.contributors << IMML::Book::Contributor.create("Sarah Slama","author")
       @doc.book.metadata.topics << IMML::Book::Topic.create("bisac","FIC027120")
 
+
       puts @doc.xml_builder.to_xml
 
     end
 
 
-    should "fail" do
-      assert_equal false, true
+    should "be valid" do
+        testdoc = IMML::Document.new
+      res=testdoc.parse_data(@doc.xml_builder.to_xml).length==0
+      assert_equal true,res
     end
 
 

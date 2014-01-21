@@ -11,7 +11,7 @@ module IMML
       end
 
       def write(xml)
-        xml.param(:name => @name, :value => @value)
+        xml.param(:name => self.name, :value => self.value)
       end
     end
 
@@ -23,7 +23,7 @@ module IMML
       end
 
       def write(xml)
-        xml.authentication(:api_key => @api_key)
+        xml.authentication(:api_key => self.api_key)
       end
     end
 
@@ -40,13 +40,13 @@ module IMML
     class Emitter < Reseller
 
       def write(xml)
-        xml.emitter(:reseller_id => @reseller_id, :reseller_dilicom_gencod => @reseller_dilicom_gencod)
+        xml.emitter(:reseller_id => self.reseller_id, :reseller_dilicom_gencod => self.reseller_dilicom_gencod)
       end
     end
 
     class Recipient < Reseller
       def write(xml)
-        xml.recipient(:reseller_id => @reseller_id, :reseller_dilicom_gencod => @reseller_dilicom_gencod)
+        xml.recipient(:reseller_id => self.reseller_id, :reseller_dilicom_gencod => self.reseller_dilicom_gencod)
       end
     end
 
@@ -67,9 +67,9 @@ module IMML
       end
 
       def write(xml)
-        xml.receive(:url => @receive_url)
-        xml.check(:url => @check_url)
-        xml.sales(:url => @sales_url)
+        xml.receive(:url => self.receive_url)
+        xml.check(:url => self.check_url)
+        xml.sales(:url => self.sales_url)
 
       end
 
@@ -83,7 +83,7 @@ module IMML
       end
 
       def write(xml)
-        xml.reason(:type => @type)
+        xml.reason(:type => self.type)
       end
     end
 
@@ -128,25 +128,25 @@ module IMML
         xml.header {
           unless @params.blank?
             xml.params {
-              @params.each do |param|
+              self.params.each do |param|
                 param.write(xml)
               end
             }
           end
-          if @authentication
-            @authentication.write(xml)
+          if self.authentication
+            self.authentication.write(xml)
           end
-          if @emitter
-            @emitter.write(xml)
+          if self.emitter
+            self.emitter.write(xml)
           end
-          if @recipient
-            @recipient.write(xml)
+          if self.recipient
+            self.recipient.write(xml)
           end
-          if @reason
-            @reason.write(xml)
+          if self.reason
+            self.reason.write(xml)
           end
-          if @test
-            @test.write(xml)
+          if self.test
+            self.test.write(xml)
           end
         }
 
