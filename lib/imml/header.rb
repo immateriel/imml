@@ -27,7 +27,7 @@ module IMML
       end
     end
 
-    class Reseller
+    class Agent
       attr_accessor :reseller_id, :reseller_dilicom_gencod
 
       def parse(node)
@@ -35,19 +35,10 @@ module IMML
         @reseller_dilicom_gencod=node[:reseller_dilicom_gencod]
       end
 
-    end
-
-    class Emitter < Reseller
-
       def write(xml)
         xml.emitter(:reseller_id => self.reseller_id, :reseller_dilicom_gencod => self.reseller_dilicom_gencod)
       end
-    end
 
-    class Recipient < Reseller
-      def write(xml)
-        xml.recipient(:reseller_id => self.reseller_id, :reseller_dilicom_gencod => self.reseller_dilicom_gencod)
-      end
     end
 
     class Test
@@ -75,18 +66,6 @@ module IMML
 
     end
 
-    class Reason
-      attr_accessor :type
-
-      def parse(node)
-        @type=node[:type]
-      end
-
-      def write(xml)
-        xml.reason(:type => self.type)
-      end
-    end
-
     class Header
       attr_accessor :params, :authentication, :emitter, :recipient, :test, :reason
 
@@ -107,15 +86,9 @@ module IMML
             when "authentication"
               @authentication=Authentication.new
               @authentication.parse(child)
-            when "emitter"
-              @emitter=Recipient.new
+            when "agent"
+              @emitter=Agent.new
               @emitter.parse(child)
-            when "recipient"
-              @recipient=Recipient.new
-              @recipient.parse(child)
-            when "reason"
-              @reason=Reason.new
-              @reason.parse(child)
             when "test"
               @test=Test.new
               @test.parse(child)
@@ -136,14 +109,8 @@ module IMML
           if self.authentication
             self.authentication.write(xml)
           end
-          if self.emitter
+          if self.agent
             self.emitter.write(xml)
-          end
-          if self.recipient
-            self.recipient.write(xml)
-          end
-          if self.reason
-            self.reason.write(xml)
           end
           if self.test
             self.test.write(xml)
