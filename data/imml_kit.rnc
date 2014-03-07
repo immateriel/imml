@@ -9,12 +9,11 @@
 #default namespace = "http://ns.immateriel.fr/imml"
 namespace x = "http://www.w3.org/1999/xhtml" 
 
-## book and order subschemas may be changed independently in the calling schema
-## example : imml.book.schema.version |= "2.0"
-imml.book.schema.version = notAllowed
-imml.order.schema.version = notAllowed
+## book and order subschemas may be overloaded independently in the calling schema
+## example : include imml_kit.rnc { imml.book.schema.version = "2.1" }
+imml.schema.version = "1.8"
 
-## when an element is not supported at the emitter end, it must have
+## when an element is not supported at the provider end, it must have
 ## an unsupported attribute with "true" value. Otherwise, it may explicitly 
 ## indicate support with a "false" value, but absence of this att is ok too.
 imml.unsupported = attribute unsupported { "true" } & almostAnyContent
@@ -22,58 +21,65 @@ imml.not_unsupported = attribute unsupported { "false" }?
 
 start = 
    element imml { 
-      imml.message.attributes, 
-      imml.message.header,
-      imml.message.content
-}
+      imml.message.attributes & 
+      ( imml.message.error | 
+         ( imml.message.header?, imml.message.content? )
+      )
+   }
 
 imml.message.attributes = 
-   attribute timestamp { xsd:dateTime }?
+   attribute version { imml.schema.version }
+ & attribute timestamp { xsd:dateTime }?
  & attribute message-id { imml.message.id.datatype }?
+
+imml.message.error =  
+   element error {
+      attribute value { imml.message.error.values }
+    & empty
+ }
+
 
 # # # # #  # # # # # 
 # Transport Header #
 # # # #  # # # # # #
 imml.message.header =
    element header {
-      attribute reason { imml.header.reason.datatype }
-    & imml.header.params?
-    & imml.header.emitter_or_recipient
-    & imml.header.authentication
+      imml.header.params?
+      # Authentication is optional, but if present, should be associated with an agent.
+    & (imml.header.reseller
+     & imml.header.authentication?)?
     & imml.header.test?
    }
+
 # External parameters for requests (instead of typical REST parameters)
 imml.header.params =
    element params {
       element param { 
-         attribute name { xsd:NMTOKEN }
+         attribute name { imml.message.header.param.name.datatype }
        & attribute value { xsd:NMTOKEN }
       }+
    }
 
 # Emitter or recipient can use immateriel reseller id or clil gencod
-imml.header.emitter_or_recipient =
-   element emitter { imml.header.emitter_or_recipient.id }
- | element recipient { imml.header.emitter_or_recipient.id }
+imml.header.reseller =
+   element reseller { imml.header.reseller.id }
 
-imml.header.emitter_or_recipient.id =
-   attribute reseller_id { imml.reseller.id.datatype }
- | attribute reseller_dilicom_gencod { imml.reseller.clil_gencod.datatype }
+imml.header.reseller.id =
+   attribute id { imml.reseller.id.datatype }
+ | attribute dilicom_gencod { imml.reseller.clil_gencod.datatype }
  
 # Make sure the emitter is the right one
 imml.header.authentication =
    element authentication { 
-      attribute api_key { imml.authentification.key.datatype } 
+      attribute api_key { imml.authentication.key.datatype } 
    }
 
 # For testing new ws urls
 imml.header.test =
    element test {
-      element webhooks {
-         element receive { imml.header.url.attribute }
-       & element check { imml.header.url.attribute }
-       & element sales { imml.header.url.attribute }
-      }
+      element receive { imml.header.url.attribute }
+    & element check { imml.header.url.attribute }
+    & element sales { imml.header.url.attribute }
    }
 
 imml.header.url.attribute =
@@ -92,9 +98,7 @@ imml.message.content =
 ##########
 
 imml.book =
-   # the version attribute is a child of <imml>
-   attribute version { imml.book.schema.version }
- & element book {
+   element book {
       attribute ean { imml.book.ean.datatype }
     & attribute uid { imml.book.id.datatype }
     & imml.book.metadata
@@ -375,12 +379,19 @@ imml.book.offer.price.territories =
 ###########
 # As of version 0, nothing interesting
 imml.order = 
-   # the version attribute is a child of <imml>
-   attribute version { imml.order.schema.version }
- & element order {
-      almostAnyContent
+   element order {
+      imml.order.sale*
+    & almostAnyContent
    } 
 
+imml.order.sale =
+   element sale {
+      attribute ean { imml.book.ean.datatype }
+      & attribute qty { xsd:integer }
+      & attribute price { xsd:decimal { minInclusive="0" fractionDigits="2" } }
+      & attribute currency { imml.book.offer.price.currency.datatype }
+      & attribute country { imml.book.offer.territory.datatype }
+   }
 ########################################
 ## Tools for expressing "whatever child"
 ## See http://www.relaxng.org/compact-tutorial-20030326.html#id2816343
@@ -405,6 +416,9 @@ almostAnyContent =
 ###############
 ## Datatypes ##
 ###############
+imml.message.error.values = "bad_territory" | "out_of_tier" | "client_already_exists"
+imml.message.header.param.name.datatype = 
+   "ean" | "EAN" | "quantity" | "price" | "day" | "week" | "month" | "since"
 imml.book.assets.url.datatype = xsd:anyURI
 imml.book.assets.mimetype.datatype = 
    "image/jpeg" 
@@ -432,13 +446,15 @@ imml.book.offer.price.datatype =  xsd:decimal { minInclusive="0" fractionDigits=
 imml.book.metadata.language.datatype = list { List74+ }
 imml.uid.datatype = xsd:token { pattern="C[A-Z]{1}[0-9]+" }
 imml.message.id.datatype = xsd:NMTOKEN
-imml.header.reason.datatype = 
+imml.header.reason.provider.datatype = 
    "creation" | "update" | "temporary_fail" | "metadata_error" | "partner_ask" | "random"
+imml.header.reason.reseller.datatype = 
+   "test" | "update"| "metadata_error" | "partner_ask" | "random"
 
 imml.reseller.id.datatype = xsd:NMTOKEN
 # Diffuseurs/distributeurs commencent par 301, libraires par 302, éditeurs par 305.
 imml.reseller.clil_gencod.datatype = xsd:token { pattern="302[0-9]{10}"}
-imml.authentification.key.datatype = xsd:NMTOKEN
+imml.authentication.key.datatype = xsd:NMTOKEN
 imml.header.url.datatype = xsd:anyURI
 
 imml.book.id.datatype = xsd:token { pattern="C[B][0-9]+" }

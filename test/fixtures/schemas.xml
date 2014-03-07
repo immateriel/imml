@@ -1,5 +1,18 @@
 <?xml version="1.0"?>
 <locatingRules xmlns="http://thaiopensource.com/ns/locating-rules/1.0">
+  <uri resource="reddition_2013-12_de_3027194284100.xml" uri="../../data/imml.rnc"/>
+  <uri resource="sales_mensuelles_chez_3027194284100.xml" uri="../../data/imml.rnc"/>
+  <uri resource="check_9782366020649_chez_3027194284100.xml" uri="../../data/imml.rnc"/>
+  <uri resource="demande_9782366020649_de_3027194284100.xml" uri="../../data/imml.rnc"/>
+  <uri resource="request_from_feedbooks_1.xml" uri="../../data/imml_test_corrections.rnc"/>
+  <uri resource="request_from_feedbooks_1.xml" uri="../../data/imml_test_corrections.rnc"/>
+  <uri resource="request_from_feedbooks_1.xml" uri="../../data/imml_test_corrections.rnc"/>
+  <uri resource="request_from_feedbooks_1.xml" uri="../../data/imml_test_corrections.rnc"/>
+  <uri resource="request_from_feedbooks_1.xml" uri="../../data/imml_test_corrections.rnc"/>
+  <uri resource="request_from_feedbooks_1.xml" uri="../../data/imml_test_corrections.rnc"/>
+  <uri resource="request_from_feedbooks_1.xml" uri="../../data/imml_test_corrections.rnc"/>
+  <uri resource="request_from_feedbooks_1.xml" uri="../../data/imml_test_corrections.rnc"/>
+  <uri resource="request_from_feedbooks_1.xml" uri="../../data/imml_test_corrections.rnc"/>
   <uri resource="9781909782471.xml" uri="../../data/imml.rnc"/>
   <uri resource="./fixtures/9781909782471_nh.xml" uri="../data/imml_nh.rnc"/>
   <uri resource="./fixtures/9781909782471.xml" uri="../data/imml.rnc"/>

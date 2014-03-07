@@ -1,17 +1,8 @@
 <imml version="2.0">
-  <header reason="random">
-    <params>
-      <param name="since" value="20140101"/>
-    </params>
-    <recipient reseller_dilicom_gencod="3025595821806"/>
-    <authentication api_key="9044cKazR_672"/>
-    <test>
-      <webhooks>
-	<check url="http://truc.im/ws/check"/>
-	<receive url="http://truc.im/ws/receive"/>
-	<sales url="http://truc.im/ws/sales"/>
-      </webhooks>
-    </test>
+  <header>
+    <!-- Bergère de France répond à un check sur 9781909782471 -->
+    <reseller dilicom_gencod="3027194284100"/>
+    <authentication api_key="WoC43KlQX3wg"/>
   </header>
   <book ean="9781909782471" uid="CB370201">
     <metadata>
