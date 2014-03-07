@@ -1,0 +1,9 @@
+<imml version="2.0">
+  <header>    
+    <!-- immatériel teste un titre sur http://ws.bergeredefrance.fr/imml/check -->
+    <reseller dilicom_gencod="3027194284100"/>
+    <params>
+      <param name="ean" value="978-2-366-02064-9"/>
+    </params>
+  </header>
+</imml>

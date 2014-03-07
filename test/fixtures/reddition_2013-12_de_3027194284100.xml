@@ -1,0 +1,9 @@
+<imml version="2.0">
+  <header>    
+    <!-- réponse de Bergère de France à une demande de reddition -->
+    <reseller dilicom_gencod="3027194284100"/>
+  </header>
+  <order>
+    <sale ean="9781909782471" qty="3" price="0.78" currency="EUR" country="FR"/> 
+  </order>
+</imml>

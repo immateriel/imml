@@ -1,0 +1,12 @@
+<imml version="1.9">
+  <header>    
+    <!-- La librairie Bergère de France à Bar-le-Duc veut tester ses urls -->
+    <reseller dilicom_gencod="3027194284100"/>
+    <authentication api_key="WoC43KlQX3wg"/>
+    <test>
+      <check url="http://ws.bergeredefrance.fr/imml/check"/>
+      <receive url="http://ws.bergeredefrance.fr/imml/receive"/>
+      <sales url="http://ws.bergeredefrance.fr/imml/ventes"/>
+    </test>
+  </header>
+</imml>
