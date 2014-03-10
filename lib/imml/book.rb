@@ -383,11 +383,9 @@ module IMML
             # on compare
             result=`compare -dissimilarity-threshold 1 -metric mae #{tmp1} #{tmp2} #{tmp3} 2>/dev/stdout`.chomp
             if cleanup
-              FileUtils.rm(tmp1)
-              FileUtils.rm(tmp2)
-              if File.exists?(tmp3)
-                FileUtils.rm(tmp3)
-              end
+              FileUtils.rm_f(tmp1)
+              FileUtils.rm_f(tmp2)
+              FileUtils.rm_f(tmp3)
             end
             result.gsub(/.*[^\(]\((.*)\).*/, '\1').to_f
           else
