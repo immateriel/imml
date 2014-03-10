@@ -1,4 +1,6 @@
 require 'date'
+require 'digest'
+
 module IMML
 
   module Book
@@ -41,12 +43,16 @@ module IMML
 
     class Text < String
       def like?(t)
-        dist=Levenshtein.distance(self, t)
-        if dist < @text.length * 0.1
+        dist=self.distance(t)
+        if dist < ((self.length + t.length)/2.0) * 0.33
           true
         else
           false
         end
+      end
+
+      def distance(t)
+        Levenshtein.distance(self, t)
       end
 
       def without_html
@@ -300,7 +306,7 @@ module IMML
     end
 
     class Asset < Entity
-      attr_accessor :mimetype, :url
+      attr_accessor :mimetype, :url, :checksum
       def parse(node)
         super
         @mimetype=node["mimetype"]
@@ -324,6 +330,9 @@ module IMML
         end
       end
 
+      def check_file(local_file)
+        true
+      end
     end
 
     class Cover < Asset
@@ -332,9 +341,85 @@ module IMML
         xml.cover(self.attributes)
       end
 
+      # Wget needed - use curl instead ?
+      def check_file(local_file)
+        uniq_str=Digest::MD5.hexdigest("#{url}:#{local_file}")
+        fn="/tmp/#{uniq_str}_"+File.basename(@url)
+        system("wget -q #{@url} -O #{fn}")
+        if File.exists?(fn)
+          check_result=self.class.check_image(fn, local_file, uniq_str)
+          FileUtils.rm(fn)
+          if check_result*100 < 25
+            true
+          else
+            false
+          end
+        else
+          false
+        end
+      end
+
+      private
+      # ImageMagick needed
+      def self.check_image(img1, img2, uniq_str, cleanup=true)
+        tmp1="/tmp/check_image_#{Time.now.to_i}_#{uniq_str}_tmp1.png"
+        # on supprime le transparent
+        conv1=`convert #{img1} -trim +repage -resize 64 #{tmp1}`
+        if File.exists?(tmp1)
+          # on recupere la taille
+          size1=`identify #{tmp1}`.chomp.gsub(/.*[^\d](\d+x\d+)[^\d].*/, '\1').split("x").map { |v| v.to_i }
+
+          tmp2="/tmp/check_image_#{Time.now.to_i}_#{uniq_str}_tmp2.png"
+          # on convertit l'image deux dans la taille de l'image un
+          conv2=`convert #{img2} -trim +repage -resize #{size1.first}x#{size1.last}\\! #{tmp2}`
+
+          if File.exists?(tmp2)
+            tmp3="/tmp/check_image_#{Time.now.to_i}_#{uniq_str}_tmp3.png"
+            # on compare
+            result=`compare -dissimilarity-threshold 1 -metric mae #{tmp1} #{tmp2} #{tmp3} 2>/dev/stdout`.chomp
+            if cleanup
+              FileUtils.rm(tmp1)
+              FileUtils.rm(tmp2)
+              if File.exists?(tmp3)
+                FileUtils.rm(tmp3)
+              end
+            end
+            result.gsub(/.*[^\(]\((.*)\).*/, '\1').to_f
+          else
+            1.0
+          end
+        else
+          1.0
+        end
+      end
     end
 
-    class Extract < Asset
+    class ChecksumAsset < Asset
+      def check_file(local_file)
+        check_checksum(local_file)
+      end
+
+      # ZIP needed
+      def calculate_checksum(local_file)
+        case @mimetype
+          when /epub/
+            Digest::MD5.hexdigest(`unzip -p #{local_file}`)
+          else
+            Digest::MD5.hexdigest(File.read(local_file))
+        end
+
+      end
+
+      def set_checksum(local_file)
+        @checksum=self.calculate_checksum(local_file)
+      end
+
+      def check_checksum(local_file)
+        @checksum == self.calculate_checksum(local_file)
+      end
+    end
+
+    class Extract < ChecksumAsset
       def write(xml)
         super
         xml.extract(self.attributes)
@@ -342,12 +427,11 @@ module IMML
 
     end
 
-    class Full < Asset
+    class Full < ChecksumAsset
       def write(xml)
         super
         xml.full(self.attributes)
       end
-
     end
 
     class Assets
