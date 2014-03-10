@@ -52,7 +52,7 @@ module IMML
       end
 
       def distance(t)
-        Levenshtein.distance(self, t)
+        Levenshtein.distance(self.without_html.with_stripped_spaces.downcase, self.class.new(t).without_html.with_stripped_spaces.downcase)
       end
 
       def without_html
@@ -527,7 +527,9 @@ module IMML
             when "ready_for_sale"
               @ready_for_sale=(child.text == "true")
             when "sales_start_at"
-              @sales_start_at=Date.strptime(child.text,"%Y-%m-%d")
+              unless child["unsupported"]
+                @sales_start_at=Date.strptime(child.text,"%Y-%m-%d")
+              end
             when "prices"
               child.children.each do |price_node|
                 if price_node.element?
