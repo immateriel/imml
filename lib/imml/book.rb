@@ -8,6 +8,10 @@ module IMML
     class Entity
       attr_accessor :attributes, :unsupported
 
+      def initialize
+        @attributes={}
+      end
+
       def parse(node)
         if node["unsupported"]
           @unsupported=true
@@ -81,6 +85,7 @@ module IMML
       attr_accessor :name, :role, :uid
 
       def initialize
+        super
         @role=ContributorRole.new
       end
 
@@ -506,8 +511,24 @@ module IMML
       end
     end
 
+    class SalesStartAt < Entity
+      attr_accessor :date
+
+      def parse(node)
+        super
+        if node.text and node.text!=""
+          @date=Date.strptime(node.text,"%Y-%m-%d")
+        end
+      end
+
+      def write(xml)
+        super
+        xml.sales_start_at(self.attributes,@date)
+      end
+    end
+
     class Offer
-      attr_accessor :medium, :format, :pagination, :ready_for_sale, :sales_start_at, :prices, :prices_with_currency
+      attr_accessor :medium, :format, :pagination, :ready_for_sale, :sales_start_at, :prices, :prices_with_currency, :protection
 
       def initialize
         @prices=[]
@@ -528,9 +549,8 @@ module IMML
             when "ready_for_sale"
               @ready_for_sale=(child.text == "true")
             when "sales_start_at"
-              unless child["unsupported"]
-                @sales_start_at=Date.strptime(child.text,"%Y-%m-%d")
-              end
+              @sales_start_at=SalesStartAt.new
+              @sales_start_at.parse(child)
             when "prices"
               child.children.each do |price_node|
                 if price_node.element?
@@ -563,7 +583,7 @@ module IMML
           xml.ready_for_sale(self.ready_for_sale)
         end
         if self.sales_start_at
-          xml.sales_start_at(self.sales_start_at)
+          self.sales_start_at.write(xml)
         end
         xml.prices {
           self.prices.each do |price|
