@@ -490,7 +490,8 @@ module IMML
         node.children.each do |child|
           case child.name
             when "current_amount"
-              @current_amount=child.text.to_i
+              # F or I ?
+              @current_amount=child.text.to_f
             when "territories"
               @territories=Text.new(child.text)
           end

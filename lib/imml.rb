@@ -35,11 +35,13 @@ module IMML
               end
           end
         end
+        true
       else
         puts "IMML is invalid: "
         errors.each do |error|
           puts " #{error.file}:#{error.line}:#{error.column}: error: #{error.message}"
         end
+        false
       end
     end
 
