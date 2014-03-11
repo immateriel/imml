@@ -353,7 +353,7 @@ module IMML
         system("wget -q #{@url} -O #{fn}")
         if File.exists?(fn)
           check_result=self.class.check_image(fn, local_file, uniq_str)
-          FileUtils.rm(fn)
+          FileUtils.rm_f(fn)
           if check_result*100 < 25
             true
           else
