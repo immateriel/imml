@@ -233,7 +233,7 @@ module IMML
         metadata.language=Text.new(language)
         metadata.description=Text.new(description)
         metadata.publication=publication
-        if subtitle
+        if subtitle and subtitle!=""
           metadata.subtitle=Text.new(subtitle)
         end
         metadata
@@ -289,6 +289,10 @@ module IMML
               c.write(xml)
             end
           }
+
+          if self.language
+            xml.language(self.language)
+          end
 
           if self.collection
             self.collection.write(xml)
