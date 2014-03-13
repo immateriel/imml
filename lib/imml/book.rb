@@ -489,6 +489,14 @@ module IMML
 
     class Price < Entity
       attr_accessor :currency, :current_amount, :territories
+
+      def self.create(currency,amount,territories)
+        price=Price.new
+        price.currency=currency
+        price.current_amount=amount
+        price.territories=territories
+        price
+      end
       def parse(node)
         super
         @currency=node["currency"]
@@ -514,6 +522,12 @@ module IMML
     class SalesStartAt < Entity
       attr_accessor :date
 
+      def self.create(date)
+        sales_start_at=SalesStartAt.new
+        sales_start_at.date=date
+        sales_start_at
+      end
+
       def parse(node)
         super
         if node.text and node.text!=""
@@ -527,8 +541,17 @@ module IMML
       end
     end
 
-    class Offer
+    class Offer < Entity
       attr_accessor :medium, :format, :pagination, :ready_for_sale, :sales_start_at, :prices, :prices_with_currency, :protection
+
+      def self.create(medium, format, protection, ready_for_sale)
+        offer=Offer.new
+        offer.medium=medium
+        offer.format=format
+        offer.protection=protection
+        offer.ready_for_sale=ready_for_sale
+        offer
+      end
 
       def initialize
         @prices=[]
