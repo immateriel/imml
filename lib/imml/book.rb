@@ -233,7 +233,9 @@ module IMML
         metadata.language=Text.new(language)
         metadata.description=Text.new(description)
         metadata.publication=publication
-        metadata.subtitle=Text.new(subtitle)
+        if subtitle
+          metadata.subtitle=Text.new(subtitle)
+        end
         metadata
       end
 
