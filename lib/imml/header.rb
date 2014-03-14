@@ -109,8 +109,8 @@ module IMML
           if self.authentication
             self.authentication.write(xml)
           end
-          if self.agent
-            self.emitter.write(xml)
+          if self.reseller
+            self.reseller.write(xml)
           end
           if self.test
             self.test.write(xml)
