@@ -58,10 +58,11 @@ module IMML
       end
 
       def write(xml)
-        xml.receive(:url => self.receive_url)
-        xml.check(:url => self.check_url)
-        xml.sales(:url => self.sales_url)
-
+        xml.test {
+          xml.receive(:url => self.receive_url)
+          xml.check(:url => self.check_url)
+          xml.sales(:url => self.sales_url)
+        }
       end
 
     end
