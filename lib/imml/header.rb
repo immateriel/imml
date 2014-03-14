@@ -5,6 +5,13 @@ module IMML
     class Param
       attr_accessor :name, :value
 
+      def self.create(name,value)
+        param=Param.new
+        param.name=name
+        param.value=value
+        param
+      end
+
       def parse(node)
         @name=node[:name]
         @value=node[:value]
@@ -18,6 +25,12 @@ module IMML
     class Authentication
       attr_accessor :api_key
 
+      def self.create(api_key)
+        authentication=Authentication.new
+        authentication.api_key=api_key
+        authentication
+      end
+
       def parse(node)
         @api_key=node[:api_key]
       end
@@ -29,6 +42,13 @@ module IMML
 
     class Reseller
       attr_accessor :reseller_id, :reseller_dilicom_gencod
+
+      def self.create(reseller_id,reseller_dilicom_gencod=nil)
+        reseller=Reseller.new
+        reseller.reseller_id=reseller_id
+        reseller.reseller_dilicom_gencod=reseller_dilicom_gencod
+        reseller
+      end
 
       def parse(node)
         @reseller_id=node[:reseller_id]
@@ -43,6 +63,14 @@ module IMML
 
     class Test
       attr_accessor :receive_url, :check_url, :sales_url
+
+      def self.create(receive_url,check_url,sales_url)
+        test=Test.new
+        test.receive_url=receive_url
+        test.check_url=check_url
+        test.sales_url=sales_url
+        test
+      end
 
       def parse(node)
         node.children.each do |child|
@@ -75,6 +103,10 @@ module IMML
 
     class Header
       attr_accessor :params, :authentication, :reseller, :test, :reason
+
+      def self.create
+        Header.new
+      end
 
       def initialize
         @params=[]
