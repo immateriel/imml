@@ -567,10 +567,11 @@ module IMML
           xml.current_amount(self.current_amount)
           xml.territories(self.territories)
           if @intervals.length > 0
-            xml.intervals
+            xml.intervals {
               @intervals.each do |interval|
                 interval.write(xml)
               end
+            }
             end
         }
       end
