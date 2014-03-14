@@ -85,9 +85,11 @@ module IMML
           case child.name
             when "params"
               child.children.each do |param_node|
-                param=Param.new
-                param.parse(param_node)
-                @params << param
+                if param_node.element?
+                  param=Param.new
+                  param.parse(param_node)
+                  @params << param
+                end
               end
             when "authentication"
               @authentication=Authentication.new

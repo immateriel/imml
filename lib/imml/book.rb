@@ -554,9 +554,11 @@ module IMML
               @territories=Text.new(child.text)
             when "intervals"
               child.children.each do |interval_node|
-                interval=Interval.new
-                interval.parse(interval_node)
-                @intervals << interval
+                if interval_node.element?
+                  interval=Interval.new
+                  interval.parse(interval_node)
+                  @intervals << interval
+                end
               end
           end
         end
