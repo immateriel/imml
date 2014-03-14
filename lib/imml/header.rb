@@ -48,20 +48,26 @@ module IMML
         node.children.each do |child|
           case child.name
             when "receive"
-              @receive_url=node[:url]
+              @receive_url=child[:url]
             when "check"
-              @check_url=node[:url]
+              @check_url=child[:url]
             when "sales"
-              @sales_url=node[:url]
+              @sales_url=child[:url]
           end
         end
       end
 
       def write(xml)
         xml.test {
-          xml.receive(:url => self.receive_url)
-          xml.check(:url => self.check_url)
-          xml.sales(:url => self.sales_url)
+          if self.receive_url
+            xml.receive(:url => self.receive_url)
+          end
+          if self.check_url
+            xml.check(:url => self.check_url)
+          end
+          if self.sales_url
+            xml.sales(:url => self.sales_url)
+          end
         }
       end
 
@@ -71,7 +77,6 @@ module IMML
       attr_accessor :params, :authentication, :reseller, :test, :reason
 
       def initialize
-
         @params=[]
       end
 
