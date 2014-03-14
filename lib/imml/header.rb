@@ -27,7 +27,7 @@ module IMML
       end
     end
 
-    class Agent
+    class Reseller
       attr_accessor :reseller_id, :reseller_dilicom_gencod
 
       def parse(node)
@@ -36,7 +36,7 @@ module IMML
       end
 
       def write(xml)
-        xml.emitter(:reseller_id => self.reseller_id, :reseller_dilicom_gencod => self.reseller_dilicom_gencod)
+        xml.reseller(:reseller_id => self.reseller_id, :reseller_dilicom_gencod => self.reseller_dilicom_gencod)
       end
 
     end
@@ -67,7 +67,7 @@ module IMML
     end
 
     class Header
-      attr_accessor :params, :authentication, :emitter, :recipient, :test, :reason
+      attr_accessor :params, :authentication, :reseller, :test, :reason
 
       def initialize
 
@@ -86,9 +86,9 @@ module IMML
             when "authentication"
               @authentication=Authentication.new
               @authentication.parse(child)
-            when "agent"
-              @emitter=Agent.new
-              @emitter.parse(child)
+            when "reseller"
+              @reseller=Reseller.new
+              @reseller.parse(child)
             when "test"
               @test=Test.new
               @test.parse(child)
