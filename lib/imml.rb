@@ -76,8 +76,11 @@ module IMML
       end
       builder
     end
+
+    def to_xml
+      self.xml_builder.to_xml
+    end
+
   end
-
-
 
 end
