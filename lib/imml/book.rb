@@ -491,8 +491,48 @@ module IMML
 
     end
 
+    class Interval < Entity
+      attr_accessor :start_at, :end_at, :amount
+
+      def self.create(amount,start_at=nil,end_at=nil)
+        interval=Interval.new
+        interval.amount=amount
+        interval.start_at=start_at
+        interval.end_at=end_at
+        interval
+      end
+
+      def parse(node)
+        @amount=node.text.to_f
+        if node["start_at"]
+          @start_at=Date.strptime(node["start_at"],"%Y-%m-%d")
+        end
+        if node["end_at"]
+          @end_at=Date.strptime(node["end_at"],"%Y-%m-%d")
+        end
+      end
+
+      def write(xml)
+        super
+        attrs=self.attributes
+        if @start_at
+          attrs[:start_at]=@start_at
+        end
+        if @end_at
+          attrs[:end_at]=@end_at
+        end
+        xml.interval(attrs,@amount)
+      end
+
+
+    end
+
     class Price < Entity
-      attr_accessor :currency, :current_amount, :territories
+      attr_accessor :currency, :current_amount, :territories, :intervals
+
+      def initialize
+        @intervals=[]
+      end
 
       def self.create(currency,amount,territories)
         price=Price.new
@@ -501,16 +541,23 @@ module IMML
         price.territories=territories
         price
       end
+
       def parse(node)
         super
         @currency=node["currency"]
         node.children.each do |child|
           case child.name
             when "current_amount"
-              # F or I ?
+              # Float or Integer ?
               @current_amount=child.text.to_f
             when "territories"
               @territories=Text.new(child.text)
+            when "intervals"
+              child.children.each do |interval_node|
+                interval=Interval.new
+                interval.parse(interval_node)
+                @intervals << interval
+              end
           end
         end
       end
@@ -519,6 +566,12 @@ module IMML
         xml.price(:currency=>@currency) {
           xml.current_amount(self.current_amount)
           xml.territories(self.territories)
+          if @intervals.length > 0
+            xml.intervals
+              @intervals.each do |interval|
+                interval.write(xml)
+              end
+            end
         }
       end
     end
