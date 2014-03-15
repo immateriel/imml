@@ -7,7 +7,9 @@ filename=ARGV[0]
 
 if filename
   doc=IMML::Document.new
-  doc.parse_file(filename)
+  doc.parse_file(filename,false)
+
+  puts "Version: #{doc.version}"
 
   if doc.book
     puts " Book"
@@ -15,7 +17,9 @@ if filename
     puts "  Metadata"
     puts "   Title: #{doc.book.metadata.title}"
     puts "   Subtitle: #{doc.book.metadata.subtitle}"
-    puts "   Collection: #{doc.book.metadata.collection.name}"
+    if doc.book.metadata.collection
+      puts "   Collection: #{doc.book.metadata.collection.name}"
+    end
     puts "   Language: #{doc.book.metadata.language}"
     puts "   Publication: #{doc.book.metadata.publication}"
     puts "   Publisher: #{doc.book.metadata.publisher.name}"
@@ -51,7 +55,9 @@ if filename
     puts "   Format: #{doc.book.offer.format}" if doc.book.offer.format
     puts "   Pagination: #{doc.book.offer.pagination}" if doc.book.offer.pagination
     puts "   Ready for sale: #{doc.book.offer.ready_for_sale}"
-    puts "   Sales start at: #{doc.book.offer.sales_start_at}"
+    if doc.book.offer.sales_start_at
+      puts "   Sales start at: #{doc.book.offer.sales_start_at.date}"
+    end
     puts "   Prices"
     doc.book.offer.prices.each do |price|
       puts "    Price: #{price.current_amount} #{price.currency} (#{price.territories})"

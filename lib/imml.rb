@@ -22,6 +22,7 @@ module IMML
         errors=validate(xml)
       end
       if errors.length==0
+        @version=xml.root["version"]
         xml.children.each do |root|
           case root.name
             when "imml"
