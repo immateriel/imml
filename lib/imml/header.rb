@@ -139,7 +139,7 @@ module IMML
       def write(xml)
 
         xml.header {
-          unless @params.blank?
+          if @params.length > 0
             xml.params {
               self.params.each do |param|
                 param.write(xml)

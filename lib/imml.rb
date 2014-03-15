@@ -12,6 +12,10 @@ module IMML
   class Document
     attr_accessor :version, :header, :book, :order
 
+    def initialize
+      @version="2.0"
+    end
+
     def parse(xml, valid=true)
       errors=[]
       if valid
@@ -60,7 +64,7 @@ module IMML
     end
 
     def write(xml)
-      xml.imml {
+      xml.imml(:version=>@version) {
         if self.header
           self.header.write(xml)
         end
