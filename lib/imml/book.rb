@@ -630,11 +630,9 @@ module IMML
     class Offer < Entity
       attr_accessor :medium, :pagination, :ready_for_sale, :sales_start_at, :prices, :prices_with_currency, :sales_models
 
-      def self.create(medium, format, protection, ready_for_sale)
+      def self.create(medium, ready_for_sale)
         offer=Offer.new
         offer.medium=medium
-        offer.format=format
-        offer.protection=protection
         offer.ready_for_sale=ready_for_sale
         offer
       end
