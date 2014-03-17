@@ -601,8 +601,34 @@ module IMML
       end
     end
 
+    class SalesModel < Entity
+      attr_accessor :type, :available, :customer, :format, :protection
+
+      def self.create(type,available,customer,format,protection)
+        model=SalesModel.new
+        model.type=type
+        model.available=available
+        model.customer=customer
+        model.format=format
+        model.protection=protection
+        model
+      end
+
+      def parse(node)
+        @type=node["type"]
+        @available=node["available"] == "true" ? true : false
+        @customer=node["customer"]
+        @format=node["format"]
+        @protection=node["protection"]
+      end
+
+      def write(xml)
+        xml.sales_model(:type=>@type, :available=>@available, :customer=>@customer, :format=>@format, :protection=>@protection)
+      end
+    end
+
     class Offer < Entity
-      attr_accessor :medium, :format, :pagination, :ready_for_sale, :sales_start_at, :prices, :prices_with_currency, :protection
+      attr_accessor :medium, :pagination, :ready_for_sale, :sales_start_at, :prices, :prices_with_currency, :sales_models
 
       def self.create(medium, format, protection, ready_for_sale)
         offer=Offer.new
@@ -616,6 +642,7 @@ module IMML
       def initialize
         @prices=[]
         @prices_with_currency={}
+        @sales_models=[]
       end
 
       def parse(node)
@@ -623,10 +650,6 @@ module IMML
           case child.name
             when "medium"
               @medium=child.text
-            when "format"
-              @format=child.text
-            when "protection"
-              @protection=child.text
             when "pagination"
               @pagination=child.text.to_i
             when "ready_for_sale"
@@ -643,6 +666,14 @@ module IMML
                 end
               end
               update_currency_hash
+            when "sales_models"
+              child.children.each do |model_node|
+                if model_node.element?
+                  model=SalesModel.new
+                  model.parse(model_node)
+                  @sales_models << model
+                end
+              end
           end
         end
 
@@ -652,12 +683,6 @@ module IMML
         xml.offer {
         if self.medium
           xml.medium(self.medium)
-        end
-        if self.format
-          xml.format(self.format)
-        end
-        if self.protection
-          xml.protection(self.protection)
         end
         if self.pagination
           xml.pagination(self.pagination)
@@ -672,6 +697,11 @@ module IMML
           self.prices.each do |price|
           price.write(xml)
         end
+        }
+        xml.sales_models {
+          self.sales_models.each do |model|
+            model.write(xml)
+          end
         }
 
         }
