@@ -317,14 +317,14 @@ module IMML
     end
 
     class Asset < Entity
-      attr_accessor :mimetype, :url, :checksum
+      attr_accessor :mimetype, :url, :checksum, :size, :last_modified
       def parse(node)
         super
         @mimetype=node["mimetype"]
         @url=node["url"]
       end
 
-      def self.create(mimetype,url)
+      def self.create(mimetype,url=nil)
         asset=self.new
         asset.mimetype=mimetype
         asset.url=url
@@ -338,6 +338,9 @@ module IMML
         end
         if @url
           @attributes[:url]=@url
+        end
+        if @checksum
+          @attributes[:checksum]=@checksum
         end
       end
 
