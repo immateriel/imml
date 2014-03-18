@@ -324,9 +324,12 @@ module IMML
         @url=node["url"]
       end
 
-      def self.create(mimetype,url=nil)
+      def self.create(mimetype,size,last_modified=nil,checksum=nil,url=nil)
         asset=self.new
         asset.mimetype=mimetype
+        asset.size=size
+        asset.last_modified=last_modified
+        asset.checksum=checksum
         asset.url=url
         asset
       end
