@@ -108,6 +108,7 @@ module IMML
         reason=Reason.new
         reason.type=type
         reason.text=text
+        reason
       end
 
       def parse(node)
