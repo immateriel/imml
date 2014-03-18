@@ -321,6 +321,9 @@ module IMML
       def parse(node)
         super
         @mimetype=node["mimetype"]
+        @size=node["size"]
+        @last_modified=node["last_modified"]
+        @checksum=node["checksum"]
         @url=node["url"]
       end
 
@@ -339,11 +342,17 @@ module IMML
         if @mimetype
           @attributes[:mimetype]=@mimetype
         end
-        if @url
-          @attributes[:url]=@url
+        if @size
+          @attributes[:size]=@size
+        end
+        if @last_modified
+          @attributes[:last_modified]=@last_modified
         end
         if @checksum
           @attributes[:checksum]=@checksum
+        end
+        if @url
+          @attributes[:url]=@url
         end
       end
 
