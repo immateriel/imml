@@ -369,7 +369,8 @@ module IMML
 
       # Wget needed - use curl instead ?
       def check_file(local_file)
-        uniq_str=Digest::MD5.hexdigest("#{url}:#{local_file}")
+#        Immateriel.info binding, @url
+        uniq_str=Digest::MD5.hexdigest("#{@url}:#{local_file}")
         fn="/tmp/#{uniq_str}_"+File.basename(@url)
         system("wget -q #{@url} -O #{fn}")
         if File.exists?(fn)
