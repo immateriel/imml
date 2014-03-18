@@ -101,6 +101,25 @@ module IMML
 
     end
 
+    class Reason
+      attr_accessor :type, :text
+
+      def self.create(type,text)
+        reason=Reason.new
+        reason.type=type
+        reason.text=text
+      end
+
+      def parse(node)
+        @type=node["type"]
+        @text=node.text
+      end
+
+      def write(xml)
+        xml.reason(:type=>self.type, self.text)
+      end
+    end
+
     class Header
       attr_accessor :params, :authentication, :reseller, :test, :reason
 
@@ -115,6 +134,9 @@ module IMML
       def parse(node)
         node.children.each do |child|
           case child.name
+            when "reason"
+              @reason=Reason.new
+              @reason.parse(child)
             when "params"
               child.children.each do |param_node|
                 if param_node.element?
@@ -139,6 +161,9 @@ module IMML
       def write(xml)
 
         xml.header {
+          if @reason
+            @reason.write(xml)
+          end
           if @params.length > 0
             xml.params {
               self.params.each do |param|
