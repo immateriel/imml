@@ -116,7 +116,7 @@ module IMML
       end
 
       def write(xml)
-        xml.reason(:type=>self.type, self.text)
+        xml.reason({:type=>self.type}, self.text)
       end
     end
 
