@@ -16,8 +16,11 @@ imml.schema.version = "1.8"
 ## when an element is not supported at the provider end, it must have
 ## an unsupported attribute with "true" value. Otherwise, it may explicitly 
 ## indicate support with a "false" value, but absence of this att is ok too.
-imml.unsupported = attribute unsupported { "true" } & almostAnyContent
-imml.not_unsupported = attribute unsupported { "false" }? 
+imml.unsupported = 
+   attribute unsupported { "true" } 
+ & almostAnyContent
+imml.supported = 
+   attribute unsupported { "false" }? 
 
 start = 
    element imml { 
@@ -261,47 +264,57 @@ imml.book.assets =
     & imml.book.assets.extract*
     & imml.book.assets.full*
    }
+imml.book.assets.common_mandatory =
+   attribute url { imml.book.assets.url.datatype }
+ & attribute mimetype { imml.book.assets.mimetype.datatype }
+
+imml.book.assets.common_optional =
+   attribute size { xsd:integer { minInclusive="0" } }?
+ & attribute last_modified { xsd:dateTime }?
+
 ## Cover files are made available to the receiving reseller via an ad hoc url
 imml.book.assets.cover =
    element cover {
-      imml.book.assets.url
-    & imml.book.assets.mimetype
+      imml.book.assets.common_optional
+    & imml.book.assets.common_mandatory
    }
 
 ## Extract files are made available to the receiving reseller via an ad hoc url
 imml.book.assets.extract =
    element extract {
-      imml.book.assets.extract.content
-    | ( attribute unsupported { "false" }
-     & imml.book.assets.extract.content )
-    | ( attribute unsupported { "true" }
-     & almostAnyContent)
+      imml.book.assets.extract.supported
+    | imml.book.assets.extract.unsupported
    }
+
+imml.book.assets.extract.supported =
+   imml.book.assets.extract.content
+ & imml.supported
+
+imml.book.assets.extract.unsupported =
+   imml.unsupported
+
 imml.book.assets.extract.content =
-      imml.book.assets.url
-    & imml.book.assets.mimetype
+   imml.book.assets.common_mandatory
+ & imml.book.assets.common_optional
 
 ## Content files are made available via an ad hoc url tailored for the receiving warehouse
 imml.book.assets.full =
    element full {
-      imml.book.assets.full.content
-    | ( attribute unsupported { "false" }
-     & imml.book.assets.full.content )
-    | ( attribute unsupported { "true" }
-     & almostAnyContent)
+      imml.book.assets.full.supported
+    | imml.book.assets.full.unsupported
    }
-imml.book.assets.full.content =
-      imml.book.assets.url
-    & imml.book.assets.mimetype
 
-imml.book.assets.mimetype = 
-   attribute mimetype {
-      imml.book.assets.mimetype.datatype
-   }
-imml.book.assets.url = 
-   attribute url {
-      imml.book.assets.url.datatype
-   }
+imml.book.assets.full.supported =
+   imml.book.assets.full.content
+ & imml.supported
+
+imml.book.assets.full.unsupported =
+   imml.unsupported
+
+imml.book.assets.full.content =
+   imml.book.assets.common_mandatory
+ & imml.book.assets.common_optional
+
 ###
 # Book offer
 ###
@@ -454,7 +467,6 @@ imml.book.assets.mimetype.datatype =
  | "application/x-mobipocket-ebook" 
  | "application/x-rar-compressed" 
  | "application/epub+zip"
-
 imml.book.contributor.datatype = list {"author" | "translator" | "editor" | "typesetter"}
 imml.bisac.id.datatype = xsd:token { pattern="[A-Z]{3}[0-9]{6}" } 
 imml.clil.id.datatype = xsd:token { pattern="[0-9]{4}" } 
@@ -466,7 +478,6 @@ imml.offer.manifestation.datatype = "epub" | "pdf" | "streaming" | "bundle"
 imml.offer.pagination.datatype = xsd:integer { minInclusive="0" }
 imml.offer.price.datatype =  xsd:decimal { minInclusive="0" fractionDigits="2" }
 imml.book.metadata.language.datatype = list { List74+ }
-imml.uid.datatype = xsd:token { pattern="C[A-Z]{1}[0-9]+" }
 imml.message.id.datatype = xsd:NMTOKEN
 imml.header.reason.type.datatype = "info" | "error"
 imml.header.url.datatype = xsd:anyURI
@@ -476,9 +487,10 @@ imml.reseller.id.datatype = xsd:NMTOKEN
 imml.reseller.clil_gencod.datatype = xsd:token { pattern="302[0-9]{10}"}
 imml.authentication.key.datatype = xsd:NMTOKEN
 
-imml.book.id.datatype = xsd:token { pattern="C[B][0-9]+" }
-imml.book.metadata.publisher.id.datatype = xsd:token { pattern="C[P][0-9]+" }
-imml.book.metadata.collection.id.datatype = xsd:token { pattern="C[C][0-9]+" }
+imml.uid.datatype = xsd:token 
+imml.book.id.datatype = xsd:token 
+imml.book.metadata.publisher.id.datatype = xsd:token
+imml.book.metadata.collection.id.datatype = xsd:token
 imml.book.contributor.id.datatype = imml.uid.datatype 
 imml.offer.ean.datatype = xsd:token { length="13" pattern="3[0-9]{12}|97[8-9][0-9]{10}" } 
 
