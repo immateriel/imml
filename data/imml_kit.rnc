@@ -111,7 +111,7 @@ imml.message.content =
 imml.book =
    element book {
       attribute ean { imml.offer.ean.datatype }
-    & attribute uid { imml.book.id.datatype }
+    & attribute uid { imml.book.id.datatype }?
     & imml.book.metadata
     & imml.book.assets
     & imml.offer
@@ -143,9 +143,7 @@ imml.book.metadata.pubdate =
 # Book current publisher
 imml.book.metadata.publisher =
    element publisher {
-      attribute uid {
-         imml.book.metadata.publisher.id.datatype
-      }
+      attribute uid { imml.book.metadata.publisher.id.datatype }?
     & text
    }
 # Book collection
@@ -166,14 +164,11 @@ imml.book.metadata.contributors =
    }
 imml.book.metadata.contributor =
    element contributor {
-      imml.book.metadata.contributor.uid
+      attribute uid { imml.book.contributor.id.datatype }?
     & imml.book.metadata.contributor.name
     & imml.book.metadata.contributor.role
    }
-imml.book.metadata.contributor.uid =
-   attribute uid {
-      imml.book.contributor.id.datatype
-   }
+
 imml.book.metadata.contributor.name =
    element name { text }
 imml.book.metadata.contributor.role =
