@@ -1,9 +1,5 @@
 <imml version="2.0">
-  <header>
-    <!-- Bergère de France répond à un check sur 9781909782471 -->
-    <reseller dilicom_gencod="3027194284100"/>
-    <authentication api_key="WoC43KlQX3wg"/>
-  </header>
+  <!-- Envoi des métadonnées sur l'URL de réception du libraire -->
   <book ean="9781909782471" uid="CB370201">
     <metadata>
       <title>Le faiseur d'anges</title>
