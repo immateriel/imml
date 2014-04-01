@@ -12,12 +12,17 @@ module IMML
   class Document
     attr_accessor :version, :header, :book, :order
 
+    def initialize
+      @version="2.0"
+    end
+
     def parse(xml, valid=true)
       errors=[]
       if valid
         errors=validate(xml)
       end
       if errors.length==0
+        @version=xml.root["version"]
         xml.children.each do |root|
           case root.name
             when "imml"
@@ -35,11 +40,13 @@ module IMML
               end
           end
         end
+        true
       else
         puts "IMML is invalid: "
         errors.each do |error|
           puts " #{error.file}:#{error.line}:#{error.column}: error: #{error.message}"
         end
+        false
       end
     end
 
@@ -58,7 +65,7 @@ module IMML
     end
 
     def write(xml)
-      xml.imml {
+      xml.imml(:version=>@version) {
         if self.header
           self.header.write(xml)
         end
@@ -74,8 +81,11 @@ module IMML
       end
       builder
     end
+
+    def to_xml
+      self.xml_builder.to_xml
+    end
+
   end
-
-
 
 end

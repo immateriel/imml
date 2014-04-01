@@ -1,10 +1,16 @@
 require 'date'
+require 'digest'
+
 module IMML
 
   module Book
 
     class Entity
       attr_accessor :attributes, :unsupported
+
+      def initialize
+        @attributes={}
+      end
 
       def parse(node)
         if node["unsupported"]
@@ -41,12 +47,16 @@ module IMML
 
     class Text < String
       def like?(t)
-        dist=Levenshtein.distance(self, t)
-        if dist < @text.length * 0.1
+        dist=self.distance(t)
+        if dist < ((self.length + t.length)/2.0) * 0.33
           true
         else
           false
         end
+      end
+
+      def distance(t)
+        Levenshtein.distance(self.without_html.with_stripped_spaces.downcase, self.class.new(t).without_html.with_stripped_spaces.downcase)
       end
 
       def without_html
@@ -75,6 +85,7 @@ module IMML
       attr_accessor :name, :role, :uid
 
       def initialize
+        super
         @role=ContributorRole.new
       end
 
@@ -222,7 +233,9 @@ module IMML
         metadata.language=Text.new(language)
         metadata.description=Text.new(description)
         metadata.publication=publication
-        metadata.subtitle=Text.new(subtitle)
+        if subtitle and subtitle!=""
+          metadata.subtitle=Text.new(subtitle)
+        end
         metadata
       end
 
@@ -277,6 +290,10 @@ module IMML
             end
           }
 
+          if self.language
+            xml.language(self.language)
+          end
+
           if self.collection
             self.collection.write(xml)
           end
@@ -300,16 +317,22 @@ module IMML
     end
 
     class Asset < Entity
-      attr_accessor :mimetype, :url
+      attr_accessor :mimetype, :url, :checksum, :size, :last_modified
       def parse(node)
         super
         @mimetype=node["mimetype"]
+        @size=node["size"]
+        @last_modified=node["last_modified"]
+        @checksum=node["checksum"]
         @url=node["url"]
       end
 
-      def self.create(mimetype,url)
+      def self.create(mimetype,size,last_modified=nil,checksum=nil,url=nil)
         asset=self.new
         asset.mimetype=mimetype
+        asset.size=size
+        asset.last_modified=last_modified
+        asset.checksum=checksum
         asset.url=url
         asset
       end
@@ -319,11 +342,23 @@ module IMML
         if @mimetype
           @attributes[:mimetype]=@mimetype
         end
+        if @size
+          @attributes[:size]=@size
+        end
+        if @last_modified
+          @attributes[:last_modified]=@last_modified
+        end
+        if @checksum
+          @attributes[:checksum]=@checksum
+        end
         if @url
           @attributes[:url]=@url
         end
       end
 
+      def check_file(local_file)
+        true
+      end
     end
 
     class Cover < Asset
@@ -332,9 +367,84 @@ module IMML
         xml.cover(self.attributes)
       end
 
+      # Wget needed - use curl instead ?
+      def check_file(local_file)
+#        Immateriel.info binding, @url
+        uniq_str=Digest::MD5.hexdigest("#{@url}:#{local_file}")
+        fn="/tmp/#{uniq_str}_"+File.basename(@url)
+        system("wget -q #{@url} -O #{fn}")
+        if File.exists?(fn)
+          check_result=self.class.check_image(fn, local_file, uniq_str)
+          FileUtils.rm_f(fn)
+          if check_result*100 < 25
+            true
+          else
+            false
+          end
+        else
+          false
+        end
+      end
+
+      private
+      # ImageMagick needed
+      def self.check_image(img1, img2, uniq_str, cleanup=true)
+        tmp1="/tmp/check_image_#{Time.now.to_i}_#{uniq_str}_tmp1.png"
+        # on supprime le transparent
+        conv1=`convert #{img1} -trim +repage -resize 64 #{tmp1}`
+        if File.exists?(tmp1)
+          # on recupere la taille
+          size1=`identify #{tmp1}`.chomp.gsub(/.*[^\d](\d+x\d+)[^\d].*/, '\1').split("x").map { |v| v.to_i }
+
+          tmp2="/tmp/check_image_#{Time.now.to_i}_#{uniq_str}_tmp2.png"
+          # on convertit l'image deux dans la taille de l'image un
+          conv2=`convert #{img2} -trim +repage -resize #{size1.first}x#{size1.last}\\! #{tmp2}`
+
+          if File.exists?(tmp2)
+            tmp3="/tmp/check_image_#{Time.now.to_i}_#{uniq_str}_tmp3.png"
+            # on compare
+            result=`compare -dissimilarity-threshold 1 -metric mae #{tmp1} #{tmp2} #{tmp3} 2>/dev/stdout`.chomp
+            if cleanup
+              FileUtils.rm_f(tmp1)
+              FileUtils.rm_f(tmp2)
+              FileUtils.rm_f(tmp3)
+            end
+            result.gsub(/.*[^\(]\((.*)\).*/, '\1').to_f
+          else
+            1.0
+          end
+        else
+          1.0
+        end
+      end
     end
 
-    class Extract < Asset
+    class ChecksumAsset < Asset
+      def check_file(local_file)
+        check_checksum(local_file)
+      end
+
+      # ZIP needed
+      def calculate_checksum(local_file)
+        case @mimetype
+          when /epub/
+            Digest::MD5.hexdigest(`unzip -p #{local_file}`)
+          else
+            Digest::MD5.hexdigest(File.read(local_file))
+        end
+
+      end
+
+      def set_checksum(local_file)
+        @checksum=self.calculate_checksum(local_file)
+      end
+
+      def check_checksum(local_file)
+        @checksum == self.calculate_checksum(local_file)
+      end
+    end
+
+    class Extract < ChecksumAsset
       def write(xml)
         super
         xml.extract(self.attributes)
@@ -342,12 +452,11 @@ module IMML
 
     end
 
-    class Full < Asset
+    class Full < ChecksumAsset
       def write(xml)
         super
         xml.full(self.attributes)
       end
-
     end
 
     class Assets
@@ -398,17 +507,75 @@ module IMML
 
     end
 
+    class Interval < Entity
+      attr_accessor :start_at, :end_at, :amount
+
+      def self.create(amount,start_at=nil,end_at=nil)
+        interval=Interval.new
+        interval.amount=amount
+        interval.start_at=start_at
+        interval.end_at=end_at
+        interval
+      end
+
+      def parse(node)
+        @amount=node.text.to_f
+        if node["start_at"]
+          @start_at=Date.strptime(node["start_at"],"%Y-%m-%d")
+        end
+        if node["end_at"]
+          @end_at=Date.strptime(node["end_at"],"%Y-%m-%d")
+        end
+      end
+
+      def write(xml)
+        super
+        attrs=self.attributes
+        if @start_at
+          attrs[:start_at]=@start_at
+        end
+        if @end_at
+          attrs[:end_at]=@end_at
+        end
+        xml.interval(attrs,@amount)
+      end
+
+
+    end
+
     class Price < Entity
-      attr_accessor :currency, :current_amount, :territories
+      attr_accessor :currency, :current_amount, :territories, :intervals
+
+      def initialize
+        @intervals=[]
+      end
+
+      def self.create(currency,amount,territories)
+        price=Price.new
+        price.currency=currency
+        price.current_amount=amount
+        price.territories=territories
+        price
+      end
+
       def parse(node)
         super
         @currency=node["currency"]
         node.children.each do |child|
           case child.name
             when "current_amount"
-              @current_amount=child.text.to_i
+              # Float or Integer ?
+              @current_amount=child.text.to_f
             when "territories"
               @territories=Text.new(child.text)
+            when "intervals"
+              child.children.each do |interval_node|
+                if interval_node.element?
+                  interval=Interval.new
+                  interval.parse(interval_node)
+                  @intervals << interval
+                end
+              end
           end
         end
       end
@@ -417,16 +584,79 @@ module IMML
         xml.price(:currency=>@currency) {
           xml.current_amount(self.current_amount)
           xml.territories(self.territories)
+          if @intervals.length > 0
+            xml.intervals {
+              @intervals.each do |interval|
+                interval.write(xml)
+              end
+            }
+            end
         }
       end
     end
 
-    class Offer
-      attr_accessor :medium, :format, :pagination, :ready_for_sale, :sales_start_at, :prices, :prices_with_currency
+    class SalesStartAt < Entity
+      attr_accessor :date
+
+      def self.create(date)
+        sales_start_at=SalesStartAt.new
+        sales_start_at.date=date
+        sales_start_at
+      end
+
+      def parse(node)
+        super
+        if node.text and node.text!=""
+          @date=Date.strptime(node.text,"%Y-%m-%d")
+        end
+      end
+
+      def write(xml)
+        super
+        xml.sales_start_at(self.attributes,@date)
+      end
+    end
+
+    class SalesModel < Entity
+      attr_accessor :type, :available, :customer, :format, :protection
+
+      def self.create(type,available,customer,format,protection)
+        model=SalesModel.new
+        model.type=type
+        model.available=available
+        model.customer=customer
+        model.format=format
+        model.protection=protection
+        model
+      end
+
+      def parse(node)
+        @type=node["type"]
+        @available=node["available"] == "true" ? true : false
+        @customer=node["customer"]
+        @format=node["format"]
+        @protection=node["protection"]
+      end
+
+      def write(xml)
+        xml.sales_model(:type=>@type, :available=>@available, :customer=>@customer, :format=>@format, :protection=>@protection)
+      end
+    end
+
+    class Offer < Entity
+      attr_accessor :medium, :pagination, :ready_for_sale, :sales_start_at, :prices, :prices_with_currency, :sales_models
+
+      def self.create(medium, ready_for_sale)
+        offer=Offer.new
+        offer.medium=medium
+        offer.ready_for_sale=ready_for_sale
+        offer
+      end
 
       def initialize
         @prices=[]
         @prices_with_currency={}
+        @sales_models=[]
       end
 
       def parse(node)
@@ -434,16 +664,13 @@ module IMML
           case child.name
             when "medium"
               @medium=child.text
-            when "format"
-              @format=child.text
-            when "protection"
-              @protection=child.text
             when "pagination"
               @pagination=child.text.to_i
             when "ready_for_sale"
               @ready_for_sale=(child.text == "true")
             when "sales_start_at"
-              @sales_start_at=Date.strptime(child.text,"%Y-%m-%d")
+              @sales_start_at=SalesStartAt.new
+              @sales_start_at.parse(child)
             when "prices"
               child.children.each do |price_node|
                 if price_node.element?
@@ -453,6 +680,14 @@ module IMML
                 end
               end
               update_currency_hash
+            when "sales_models"
+              child.children.each do |model_node|
+                if model_node.element?
+                  model=SalesModel.new
+                  model.parse(model_node)
+                  @sales_models << model
+                end
+              end
           end
         end
 
@@ -463,12 +698,6 @@ module IMML
         if self.medium
           xml.medium(self.medium)
         end
-        if self.format
-          xml.format(self.format)
-        end
-        if self.protection
-          xml.protection(self.protection)
-        end
         if self.pagination
           xml.pagination(self.pagination)
         end
@@ -476,12 +705,17 @@ module IMML
           xml.ready_for_sale(self.ready_for_sale)
         end
         if self.sales_start_at
-          xml.sales_start_at(self.sales_start_at)
+          self.sales_start_at.write(xml)
         end
         xml.prices {
           self.prices.each do |price|
           price.write(xml)
         end
+        }
+        xml.sales_models {
+          self.sales_models.each do |model|
+            model.write(xml)
+          end
         }
 
         }
