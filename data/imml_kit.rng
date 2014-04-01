@@ -207,9 +207,11 @@ Book ##
         <attribute name="ean">
           <ref name="imml.offer.ean.datatype"/>
         </attribute>
-        <attribute name="uid">
-          <ref name="imml.book.id.datatype"/>
-        </attribute>
+        <optional>
+          <attribute name="uid">
+            <ref name="imml.book.id.datatype"/>
+          </attribute>
+        </optional>
         <ref name="imml.book.metadata"/>
         <ref name="imml.book.assets"/>
         <ref name="imml.offer"/>
@@ -262,9 +264,11 @@ Book ##
   <define name="imml.book.metadata.publisher">
     <element name="publisher">
       <interleave>
-        <attribute name="uid">
-          <ref name="imml.book.metadata.publisher.id.datatype"/>
-        </attribute>
+        <optional>
+          <attribute name="uid">
+            <ref name="imml.book.metadata.publisher.id.datatype"/>
+          </attribute>
+        </optional>
         <text/>
       </interleave>
     </element>
@@ -304,16 +308,15 @@ Book ##
   <define name="imml.book.metadata.contributor">
     <element name="contributor">
       <interleave>
-        <ref name="imml.book.metadata.contributor.uid"/>
+        <optional>
+          <attribute name="uid">
+            <ref name="imml.book.contributor.id.datatype"/>
+          </attribute>
+        </optional>
         <ref name="imml.book.metadata.contributor.name"/>
         <ref name="imml.book.metadata.contributor.role"/>
       </interleave>
     </element>
-  </define>
-  <define name="imml.book.metadata.contributor.uid">
-    <attribute name="uid">
-      <ref name="imml.book.contributor.id.datatype"/>
-    </attribute>
   </define>
   <define name="imml.book.metadata.contributor.name">
     <element name="name">
