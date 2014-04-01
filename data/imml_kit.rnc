@@ -9,12 +9,11 @@
 #default namespace = "http://ns.immateriel.fr/imml"
 namespace x = "http://www.w3.org/1999/xhtml" 
 
-## book and order subschemas may be changed independently in the calling schema
-## example : imml.book.schema.version |= "2.0"
-imml.book.schema.version = notAllowed
-imml.order.schema.version = notAllowed
+## book and order subschemas may be overloaded independently in the calling schema
+## example : include imml_kit.rnc { imml.book.schema.version = "2.1" }
+imml.schema.version = "1.8"
 
-## when an element is not supported at the emitter end, it must have
+## when an element is not supported at the provider end, it must have
 ## an unsupported attribute with "true" value. Otherwise, it may explicitly 
 ## indicate support with a "false" value, but absence of this att is ok too.
 imml.unsupported = attribute unsupported { "true" } & almostAnyContent
@@ -22,58 +21,76 @@ imml.not_unsupported = attribute unsupported { "false" }?
 
 start = 
    element imml { 
-      imml.message.attributes, 
-      imml.message.header,
-      imml.message.content
-}
+      imml.message.attributes & 
+      ( imml.message.error | 
+         ( imml.header?, imml.message.content? )
+      )
+   }
 
 imml.message.attributes = 
-   attribute timestamp { xsd:dateTime }?
+   attribute version { imml.schema.version }
+ & attribute timestamp { xsd:dateTime }?
  & attribute message-id { imml.message.id.datatype }?
+
+imml.message.error =  
+   element error {
+      attribute value { imml.message.error.values }
+    & empty
+ }
+
 
 # # # # #  # # # # # 
 # Transport Header #
 # # # #  # # # # # #
-imml.message.header =
+imml.header =
    element header {
-      attribute reason { imml.header.reason.datatype }
-    & imml.header.params?
-    & imml.header.emitter_or_recipient
-    & imml.header.authentication
+      imml.header.params?
+      # Authentication is optional, but if present, should be associated with the actual reseller
+    & (imml.header.reseller & imml.header.authentication?)?
+    & imml.header.reason?
     & imml.header.test?
    }
+
 # External parameters for requests (instead of typical REST parameters)
 imml.header.params =
    element params {
       element param { 
-         attribute name { xsd:NMTOKEN }
+         attribute name { imml.header.param.name.datatype }
        & attribute value { xsd:NMTOKEN }
       }+
    }
 
 # Emitter or recipient can use immateriel reseller id or clil gencod
-imml.header.emitter_or_recipient =
-   element emitter { imml.header.emitter_or_recipient.id }
- | element recipient { imml.header.emitter_or_recipient.id }
+imml.header.reseller =
+   element reseller { imml.header.reseller.id }
 
-imml.header.emitter_or_recipient.id =
-   attribute reseller_id { imml.reseller.id.datatype }
- | attribute reseller_dilicom_gencod { imml.reseller.clil_gencod.datatype }
+imml.header.reseller.id =
+   attribute id { imml.reseller.id.datatype }
+ | attribute dilicom_gencod { imml.reseller.clil_gencod.datatype }
  
 # Make sure the emitter is the right one
 imml.header.authentication =
    element authentication { 
-      attribute api_key { imml.authentification.key.datatype } 
+      attribute api_key { imml.authentication.key.datatype } 
+   }
+
+# Sent by immateriel to tell (in human language) why the request was
+# initiated. The type ("info" or "error") indicates if the request was made in
+# the normal information exchange process or because of something unexpected
+# happened.
+
+imml.header.reason =
+   element reason {
+      attribute type { imml.header.reason.type.datatype }
+       & text
    }
 
 # For testing new ws urls
 imml.header.test =
    element test {
-      element webhooks {
-         element receive { imml.header.url.attribute }
-       & element check { imml.header.url.attribute }
-       & element sales { imml.header.url.attribute }
-      }
+      element receive { imml.header.url.attribute }
+    & element check { imml.header.url.attribute }
+    & element sales { imml.header.url.attribute }
    }
 
 imml.header.url.attribute =
@@ -85,21 +102,19 @@ imml.header.url.attribute =
 
 imml.message.content =
    imml.book
- | imml.order
+ | imml.reporting
 
 ##########
 ## Book ##
 ##########
 
 imml.book =
-   # the version attribute is a child of <imml>
-   attribute version { imml.book.schema.version }
- & element book {
-      attribute ean { imml.book.ean.datatype }
+   element book {
+      attribute ean { imml.offer.ean.datatype }
     & attribute uid { imml.book.id.datatype }
     & imml.book.metadata
     & imml.book.assets
-    & imml.book.offer
+    & imml.offer
    }
 ####
 # Book metadata
@@ -295,46 +310,46 @@ imml.book.assets.url =
 ###
 # Book offer
 ###
-imml.book.offer =
+imml.offer =
    element offer {
       # =ex-support
-      imml.book.offer.medium?
-    & imml.book.offer.manifestation?
-    & imml.book.offer.pagination?
-    & imml.book.offer.alternatives?
+      imml.offer.medium?
+    & imml.offer.manifestation?
+    & imml.offer.pagination?
+    & imml.offer.alternatives?
       # if not ready for sale, allow price to be missing
     & ( (element ready_for_sale { "false" })
-       |(element ready_for_sale { xsd:boolean } & imml.book.offer.prices ) )
-    & imml.book.offer.sales_start_at
+       |(element ready_for_sale { xsd:boolean } & imml.offer.prices ) )
+    & imml.offer.sales_start_at
    }
 ## Book medium (for now, printed|digital)
-imml.book.offer.medium =
+imml.offer.medium =
    element medium {
-      imml.book.offer.medium.datatype
+      imml.offer.medium.datatype
    }
 ## Manifestation
-imml.book.offer.manifestation =
+imml.offer.manifestation =
    element format {
-      imml.book.offer.manifestation.datatype
+      imml.offer.manifestation.datatype
    }
 ## Pagination of whatever alternative format where it makes sense
-imml.book.offer.pagination =
+imml.offer.pagination =
    element pagination {
-      imml.book.offer.pagination.datatype
+      imml.offer.pagination.datatype
    }
 ## Alternative offers for the same content
-imml.book.offer.alternatives = 
+imml.offer.alternatives = 
    element alternatives {
-      imml.book.offer.alternative+
+      imml.offer.alternative+
    }
-imml.book.offer.alternative =
+imml.offer.alternative =
    element alternative {
-      attribute ean { imml.book.ean.datatype }
-    & attribute medium { imml.book.offer.medium.datatype }?
-    & attribute format { imml.book.offer.manifestation.datatype }?
+      attribute ean { imml.offer.ean.datatype }
+    & attribute medium { imml.offer.medium.datatype }?
+    & attribute format { imml.offer.manifestation.datatype }?
    }
 ## Date d'effet
-imml.book.offer.sales_start_at =
+imml.offer.sales_start_at =
    element sales_start_at {
       xsd:date
     | ( attribute unsupported { "false" }
@@ -343,43 +358,64 @@ imml.book.offer.sales_start_at =
      & almostAnyContent)
    }
 ## Book prices
-imml.book.offer.prices = 
+imml.offer.prices = 
    element prices {
-      imml.book.offer.price+
+      imml.offer.price+
    }
-imml.book.offer.price =
+imml.offer.price =
    element price {
-      imml.book.offer.price.currency
-    & imml.book.offer.price.current_amount
-    & imml.book.offer.price.territories
+      imml.offer.price.currency
+    & imml.offer.price.current_amount
+    & imml.offer.price.territories
    }
 
 # Currency
-imml.book.offer.price.currency =
+imml.offer.price.currency =
    attribute currency {
-      imml.book.offer.price.currency.datatype
+      imml.offer.price.currency.datatype
    }
 # Public price amount 
-imml.book.offer.price.current_amount =
+imml.offer.price.current_amount =
    element current_amount { 
-      imml.book.offer.price.datatype 
+      imml.offer.price.datatype 
    }
 ## Book territories
-imml.book.offer.price.territories =
+imml.offer.price.territories =
    element territories {
-      imml.book.offer.territory.datatype
+      imml.offer.territory.datatype
    }
 
-###########
-## Order ##
-###########
+###############
+## Reporting ##
+###############
 # As of version 0, nothing interesting
-imml.order = 
-   # the version attribute is a child of <imml>
-   attribute version { imml.order.schema.version }
- & element order {
-      almostAnyContent
-   } 
+imml.reporting = 
+   element reporting {
+      attribute date { xsd:date }
+    & element lines {
+       imml.order.line+
+    }
+   }
+
+imml.order.line =
+   element line {
+      attribute ean { imml.offer.ean.datatype }
+    & attribute type { imml.offer.type.datatype }
+    & attribute customer { imml.offer.customer.datatype }
+    & attribute net_amount { xsd:decimal { fractionDigits="2" } }
+    & attribute quantity { xsd:integer }
+    & attribute tax { xsd:decimal { minInclusive="0" fractionDigits="1" } }
+    & attribute unit_price { xsd:decimal { minInclusive="0" fractionDigits="2" } }
+    & attribute currency { imml.offer.price.currency.datatype }
+    & attribute country { imml.offer.territory.datatype }
+    & imml.order.line.xtra?
+   }
+
+imml.order.line.xtra =
+   element extra_param { 
+      attribute key { xsd:token }
+    & attribute value { text }
+   }
 
 ########################################
 ## Tools for expressing "whatever child"
@@ -405,6 +441,9 @@ almostAnyContent =
 ###############
 ## Datatypes ##
 ###############
+imml.message.error.values = "bad_territory" | "out_of_tier" | "client_already_exists"
+imml.header.param.name.datatype = 
+   "ean" | "EAN" | "quantity" | "price" | "day" | "week" | "month" | "since"
 imml.book.assets.url.datatype = xsd:anyURI
 imml.book.assets.mimetype.datatype = 
    "image/jpeg" 
@@ -425,30 +464,31 @@ imml.book.contributor.datatype = list {"author" | "translator" | "editor" | "typ
 imml.bisac.id.datatype = xsd:token { pattern="[A-Z]{3}[0-9]{6}" } 
 imml.clil.id.datatype = xsd:token { pattern="[0-9]{4}" } 
 imml.keyword.id.datatype = text 
-imml.book.offer.medium.datatype = "printed" | "digital"
-imml.book.offer.manifestation.datatype = "epub" | "pdf" | "streaming" | "bundle"
-imml.book.offer.pagination.datatype = xsd:integer { minInclusive="0" }
-imml.book.offer.price.datatype =  xsd:decimal { minInclusive="0" fractionDigits="2" }
+imml.offer.type.datatype = "unit_purchase" | "subscription" | "freemium"
+imml.offer.customer.datatype = "individual" | "library"
+imml.offer.medium.datatype = "printed" | "digital"
+imml.offer.manifestation.datatype = "epub" | "pdf" | "streaming" | "bundle"
+imml.offer.pagination.datatype = xsd:integer { minInclusive="0" }
+imml.offer.price.datatype =  xsd:decimal { minInclusive="0" fractionDigits="2" }
 imml.book.metadata.language.datatype = list { List74+ }
 imml.uid.datatype = xsd:token { pattern="C[A-Z]{1}[0-9]+" }
 imml.message.id.datatype = xsd:NMTOKEN
-imml.header.reason.datatype = 
-   "creation" | "update" | "temporary_fail" | "metadata_error" | "partner_ask" | "random"
+imml.header.reason.type.datatype = "info" | "error"
+imml.header.url.datatype = xsd:anyURI
 
 imml.reseller.id.datatype = xsd:NMTOKEN
 # Diffuseurs/distributeurs commencent par 301, libraires par 302, éditeurs par 305.
 imml.reseller.clil_gencod.datatype = xsd:token { pattern="302[0-9]{10}"}
-imml.authentification.key.datatype = xsd:NMTOKEN
-imml.header.url.datatype = xsd:anyURI
+imml.authentication.key.datatype = xsd:NMTOKEN
 
 imml.book.id.datatype = xsd:token { pattern="C[B][0-9]+" }
 imml.book.metadata.publisher.id.datatype = xsd:token { pattern="C[P][0-9]+" }
 imml.book.metadata.collection.id.datatype = xsd:token { pattern="C[C][0-9]+" }
 imml.book.contributor.id.datatype = imml.uid.datatype 
-imml.book.ean.datatype = xsd:token { length="13" pattern="3[0-9]{12}|97[8-9][0-9]{10}" } 
+imml.offer.ean.datatype = xsd:token { length="13" pattern="3[0-9]{12}|97[8-9][0-9]{10}" } 
 
-imml.book.offer.territory.datatype = "WORLD" | imml.book.offer.country.datatype 
-imml.book.offer.country.datatype = list { List91+ }
+imml.offer.territory.datatype = "WORLD" | imml.offer.country.datatype 
+imml.offer.country.datatype = list { List91+ }
 ## Country code – ISO 3166-1 from ONIX Code List 91
 List91 =
    ## Andorra ##
@@ -956,7 +996,7 @@ List91 =
    ## Zimbabwe ##
 "ZW"
 
-imml.book.offer.language.datatype = list { List74+ }
+imml.offer.language.datatype = list { List74+ }
 ## Language code – ISO 639-2/B from ONIX Code List 74
 List74 =
    ## Afar ##
@@ -1938,7 +1978,7 @@ List74 =
    ## Zaza; Dimili; Dimli; Kirdki; Kirmanjki; Zazaki ##
 "zza"
 
-imml.book.offer.price.currency.datatype = list { List96+ } 
+imml.offer.price.currency.datatype = list { List96+ } 
 ## Currency code – ISO 4217 from ONIX Code List 96
 List96 =
    ## UAE Dirham ## United Arab Emirates.

@@ -10,16 +10,13 @@
 -->
 <!-- default namespace = "http://ns.immateriel.fr/imml" -->
 <grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:x="http://www.w3.org/1999/xhtml" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
-  <define name="imml.book.schema.version">
-    <a:documentation>book and order subschemas may be changed independently in the calling schema
-example : imml.book.schema.version |= "2.0"</a:documentation>
-    <notAllowed/>
-  </define>
-  <define name="imml.order.schema.version">
-    <notAllowed/>
+  <define name="imml.schema.version">
+    <a:documentation>book and order subschemas may be overloaded independently in the calling schema
+example : include imml_kit.rnc { imml.book.schema.version = "2.1" }</a:documentation>
+    <value>1.8</value>
   </define>
   <define name="imml.unsupported">
-    <a:documentation>when an element is not supported at the emitter end, it must have
+    <a:documentation>when an element is not supported at the provider end, it must have
 an unsupported attribute with "true" value. Otherwise, it may explicitly 
 indicate support with a "false" value, but absence of this att is ok too.</a:documentation>
     <interleave>
@@ -38,13 +35,27 @@ indicate support with a "false" value, but absence of this att is ok too.</a:doc
   </define>
   <start>
     <element name="imml">
-      <ref name="imml.message.attributes"/>
-      <ref name="imml.message.header"/>
-      <ref name="imml.message.content"/>
+      <interleave>
+        <ref name="imml.message.attributes"/>
+        <choice>
+          <ref name="imml.message.error"/>
+          <group>
+            <optional>
+              <ref name="imml.header"/>
+            </optional>
+            <optional>
+              <ref name="imml.message.content"/>
+            </optional>
+          </group>
+        </choice>
+      </interleave>
     </element>
   </start>
   <define name="imml.message.attributes">
     <interleave>
+      <attribute name="version">
+        <ref name="imml.schema.version"/>
+      </attribute>
       <optional>
         <attribute name="timestamp">
           <data type="dateTime"/>
@@ -57,22 +68,39 @@ indicate support with a "false" value, but absence of this att is ok too.</a:doc
       </optional>
     </interleave>
   </define>
+  <define name="imml.message.error">
+    <element name="error">
+      <interleave>
+        <attribute name="value">
+          <ref name="imml.message.error.values"/>
+        </attribute>
+        <empty/>
+      </interleave>
+    </element>
+  </define>
   <!--
     # # # #  # # # # # 
     Transport Header #
     # # #  # # # # # #
   -->
-  <define name="imml.message.header">
+  <define name="imml.header">
     <element name="header">
       <interleave>
-        <attribute name="reason">
-          <ref name="imml.header.reason.datatype"/>
-        </attribute>
         <optional>
           <ref name="imml.header.params"/>
         </optional>
-        <ref name="imml.header.emitter_or_recipient"/>
-        <ref name="imml.header.authentication"/>
+        <optional>
+          <!-- Authentication is optional, but if present, should be associated with the actual reseller -->
+          <interleave>
+            <ref name="imml.header.reseller"/>
+            <optional>
+              <ref name="imml.header.authentication"/>
+            </optional>
+          </interleave>
+        </optional>
+        <optional>
+          <ref name="imml.header.reason"/>
+        </optional>
         <optional>
           <ref name="imml.header.test"/>
         </optional>
@@ -86,7 +114,7 @@ indicate support with a "false" value, but absence of this att is ok too.</a:doc
         <element name="param">
           <interleave>
             <attribute name="name">
-              <data type="NMTOKEN"/>
+              <ref name="imml.header.param.name.datatype"/>
             </attribute>
             <attribute name="value">
               <data type="NMTOKEN"/>
@@ -97,22 +125,17 @@ indicate support with a "false" value, but absence of this att is ok too.</a:doc
     </element>
   </define>
   <!-- Emitter or recipient can use immateriel reseller id or clil gencod -->
-  <define name="imml.header.emitter_or_recipient">
-    <choice>
-      <element name="emitter">
-        <ref name="imml.header.emitter_or_recipient.id"/>
-      </element>
-      <element name="recipient">
-        <ref name="imml.header.emitter_or_recipient.id"/>
-      </element>
-    </choice>
+  <define name="imml.header.reseller">
+    <element name="reseller">
+      <ref name="imml.header.reseller.id"/>
+    </element>
   </define>
-  <define name="imml.header.emitter_or_recipient.id">
+  <define name="imml.header.reseller.id">
     <choice>
-      <attribute name="reseller_id">
+      <attribute name="id">
         <ref name="imml.reseller.id.datatype"/>
       </attribute>
-      <attribute name="reseller_dilicom_gencod">
+      <attribute name="dilicom_gencod">
         <ref name="imml.reseller.clil_gencod.datatype"/>
       </attribute>
     </choice>
@@ -121,26 +144,40 @@ indicate support with a "false" value, but absence of this att is ok too.</a:doc
   <define name="imml.header.authentication">
     <element name="authentication">
       <attribute name="api_key">
-        <ref name="imml.authentification.key.datatype"/>
+        <ref name="imml.authentication.key.datatype"/>
       </attribute>
+    </element>
+  </define>
+  <!--
+    Sent by immateriel to tell (in human language) why the request was
+    initiated. The type ("info" or "error") indicates if the request was made in
+    the normal information exchange process or because of something unexpected
+    happened.
+  -->
+  <define name="imml.header.reason">
+    <element name="reason">
+      <interleave>
+        <attribute name="type">
+          <ref name="imml.header.reason.type.datatype"/>
+        </attribute>
+        <text/>
+      </interleave>
     </element>
   </define>
   <!-- For testing new ws urls -->
   <define name="imml.header.test">
     <element name="test">
-      <element name="webhooks">
-        <interleave>
-          <element name="receive">
-            <ref name="imml.header.url.attribute"/>
-          </element>
-          <element name="check">
-            <ref name="imml.header.url.attribute"/>
-          </element>
-          <element name="sales">
-            <ref name="imml.header.url.attribute"/>
-          </element>
-        </interleave>
-      </element>
+      <interleave>
+        <element name="receive">
+          <ref name="imml.header.url.attribute"/>
+        </element>
+        <element name="check">
+          <ref name="imml.header.url.attribute"/>
+        </element>
+        <element name="sales">
+          <ref name="imml.header.url.attribute"/>
+        </element>
+      </interleave>
     </element>
   </define>
   <define name="imml.header.url.attribute">
@@ -158,32 +195,26 @@ indicate support with a "false" value, but absence of this att is ok too.</a:doc
   <define name="imml.message.content">
     <choice>
       <ref name="imml.book"/>
-      <ref name="imml.order"/>
+      <ref name="imml.reporting"/>
     </choice>
   </define>
   <define name="imml.book">
     <a:documentation>
 Book ##
 </a:documentation>
-    <interleave>
-      <!-- the version attribute is a child of <imml> -->
-      <attribute name="version">
-        <ref name="imml.book.schema.version"/>
-      </attribute>
-      <element name="book">
-        <interleave>
-          <attribute name="ean">
-            <ref name="imml.book.ean.datatype"/>
-          </attribute>
-          <attribute name="uid">
-            <ref name="imml.book.id.datatype"/>
-          </attribute>
-          <ref name="imml.book.metadata"/>
-          <ref name="imml.book.assets"/>
-          <ref name="imml.book.offer"/>
-        </interleave>
-      </element>
-    </interleave>
+    <element name="book">
+      <interleave>
+        <attribute name="ean">
+          <ref name="imml.offer.ean.datatype"/>
+        </attribute>
+        <attribute name="uid">
+          <ref name="imml.book.id.datatype"/>
+        </attribute>
+        <ref name="imml.book.metadata"/>
+        <ref name="imml.book.assets"/>
+        <ref name="imml.offer"/>
+      </interleave>
+    </element>
   </define>
   <define name="imml.book.metadata">
     <a:documentation/>
@@ -555,7 +586,7 @@ Book ##
       <ref name="imml.book.assets.url.datatype"/>
     </attribute>
   </define>
-  <define name="imml.book.offer">
+  <define name="imml.offer">
     <a:documentation/>
     <!-- Book offer -->
     <a:documentation/>
@@ -563,16 +594,16 @@ Book ##
       <interleave>
         <optional>
           <!-- =ex-support -->
-          <ref name="imml.book.offer.medium"/>
+          <ref name="imml.offer.medium"/>
         </optional>
         <optional>
-          <ref name="imml.book.offer.manifestation"/>
+          <ref name="imml.offer.manifestation"/>
         </optional>
         <optional>
-          <ref name="imml.book.offer.pagination"/>
+          <ref name="imml.offer.pagination"/>
         </optional>
         <optional>
-          <ref name="imml.book.offer.alternatives"/>
+          <ref name="imml.offer.alternatives"/>
         </optional>
         <!-- if not ready for sale, allow price to be missing -->
         <choice>
@@ -583,59 +614,59 @@ Book ##
             <element name="ready_for_sale">
               <data type="boolean"/>
             </element>
-            <ref name="imml.book.offer.prices"/>
+            <ref name="imml.offer.prices"/>
           </interleave>
         </choice>
-        <ref name="imml.book.offer.sales_start_at"/>
+        <ref name="imml.offer.sales_start_at"/>
       </interleave>
     </element>
   </define>
-  <define name="imml.book.offer.medium">
+  <define name="imml.offer.medium">
     <a:documentation>Book medium (for now, printed|digital)</a:documentation>
     <element name="medium">
-      <ref name="imml.book.offer.medium.datatype"/>
+      <ref name="imml.offer.medium.datatype"/>
     </element>
   </define>
-  <define name="imml.book.offer.manifestation">
+  <define name="imml.offer.manifestation">
     <a:documentation>Manifestation</a:documentation>
     <element name="format">
-      <ref name="imml.book.offer.manifestation.datatype"/>
+      <ref name="imml.offer.manifestation.datatype"/>
     </element>
   </define>
-  <define name="imml.book.offer.pagination">
+  <define name="imml.offer.pagination">
     <a:documentation>Pagination of whatever alternative format where it makes sense</a:documentation>
     <element name="pagination">
-      <ref name="imml.book.offer.pagination.datatype"/>
+      <ref name="imml.offer.pagination.datatype"/>
     </element>
   </define>
-  <define name="imml.book.offer.alternatives">
+  <define name="imml.offer.alternatives">
     <a:documentation>Alternative offers for the same content</a:documentation>
     <element name="alternatives">
       <oneOrMore>
-        <ref name="imml.book.offer.alternative"/>
+        <ref name="imml.offer.alternative"/>
       </oneOrMore>
     </element>
   </define>
-  <define name="imml.book.offer.alternative">
+  <define name="imml.offer.alternative">
     <element name="alternative">
       <interleave>
         <attribute name="ean">
-          <ref name="imml.book.ean.datatype"/>
+          <ref name="imml.offer.ean.datatype"/>
         </attribute>
         <optional>
           <attribute name="medium">
-            <ref name="imml.book.offer.medium.datatype"/>
+            <ref name="imml.offer.medium.datatype"/>
           </attribute>
         </optional>
         <optional>
           <attribute name="format">
-            <ref name="imml.book.offer.manifestation.datatype"/>
+            <ref name="imml.offer.manifestation.datatype"/>
           </attribute>
         </optional>
       </interleave>
     </element>
   </define>
-  <define name="imml.book.offer.sales_start_at">
+  <define name="imml.offer.sales_start_at">
     <a:documentation>Date d'effet</a:documentation>
     <element name="sales_start_at">
       <choice>
@@ -655,55 +686,112 @@ Book ##
       </choice>
     </element>
   </define>
-  <define name="imml.book.offer.prices">
+  <define name="imml.offer.prices">
     <a:documentation>Book prices</a:documentation>
     <element name="prices">
       <oneOrMore>
-        <ref name="imml.book.offer.price"/>
+        <ref name="imml.offer.price"/>
       </oneOrMore>
     </element>
   </define>
-  <define name="imml.book.offer.price">
+  <define name="imml.offer.price">
     <element name="price">
       <interleave>
-        <ref name="imml.book.offer.price.currency"/>
-        <ref name="imml.book.offer.price.current_amount"/>
-        <ref name="imml.book.offer.price.territories"/>
+        <ref name="imml.offer.price.currency"/>
+        <ref name="imml.offer.price.current_amount"/>
+        <ref name="imml.offer.price.territories"/>
       </interleave>
     </element>
   </define>
   <!-- Currency -->
-  <define name="imml.book.offer.price.currency">
+  <define name="imml.offer.price.currency">
     <attribute name="currency">
-      <ref name="imml.book.offer.price.currency.datatype"/>
+      <ref name="imml.offer.price.currency.datatype"/>
     </attribute>
   </define>
   <!-- Public price amount -->
-  <define name="imml.book.offer.price.current_amount">
+  <define name="imml.offer.price.current_amount">
     <element name="current_amount">
-      <ref name="imml.book.offer.price.datatype"/>
+      <ref name="imml.offer.price.datatype"/>
     </element>
   </define>
-  <define name="imml.book.offer.price.territories">
+  <define name="imml.offer.price.territories">
     <a:documentation>Book territories</a:documentation>
     <element name="territories">
-      <ref name="imml.book.offer.territory.datatype"/>
+      <ref name="imml.offer.territory.datatype"/>
     </element>
   </define>
   <!-- As of version 0, nothing interesting -->
-  <define name="imml.order">
+  <define name="imml.reporting">
     <a:documentation>
-Order ##
+Reporting ##
 </a:documentation>
-    <interleave>
-      <!-- the version attribute is a child of <imml> -->
-      <attribute name="version">
-        <ref name="imml.order.schema.version"/>
-      </attribute>
-      <element name="order">
-        <ref name="almostAnyContent"/>
-      </element>
-    </interleave>
+    <element name="reporting">
+      <interleave>
+        <attribute name="date">
+          <data type="date"/>
+        </attribute>
+        <element name="lines">
+          <oneOrMore>
+            <ref name="imml.order.line"/>
+          </oneOrMore>
+        </element>
+      </interleave>
+    </element>
+  </define>
+  <define name="imml.order.line">
+    <element name="line">
+      <interleave>
+        <attribute name="ean">
+          <ref name="imml.offer.ean.datatype"/>
+        </attribute>
+        <attribute name="type">
+          <ref name="imml.offer.type.datatype"/>
+        </attribute>
+        <attribute name="customer">
+          <ref name="imml.offer.customer.datatype"/>
+        </attribute>
+        <attribute name="net_amount">
+          <data type="decimal">
+            <param name="fractionDigits">2</param>
+          </data>
+        </attribute>
+        <attribute name="quantity">
+          <data type="integer"/>
+        </attribute>
+        <attribute name="tax">
+          <data type="decimal">
+            <param name="minInclusive">0</param>
+            <param name="fractionDigits">1</param>
+          </data>
+        </attribute>
+        <attribute name="unit_price">
+          <data type="decimal">
+            <param name="minInclusive">0</param>
+            <param name="fractionDigits">2</param>
+          </data>
+        </attribute>
+        <attribute name="currency">
+          <ref name="imml.offer.price.currency.datatype"/>
+        </attribute>
+        <attribute name="country">
+          <ref name="imml.offer.territory.datatype"/>
+        </attribute>
+        <optional>
+          <ref name="imml.order.line.xtra"/>
+        </optional>
+      </interleave>
+    </element>
+  </define>
+  <define name="imml.order.line.xtra">
+    <element name="extra_param">
+      <interleave>
+        <attribute name="key">
+          <data type="token"/>
+        </attribute>
+        <attribute name="value"/>
+      </interleave>
+    </element>
   </define>
   <define name="anyElement">
     <a:documentation>
@@ -754,10 +842,29 @@ See http://www.relaxng.org/compact-tutorial-20030326.html#id2816343</a:documenta
       </choice>
     </zeroOrMore>
   </define>
-  <define name="imml.book.assets.url.datatype">
+  <define name="imml.message.error.values">
     <a:documentation>
 Datatypes ##
 </a:documentation>
+    <choice>
+      <value>bad_territory</value>
+      <value>out_of_tier</value>
+      <value>client_already_exists</value>
+    </choice>
+  </define>
+  <define name="imml.header.param.name.datatype">
+    <choice>
+      <value>ean</value>
+      <value>EAN</value>
+      <value>quantity</value>
+      <value>price</value>
+      <value>day</value>
+      <value>week</value>
+      <value>month</value>
+      <value>since</value>
+    </choice>
+  </define>
+  <define name="imml.book.assets.url.datatype">
     <data type="anyURI"/>
   </define>
   <define name="imml.book.assets.mimetype.datatype">
@@ -800,13 +907,26 @@ Datatypes ##
   <define name="imml.keyword.id.datatype">
     <text/>
   </define>
-  <define name="imml.book.offer.medium.datatype">
+  <define name="imml.offer.type.datatype">
+    <choice>
+      <value>unit_purchase</value>
+      <value>subscription</value>
+      <value>freemium</value>
+    </choice>
+  </define>
+  <define name="imml.offer.customer.datatype">
+    <choice>
+      <value>individual</value>
+      <value>library</value>
+    </choice>
+  </define>
+  <define name="imml.offer.medium.datatype">
     <choice>
       <value>printed</value>
       <value>digital</value>
     </choice>
   </define>
-  <define name="imml.book.offer.manifestation.datatype">
+  <define name="imml.offer.manifestation.datatype">
     <choice>
       <value>epub</value>
       <value>pdf</value>
@@ -814,12 +934,12 @@ Datatypes ##
       <value>bundle</value>
     </choice>
   </define>
-  <define name="imml.book.offer.pagination.datatype">
+  <define name="imml.offer.pagination.datatype">
     <data type="integer">
       <param name="minInclusive">0</param>
     </data>
   </define>
-  <define name="imml.book.offer.price.datatype">
+  <define name="imml.offer.price.datatype">
     <data type="decimal">
       <param name="minInclusive">0</param>
       <param name="fractionDigits">2</param>
@@ -840,15 +960,14 @@ Datatypes ##
   <define name="imml.message.id.datatype">
     <data type="NMTOKEN"/>
   </define>
-  <define name="imml.header.reason.datatype">
+  <define name="imml.header.reason.type.datatype">
     <choice>
-      <value>creation</value>
-      <value>update</value>
-      <value>temporary_fail</value>
-      <value>metadata_error</value>
-      <value>partner_ask</value>
-      <value>random</value>
+      <value>info</value>
+      <value>error</value>
     </choice>
+  </define>
+  <define name="imml.header.url.datatype">
+    <data type="anyURI"/>
   </define>
   <define name="imml.reseller.id.datatype">
     <data type="NMTOKEN"/>
@@ -859,11 +978,8 @@ Datatypes ##
       <param name="pattern">302[0-9]{10}</param>
     </data>
   </define>
-  <define name="imml.authentification.key.datatype">
+  <define name="imml.authentication.key.datatype">
     <data type="NMTOKEN"/>
-  </define>
-  <define name="imml.header.url.datatype">
-    <data type="anyURI"/>
   </define>
   <define name="imml.book.id.datatype">
     <data type="token">
@@ -883,19 +999,19 @@ Datatypes ##
   <define name="imml.book.contributor.id.datatype">
     <ref name="imml.uid.datatype"/>
   </define>
-  <define name="imml.book.ean.datatype">
+  <define name="imml.offer.ean.datatype">
     <data type="token">
       <param name="length">13</param>
       <param name="pattern">3[0-9]{12}|97[8-9][0-9]{10}</param>
     </data>
   </define>
-  <define name="imml.book.offer.territory.datatype">
+  <define name="imml.offer.territory.datatype">
     <choice>
       <value>WORLD</value>
-      <ref name="imml.book.offer.country.datatype"/>
+      <ref name="imml.offer.country.datatype"/>
     </choice>
   </define>
-  <define name="imml.book.offer.country.datatype">
+  <define name="imml.offer.country.datatype">
     <list>
       <oneOrMore>
         <ref name="List91"/>
@@ -1411,7 +1527,7 @@ Datatypes ##
       <a:documentation>Zimbabwe ##</a:documentation>
     </choice>
   </define>
-  <define name="imml.book.offer.language.datatype">
+  <define name="imml.offer.language.datatype">
     <list>
       <oneOrMore>
         <ref name="List74"/>
@@ -2401,7 +2517,7 @@ Datatypes ##
       <a:documentation>Zaza; Dimili; Dimli; Kirdki; Kirmanjki; Zazaki ##</a:documentation>
     </choice>
   </define>
-  <define name="imml.book.offer.price.currency.datatype">
+  <define name="imml.offer.price.currency.datatype">
     <list>
       <oneOrMore>
         <ref name="List96"/>

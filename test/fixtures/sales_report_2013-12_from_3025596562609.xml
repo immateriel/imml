@@ -1,0 +1,15 @@
+<imml version="2.0">
+  <header>    
+    <!-- réponse de LivreMoi à une demande de reddition -->
+    <reseller dilicom_gencod="3025596562609"/>
+    <authentication api_key="WoC43KlQX3wg"/>
+  </header>
+  <reporting date="2014-01-04">
+    <lines>
+      <line ean="9781909782471" quantity="3" unit_price="110" net_amount="275" tax="20"
+	    currency="MAD" country="MA" customer="individual" type="unit_purchase">
+	<extra_param key="email_client" value="marcel@example.com"/>
+      </line> 
+    </lines>
+  </reporting>
+</imml>

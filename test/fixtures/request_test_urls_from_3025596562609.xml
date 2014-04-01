@@ -1,0 +1,12 @@
+<imml version="2.0">
+  <header>    
+    <!-- La librairie LivreMoi à Casablanca demande à tester ses urls -->
+    <reseller dilicom_gencod="3025596562609"/>
+    <authentication api_key="WoC43KlQX3wg"/>
+    <test>
+      <check url="http://ws.livremoi.ca/imml/check"/>
+      <receive url="http://ws.livremoi.ca/imml/receive"/>
+      <sales url="http://ws.livremoi.ca/imml/sales"/>
+    </test>
+  </header>
+</imml>

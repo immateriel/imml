@@ -6,11 +6,8 @@
 Typical uses are upgrading versions without modifying current kit version 
 or creating a special schema that validates only offers for one publisher, 
 with fixed supplier-id or fixed publisher-id.</a:documentation>
+    <define name="imml.schema.version">
+      <value>2.0</value>
+    </define>
   </include>
-  <define name="imml.book.schema.version" combine="choice">
-    <value>2.0</value>
-  </define>
-  <define name="imml.order.schema.version" combine="choice">
-    <value>0.0</value>
-  </define>
 </grammar>
