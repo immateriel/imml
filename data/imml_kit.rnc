@@ -16,8 +16,11 @@ imml.schema.version = "1.8"
 ## when an element is not supported at the provider end, it must have
 ## an unsupported attribute with "true" value. Otherwise, it may explicitly 
 ## indicate support with a "false" value, but absence of this att is ok too.
-imml.unsupported = attribute unsupported { "true" } & almostAnyContent
-imml.not_unsupported = attribute unsupported { "false" }? 
+imml.unsupported = 
+   attribute unsupported { "true" } 
+ & almostAnyContent
+imml.supported = 
+   attribute unsupported { "false" }? 
 
 start = 
    element imml { 
@@ -171,59 +174,84 @@ imml.book.metadata.contributor =
 
 imml.book.metadata.contributor.name =
    element name { text }
+
 imml.book.metadata.contributor.role =
+   imml.book.metadata.contributor.role.supported
+ | imml.book.metadata.contributor.role.unsupported
+
+imml.book.metadata.contributor.role.supported =
    element role {
       imml.book.contributor.datatype
-    | ( attribute unsupported { "false" }
-     & imml.book.contributor.datatype )
-    | ( attribute unsupported { "true" }
-     & almostAnyContent)
-   }
+    & imml.supported
+   } 
+
+imml.book.metadata.contributor.role.unsupported =
+   element role {
+    imml.unsupported
+   } 
  
 # Book topics
 imml.book.metadata.topics =
+   imml.book.metadata.topics.supported
+ | imml.book.metadata.topics.unsupported
+
+imml.book.metadata.topics.supported =
    element topics {
       imml.book.metadata.topic+
-    | ( attribute unsupported { "false" }
-     & imml.book.metadata.topic+ )
-    | ( attribute unsupported { "true" }
-     & almostAnyContent)
-    }
+    & imml.supported
+   } 
+
+imml.book.metadata.topics.unsupported =
+   element topics {
+    imml.unsupported
+   } 
+
 imml.book.metadata.topic =
    element topic {
-      imml.book.metadata.topic.class
-   }
-imml.book.metadata.topic.class =
       imml.book.metadata.topic.bisac
     | imml.book.metadata.topic.clil
     | imml.book.metadata.topic.keyword
+   }
 
 imml.book.metadata.topic.bisac =
-   attribute type { "bisac" }
- & ( imml.bisac.id.datatype
-     | ( attribute unsupported { "false" }
-         & imml.bisac.id.datatype )
-     | ( attribute unsupported { "true" }
-         & almostAnyContent) )
+   imml.book.metadata.topic.bisac.supported
+ | imml.book.metadata.topic.bisac.unsupported
 
-# & ( imml.unsupported | ( imml.not_unsupported & imml.bisac.id.datatype ) )
+imml.book.metadata.topic.bisac.supported =
+   attribute type { "bisac" }
+ & imml.supported
+ & imml.bisac.id.datatype
+ 
+imml.book.metadata.topic.bisac.unsupported =
+   attribute type { "bisac" }
+ & imml.unsupported
 
 imml.book.metadata.topic.clil =
+   imml.book.metadata.topic.clil.supported
+ | imml.book.metadata.topic.clil.unsupported
+
+imml.book.metadata.topic.clil.supported =
    attribute type { "clil" }
- & ( imml.clil.id.datatype
-     | ( attribute unsupported { "false" }
-         & imml.clil.id.datatype )
-     | ( attribute unsupported { "true" }
-         & almostAnyContent) )
+ & imml.supported
+ & imml.clil.id.datatype
+ 
+imml.book.metadata.topic.clil.unsupported =
+   attribute type { "clil" }
+ & imml.unsupported
 
 imml.book.metadata.topic.keyword =
-   attribute type { "keyword" }
- & ( imml.keyword.id.datatype
-     | ( attribute unsupported { "false" }
-         & imml.keyword.id.datatype )
-     | ( attribute unsupported { "true" }
-         & almostAnyContent) )
+   imml.book.metadata.topic.keyword.supported
+ | imml.book.metadata.topic.keyword.unsupported
 
+imml.book.metadata.topic.keyword.supported =
+   attribute type { "keyword" }
+ & imml.supported
+ & imml.keyword.id.datatype
+ 
+imml.book.metadata.topic.keyword.unsupported =
+   attribute type { "keyword" }
+ & imml.unsupported
+ 
 # Book description
 
 imml.book.metadata.description.attributes =
@@ -233,21 +261,22 @@ imml.book.metadata.description.attributes =
 
 imml.book.metadata.description =
    element description {
-      # imml.book.metadata.description.attributes &
-      imml.book.metadata.description.content
+      imml.book.metadata.description.content.xhtml 
+    | imml.book.metadata.description.content.text
    }
 
-imml.book.metadata.description.content =
-   imml.book.metadata.description.content.xhtml 
- | imml.book.metadata.description.content.text
-
 imml.book.metadata.description.content.xhtml =
+   imml.book.metadata.description.xhtml.supported
+ | imml.book.metadata.description.xhtml.unsupported
+
+imml.book.metadata.description.xhtml.supported =
    attribute format { "xhtml" }
- & ( anyXHTMLElement
-     | ( attribute unsupported { "false" }
-         & anyXHTMLElement )
-     | ( attribute unsupported { "true" }
-         & almostAnyContent) )
+ & imml.supported
+ & anyXHTMLElement
+
+imml.book.metadata.description.xhtml.unsupported =
+   attribute format { "xhtml" }?
+ & imml.unsupported
 
 imml.book.metadata.description.content.text =
    text
@@ -261,47 +290,57 @@ imml.book.assets =
     & imml.book.assets.extract*
     & imml.book.assets.full*
    }
+imml.book.assets.common_mandatory =
+   attribute mimetype { imml.book.assets.mimetype.datatype }
+
+imml.book.assets.common_optional =
+   attribute size { xsd:integer { minInclusive="0" } }?
+ & attribute url { imml.book.assets.url.datatype }?
+ & attribute last_modified { xsd:dateTime }?
+
 ## Cover files are made available to the receiving reseller via an ad hoc url
 imml.book.assets.cover =
    element cover {
-      imml.book.assets.url
-    & imml.book.assets.mimetype
+      imml.book.assets.common_optional
+    & imml.book.assets.common_mandatory
    }
 
 ## Extract files are made available to the receiving reseller via an ad hoc url
 imml.book.assets.extract =
    element extract {
-      imml.book.assets.extract.content
-    | ( attribute unsupported { "false" }
-     & imml.book.assets.extract.content )
-    | ( attribute unsupported { "true" }
-     & almostAnyContent)
+      imml.book.assets.extract.supported
+    | imml.book.assets.extract.unsupported
    }
+
+imml.book.assets.extract.supported =
+   imml.book.assets.extract.content
+ & imml.supported
+
+imml.book.assets.extract.unsupported =
+   imml.unsupported
+
 imml.book.assets.extract.content =
-      imml.book.assets.url
-    & imml.book.assets.mimetype
+   imml.book.assets.common_mandatory
+ & imml.book.assets.common_optional
 
 ## Content files are made available via an ad hoc url tailored for the receiving warehouse
 imml.book.assets.full =
    element full {
-      imml.book.assets.full.content
-    | ( attribute unsupported { "false" }
-     & imml.book.assets.full.content )
-    | ( attribute unsupported { "true" }
-     & almostAnyContent)
+      imml.book.assets.full.supported
+    | imml.book.assets.full.unsupported
    }
-imml.book.assets.full.content =
-      imml.book.assets.url
-    & imml.book.assets.mimetype
 
-imml.book.assets.mimetype = 
-   attribute mimetype {
-      imml.book.assets.mimetype.datatype
-   }
-imml.book.assets.url = 
-   attribute url {
-      imml.book.assets.url.datatype
-   }
+imml.book.assets.full.supported =
+   imml.book.assets.full.content
+ & imml.supported
+
+imml.book.assets.full.unsupported =
+   imml.unsupported
+
+imml.book.assets.full.content =
+   imml.book.assets.common_mandatory
+ & imml.book.assets.common_optional
+
 ###
 # Book offer
 ###
@@ -316,7 +355,24 @@ imml.offer =
     & ( (element ready_for_sale { "false" })
        |(element ready_for_sale { xsd:boolean } & imml.offer.prices ) )
     & imml.offer.sales_start_at
+    & imml.offer.sales_models?
    }
+
+## Various types of sales models
+imml.offer.sales_models =
+   element sales_models {
+      imml.offer.sales_model+
+   }
+
+imml.offer.sales_model =
+   element sales_model {
+      attribute type { "purchase" | "subscription" | "freemium" }
+    & attribute available { xsd:boolean }
+    & attribute customer { "individual" | "library" }
+    & attribute format { "epub" | "pdf" | "bundle" | "streaming" }
+    & attribute protection { "none" | "watermark" | "drm" }
+   }
+
 ## Book medium (for now, printed|digital)
 imml.offer.medium =
    element medium {
@@ -343,15 +399,12 @@ imml.offer.alternative =
     & attribute medium { imml.offer.medium.datatype }?
     & attribute format { imml.offer.manifestation.datatype }?
    }
-## Date d'effet
+## Date de mise à disposition
 imml.offer.sales_start_at =
    element sales_start_at {
       xsd:date
-    | ( attribute unsupported { "false" }
-     & xsd:date )
-    | ( attribute unsupported { "true" }
-     & almostAnyContent)
    }
+
 ## Book prices
 imml.offer.prices = 
    element prices {
@@ -362,6 +415,7 @@ imml.offer.price =
       imml.offer.price.currency
     & imml.offer.price.current_amount
     & imml.offer.price.territories
+    & imml.offer.price.intervals?
    }
 
 # Currency
@@ -380,10 +434,32 @@ imml.offer.price.territories =
       imml.offer.territory.datatype
    }
 
+imml.offer.price.intervals =
+   imml.offer.price.intervals.supported
+ | imml.offer.price.intervals.unsupported
+
+imml.offer.price.intervals.supported =
+   element intervals {
+      imml.supported
+    & imml.offer.price.interval+
+   }
+
+imml.offer.price.intervals.unsupported =
+   element intervals {
+      imml.unsupported
+   }
+
+imml.offer.price.interval =
+   element interval {
+      attribute start_at { xsd:date }?
+    & attribute end_at { xsd:date }?
+    & imml.offer.price.datatype
+   }
+
 ###############
 ## Reporting ##
 ###############
-# As of version 0, nothing interesting
+
 imml.reporting = 
    element reporting {
       attribute date { xsd:date }
@@ -454,7 +530,6 @@ imml.book.assets.mimetype.datatype =
  | "application/x-mobipocket-ebook" 
  | "application/x-rar-compressed" 
  | "application/epub+zip"
-
 imml.book.contributor.datatype = list {"author" | "translator" | "editor" | "typesetter"}
 imml.bisac.id.datatype = xsd:token { pattern="[A-Z]{3}[0-9]{6}" } 
 imml.clil.id.datatype = xsd:token { pattern="[0-9]{4}" } 
@@ -466,7 +541,6 @@ imml.offer.manifestation.datatype = "epub" | "pdf" | "streaming" | "bundle"
 imml.offer.pagination.datatype = xsd:integer { minInclusive="0" }
 imml.offer.price.datatype =  xsd:decimal { minInclusive="0" fractionDigits="2" }
 imml.book.metadata.language.datatype = list { List74+ }
-imml.uid.datatype = xsd:token { pattern="C[A-Z]{1}[0-9]+" }
 imml.message.id.datatype = xsd:NMTOKEN
 imml.header.reason.type.datatype = "info" | "error"
 imml.header.url.datatype = xsd:anyURI
@@ -476,9 +550,10 @@ imml.reseller.id.datatype = xsd:NMTOKEN
 imml.reseller.clil_gencod.datatype = xsd:token { pattern="302[0-9]{10}"}
 imml.authentication.key.datatype = xsd:NMTOKEN
 
-imml.book.id.datatype = xsd:token { pattern="C[B][0-9]+" }
-imml.book.metadata.publisher.id.datatype = xsd:token { pattern="C[P][0-9]+" }
-imml.book.metadata.collection.id.datatype = xsd:token { pattern="C[C][0-9]+" }
+imml.uid.datatype = xsd:token 
+imml.book.id.datatype = xsd:token 
+imml.book.metadata.publisher.id.datatype = xsd:token
+imml.book.metadata.collection.id.datatype = xsd:token
 imml.book.contributor.id.datatype = imml.uid.datatype 
 imml.offer.ean.datatype = xsd:token { length="13" pattern="3[0-9]{12}|97[8-9][0-9]{10}" } 
 
