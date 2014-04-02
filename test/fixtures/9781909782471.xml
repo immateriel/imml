@@ -1,6 +1,5 @@
 <imml version="2.0">
-  <!-- Envoi des métadonnées sur l'URL de réception du libraire -->
-  <book ean="9781909782471" uid="CB370201">
+  <book ean="9781909782471" uid="CB371558">
     <metadata>
       <title>Le faiseur d'anges</title>
       <language>fre</language>
@@ -10,30 +9,16 @@
           <name>Christopher Wobble</name>
         </contributor>
       </contributors>
-      <collection>East end/Noirs</collection>
       <topics>
-        <topic type="bisac">FIC031000</topic>
-        <topic type="clil">2300</topic>
-        <topic type="keyword">Noir</topic>
-        <topic type="keyword">Jack l'éventreur</topic>
-        <topic type="keyword">Europe</topic>
-        <topic type="keyword">France</topic>
-        <topic type="keyword">Auvergne</topic>
-        <topic type="keyword">Fiction</topic>
-        <topic type="keyword">genre littéraire:Roman</topic>
-        <topic type="keyword">Roman policier</topic>
-        <topic type="keyword">Fiction historique</topic>
-        <topic type="keyword">Avortement</topic>
-        <topic type="keyword">Littérature</topic>
-        <topic type="keyword">Homicide</topic>
+        <topic type="bisac" unsupported="true"/>
+        <topic type="clil" unsupported="true"/>
       </topics>
-      <publication>2013-12-02</publication>
-      <publisher uid="CP280">Les Editions de Londres</publisher>
-      <description>&lt;p&gt;Après plusieurs années d’exil, l’officier de santé Jacques Viscus revient au  Puy-en-Velay, son pays natal. Un homme qui a fauté avec sa domestique ne tarde  pas à le contacter et le supplie de lui apporter son aide. Jacques a beau être  un fervent chrétien, tout le monde ne se félicite pas de son retour en terre  auvergnate. Celui-ci est-il le signe de sa rédemption ou l’ultime étape d’un  parcours parsemé de zones d’ombre ?&lt;br/&gt;
-&lt;i&gt;Le faiseur d’anges&lt;/i&gt;  est une nouvelle de la série « Jacques l’Éventreur », pour laquelle les auteurs  doivent librement s’inspirer de l’histoire de « Jack l’Éventreur » en situant  leur histoire en France.&lt;/p&gt;</description>
+      <publication>2013-02-12</publication>
+      <publisher uid="CP2804">Les Editions De Londres</publisher>
+      <description>&lt;p&gt;Après plusieurs années d’exil, l’officier de santé Jacques Viscus revient au Puy-en-Velay, son pays natal. Un homme qui a fauté avec sa domestique ne tarde pas à le contacter et le supplie de lui apporter son aide. Jacques a beau être un fervent chrétien, tout le monde ne se félicite pas de son retour en terre auvergnate. Celui-ci est-il le signe de sa rédemption ou l’ultime étape d’un parcours parsemé de zones d’ombre ? &lt;em&gt;Le faiseur d’anges &lt;/em&gt; est une nouvelle de la série « Jacques l’Éventreur », pour laquelle les auteurs doivent librement s’inspirer de l’histoire de « Jack l’Éventreur » en situant leur histoire en France. &lt;/p&gt;</description>
     </metadata>
     <assets>
-      <cover mimetype="image/png" url="http://catalogue.immateriel.fr/resources/dbb8b3fdc4455ad7edabb5e867a4eb1413dbe04e68bb3fa1c514c91d4d21e3fa.png"/>
+      <cover mimetype="image/jpeg" url="http://catalogue.immateriel.fr/resources/a100c7f235a55cd5bf182b6813b73f010e4855e1d849b6f3b418e3351a5fecd7.jpg"/>
       <extract unsupported="true"/>
       <full unsupported="true"/>
     </assets>
@@ -41,71 +26,11 @@
       <medium>digital</medium>
       <format>bundle</format>
       <ready_for_sale>true</ready_for_sale>
-      <sales_start_at>2013-12-02</sales_start_at>
+      <sales_start_at unsupported="true"/>
       <prices>
         <price currency="EUR">
           <current_amount>1.99</current_amount>
-          <territories>WORLD</territories>
-        </price>
-        <price currency="AUD">
-          <current_amount>2.99</current_amount>
-          <territories>AU KI NR</territories>
-        </price>
-        <price currency="BRL">
-          <current_amount>5.6</current_amount>
-          <territories>BR</territories>
-        </price>
-        <price currency="CHF">
-          <current_amount>2.5</current_amount>
-          <territories>CH LI</territories>
-        </price>
-        <price currency="DKK">
-          <current_amount>15.0</current_amount>
-          <territories>DK GL</territories>
-        </price>
-        <price currency="GBP">
-          <current_amount>1.99</current_amount>
-          <territories>GB</territories>
-        </price>
-        <price currency="JPY">
-          <current_amount>250.0</current_amount>
-          <territories>JP</territories>
-        </price>
-        <price currency="KRW">
-          <current_amount>2920.0</current_amount>
-          <territories>KR</territories>
-        </price>
-        <price currency="MXN">
-          <current_amount>39.0</current_amount>
-          <territories>MX</territories>
-        </price>
-        <price currency="NOK">
-          <current_amount>16.0</current_amount>
-          <territories>NO</territories>
-        </price>
-        <price currency="NZD">
-          <current_amount>2.99</current_amount>
-          <territories>NZ</territories>
-        </price>
-        <price currency="SEK">
-          <current_amount>19.0</current_amount>
-          <territories>SE</territories>
-        </price>
-        <price currency="SGD">
-          <current_amount>3.49</current_amount>
-          <territories>SG</territories>
-        </price>
-        <price currency="ZAR">
-          <current_amount>23.0</current_amount>
-          <territories>ZA</territories>
-        </price>
-        <price currency="CAD">
-          <current_amount>2.99</current_amount>
-          <territories>CA</territories>
-        </price>
-        <price currency="USD">
-          <current_amount>2.99</current_amount>
-          <territories>EC FJ FM HT MH PW SV UM US WS</territories>
+          <territories>FR</territories>
         </price>
       </prices>
     </offer>

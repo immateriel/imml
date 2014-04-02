@@ -57,6 +57,15 @@ if filename
     if doc.book.offer.sales_start_at
       puts "   Sales start at: #{doc.book.offer.sales_start_at.date}"
     end
+    puts "   Sales models"
+      doc.book.offer.sales_models.each do |sale_model|
+        puts "    Sales model"
+        puts "     Type: #{sale_model.type}"
+        puts "     Available: #{sale_model.available}"
+        puts "     Customer: #{sale_model.customer}"
+        puts "     Format: #{sale_model.format}"
+        puts "     Protection: #{sale_model.protection}"
+      end
     puts "   Prices"
     doc.book.offer.prices.each do |price|
       puts "    Price: #{price.current_amount} #{price.currency} (#{price.territories})"

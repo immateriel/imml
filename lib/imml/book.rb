@@ -34,6 +34,21 @@ module IMML
 
     end
 
+    class EntityCollection < Entity
+      attr_accessor :collection
+      def initialize
+        super
+        @collection=[]
+      end
+      def each &block
+        self.collection.each &block
+      end
+      def << v
+        self.collection << v
+      end
+
+    end
+
     class EntityWithUid < Entity
       attr_accessor :uid
 
@@ -187,6 +202,37 @@ module IMML
       end
     end
 
+    class Topics < EntityCollection
+
+      def parse(node)
+        super
+        node.children.each do |child|
+          if child.element?
+            topic=Topic.new
+            topic.parse(child)
+            @collection << topic
+          end
+        end
+      end
+
+      def self.create
+        topics=Topics.new
+        topics
+      end
+
+      def write(xml)
+        super
+        if @collection.length > 0
+          xml.topics(self.attributes) {
+            @collection.each do |topic|
+              topic.write(xml)
+            end
+          }
+        end
+      end
+
+    end
+
     class Publisher < EntityWithUid
       attr_accessor :name, :uid
 
@@ -224,7 +270,6 @@ module IMML
         @publisher=nil
 
         @contributors=[]
-        @topics=[]
       end
 
       def self.create(title,language,description,subtitle=nil,publication=nil)
@@ -259,13 +304,8 @@ module IMML
               @publisher=Publisher.new
               @publisher.parse(child)
             when "topics"
-              child.children.each do |topic_node|
-                if topic_node.element?
-                topic=Topic.new
-                topic.parse(topic_node)
-                @topics << topic
-                end
-              end
+              @topics=Topics.new
+              @topics.parse(child)
             when "contributors"
               child.children.each do |contributor_node|
                 if contributor_node.element?
@@ -298,11 +338,9 @@ module IMML
             self.collection.write(xml)
           end
 
-          xml.topics {
-            self.topics.each do |topic|
-              topic.write(xml)
-            end
-          }
+          if self.topics
+            self.topics.write(xml)
+          end
 
           if self.publisher
             self.publisher.write(xml)
@@ -712,11 +750,13 @@ module IMML
           price.write(xml)
         end
         }
+        if sales_models.length > 0
         xml.sales_models {
           self.sales_models.each do |model|
             model.write(xml)
           end
         }
+        end
 
         }
       end
