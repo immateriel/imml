@@ -552,10 +552,10 @@ indicate support with a "false" value, but absence of this att is ok too.</xs:do
       </xs:choice>
     </xs:complexType>
   </xs:element>
-  <xs:attributeGroup name="imml.book.assets.common_mandatory">
+  <xs:attributeGroup name="imml.book.assets.mandatory_attr.common">
     <xs:attribute name="mimetype" use="required" type="imml.book.assets.mimetype.datatype"/>
   </xs:attributeGroup>
-  <xs:attributeGroup name="imml.book.assets.common_optional">
+  <xs:attributeGroup name="imml.book.assets.optional_attr.common">
     <xs:attribute name="size">
       <xs:simpleType>
         <xs:restriction base="xs:integer">
@@ -564,12 +564,19 @@ indicate support with a "false" value, but absence of this att is ok too.</xs:do
       </xs:simpleType>
     </xs:attribute>
     <xs:attribute name="url" type="imml.book.assets.url.datatype"/>
+    <xs:attribute name="checksum">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:pattern value="\S*"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
     <xs:attribute name="last_modified" type="xs:dateTime"/>
   </xs:attributeGroup>
   <xs:element name="cover">
     <xs:complexType>
-      <xs:attributeGroup ref="imml.book.assets.common_optional"/>
-      <xs:attributeGroup ref="imml.book.assets.common_mandatory"/>
+      <xs:attributeGroup ref="imml.book.assets.optional_attr.common"/>
+      <xs:attributeGroup ref="imml.book.assets.mandatory_attr.common"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="extract">
@@ -599,8 +606,8 @@ indicate support with a "false" value, but absence of this att is ok too.</xs:do
     <xs:attributeGroup ref="imml.unsupported"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="imml.book.assets.extract.content">
-    <xs:attributeGroup ref="imml.book.assets.common_mandatory"/>
-    <xs:attributeGroup ref="imml.book.assets.common_optional"/>
+    <xs:attributeGroup ref="imml.book.assets.mandatory_attr.common"/>
+    <xs:attributeGroup ref="imml.book.assets.optional_attr.common"/>
   </xs:attributeGroup>
   <xs:element name="full">
     <xs:complexType mixed="true">
@@ -629,8 +636,8 @@ indicate support with a "false" value, but absence of this att is ok too.</xs:do
     <xs:attributeGroup ref="imml.unsupported"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="imml.book.assets.full.content">
-    <xs:attributeGroup ref="imml.book.assets.common_mandatory"/>
-    <xs:attributeGroup ref="imml.book.assets.common_optional"/>
+    <xs:attributeGroup ref="imml.book.assets.mandatory_attr.common"/>
+    <xs:attributeGroup ref="imml.book.assets.optional_attr.common"/>
   </xs:attributeGroup>
   <xs:element name="offer">
     <xs:complexType>

@@ -290,19 +290,20 @@ imml.book.assets =
     & imml.book.assets.extract*
     & imml.book.assets.full*
    }
-imml.book.assets.common_mandatory =
+imml.book.assets.mandatory_attr.common =
    attribute mimetype { imml.book.assets.mimetype.datatype }
 
-imml.book.assets.common_optional =
+imml.book.assets.optional_attr.common =
    attribute size { xsd:integer { minInclusive="0" } }?
  & attribute url { imml.book.assets.url.datatype }?
+ & attribute checksum { xsd:token { pattern="\S*" } }?
  & attribute last_modified { xsd:dateTime }?
 
 ## Cover files are made available to the receiving reseller via an ad hoc url
 imml.book.assets.cover =
    element cover {
-      imml.book.assets.common_optional
-    & imml.book.assets.common_mandatory
+      imml.book.assets.optional_attr.common
+    & imml.book.assets.mandatory_attr.common
    }
 
 ## Extract files are made available to the receiving reseller via an ad hoc url
@@ -320,8 +321,8 @@ imml.book.assets.extract.unsupported =
    imml.unsupported
 
 imml.book.assets.extract.content =
-   imml.book.assets.common_mandatory
- & imml.book.assets.common_optional
+   imml.book.assets.mandatory_attr.common
+ & imml.book.assets.optional_attr.common
 
 ## Content files are made available via an ad hoc url tailored for the receiving warehouse
 imml.book.assets.full =
@@ -338,8 +339,8 @@ imml.book.assets.full.unsupported =
    imml.unsupported
 
 imml.book.assets.full.content =
-   imml.book.assets.common_mandatory
- & imml.book.assets.common_optional
+   imml.book.assets.mandatory_attr.common
+ & imml.book.assets.optional_attr.common
 
 ###
 # Book offer
