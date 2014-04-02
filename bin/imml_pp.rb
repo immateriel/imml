@@ -7,7 +7,7 @@ filename=ARGV[0]
 
 if filename
   doc=IMML::Document.new
-  doc.parse_file(filename,false)
+  if doc.parse_file(filename)
 
   puts "Version: #{doc.version}"
 
@@ -52,7 +52,6 @@ if filename
     end
     puts "  Offer"
     puts "   Medium: #{doc.book.offer.medium}"
-    puts "   Format: #{doc.book.offer.format}" if doc.book.offer.format
     puts "   Pagination: #{doc.book.offer.pagination}" if doc.book.offer.pagination
     puts "   Ready for sale: #{doc.book.offer.ready_for_sale}"
     if doc.book.offer.sales_start_at
@@ -63,4 +62,6 @@ if filename
       puts "    Price: #{price.current_amount} #{price.currency} (#{price.territories})"
     end
   end
+  end
+
 end
