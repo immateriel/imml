@@ -34,7 +34,7 @@ module IMML
 
   class RnvValidator < Validator
     def self.validate(xml)
-      if system("which rnv")
+      if system("which rnv > /dev/null")
       out,status=Open3.capture2e("rnv -q data/imml.rnc", :stdin_data=>xml.to_xml)
 
       if out
