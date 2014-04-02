@@ -520,12 +520,12 @@ Book ##
       </interleave>
     </element>
   </define>
-  <define name="imml.book.assets.common_mandatory">
+  <define name="imml.book.assets.mandatory_attr.common">
     <attribute name="mimetype">
       <ref name="imml.book.assets.mimetype.datatype"/>
     </attribute>
   </define>
-  <define name="imml.book.assets.common_optional">
+  <define name="imml.book.assets.optional_attr.common">
     <interleave>
       <optional>
         <attribute name="size">
@@ -540,6 +540,13 @@ Book ##
         </attribute>
       </optional>
       <optional>
+        <attribute name="checksum">
+          <data type="token">
+            <param name="pattern">\S*</param>
+          </data>
+        </attribute>
+      </optional>
+      <optional>
         <attribute name="last_modified">
           <data type="dateTime"/>
         </attribute>
@@ -550,8 +557,8 @@ Book ##
     <a:documentation>Cover files are made available to the receiving reseller via an ad hoc url</a:documentation>
     <element name="cover">
       <interleave>
-        <ref name="imml.book.assets.common_optional"/>
-        <ref name="imml.book.assets.common_mandatory"/>
+        <ref name="imml.book.assets.optional_attr.common"/>
+        <ref name="imml.book.assets.mandatory_attr.common"/>
       </interleave>
     </element>
   </define>
@@ -575,8 +582,8 @@ Book ##
   </define>
   <define name="imml.book.assets.extract.content">
     <interleave>
-      <ref name="imml.book.assets.common_mandatory"/>
-      <ref name="imml.book.assets.common_optional"/>
+      <ref name="imml.book.assets.mandatory_attr.common"/>
+      <ref name="imml.book.assets.optional_attr.common"/>
     </interleave>
   </define>
   <define name="imml.book.assets.full">
@@ -599,8 +606,8 @@ Book ##
   </define>
   <define name="imml.book.assets.full.content">
     <interleave>
-      <ref name="imml.book.assets.common_mandatory"/>
-      <ref name="imml.book.assets.common_optional"/>
+      <ref name="imml.book.assets.mandatory_attr.common"/>
+      <ref name="imml.book.assets.optional_attr.common"/>
     </interleave>
   </define>
   <define name="imml.offer">
