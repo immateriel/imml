@@ -168,15 +168,21 @@ indicate support with a "false" value, but absence of this att is ok too.</a:doc
   <define name="imml.header.test">
     <element name="test">
       <interleave>
-        <element name="receive">
-          <ref name="imml.header.url.attribute"/>
-        </element>
-        <element name="check">
-          <ref name="imml.header.url.attribute"/>
-        </element>
-        <element name="sales">
-          <ref name="imml.header.url.attribute"/>
-        </element>
+        <optional>
+          <element name="receive">
+            <ref name="imml.header.url.attribute"/>
+          </element>
+        </optional>
+        <optional>
+          <element name="check">
+            <ref name="imml.header.url.attribute"/>
+          </element>
+        </optional>
+        <optional>
+          <element name="sales">
+            <ref name="imml.header.url.attribute"/>
+          </element>
+        </optional>
       </interleave>
     </element>
   </define>
@@ -637,10 +643,24 @@ Book ##
   </define>
   <define name="imml.offer.sales_models">
     <a:documentation>Various types of sales models</a:documentation>
+    <choice>
+      <ref name="imml.offer.sales_models.supported"/>
+      <ref name="imml.offer.sales_models.unsupported"/>
+    </choice>
+  </define>
+  <define name="imml.offer.sales_models.supported">
     <element name="sales_models">
-      <oneOrMore>
-        <ref name="imml.offer.sales_model"/>
-      </oneOrMore>
+      <interleave>
+        <oneOrMore>
+          <ref name="imml.offer.sales_model"/>
+        </oneOrMore>
+        <ref name="imml.supported"/>
+      </interleave>
+    </element>
+  </define>
+  <define name="imml.offer.sales_models.unsupported">
+    <element name="sales_models">
+      <ref name="imml.unsupported"/>
     </element>
   </define>
   <define name="imml.offer.sales_model">
@@ -727,8 +747,22 @@ Book ##
   </define>
   <define name="imml.offer.sales_start_at">
     <a:documentation>Date de mise à disposition</a:documentation>
+    <choice>
+      <ref name="imml.offer.sales_start_at.supported"/>
+      <ref name="imml.offer.sales_start_at.unsupported"/>
+    </choice>
+  </define>
+  <define name="imml.offer.sales_start_at.supported">
     <element name="sales_start_at">
-      <data type="date"/>
+      <interleave>
+        <ref name="imml.supported"/>
+        <data type="date"/>
+      </interleave>
+    </element>
+  </define>
+  <define name="imml.offer.sales_start_at.unsupported">
+    <element name="sales_start_at">
+      <ref name="imml.unsupported"/>
     </element>
   </define>
   <define name="imml.offer.prices">
@@ -938,16 +972,7 @@ Datatypes ##
     </choice>
   </define>
   <define name="imml.header.param.name.datatype">
-    <choice>
-      <value>ean</value>
-      <value>EAN</value>
-      <value>quantity</value>
-      <value>price</value>
-      <value>day</value>
-      <value>week</value>
-      <value>month</value>
-      <value>since</value>
-    </choice>
+    <data type="token"/>
   </define>
   <define name="imml.book.assets.url.datatype">
     <data type="anyURI"/>

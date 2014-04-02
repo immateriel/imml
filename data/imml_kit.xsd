@@ -129,9 +129,9 @@ indicate support with a "false" value, but absence of this att is ok too.</xs:do
   <xs:element name="test">
     <xs:complexType>
       <xs:all>
-        <xs:element ref="receive"/>
-        <xs:element ref="check"/>
-        <xs:element ref="sales"/>
+        <xs:element minOccurs="0" ref="receive"/>
+        <xs:element minOccurs="0" ref="check"/>
+        <xs:element minOccurs="0" ref="sales"/>
       </xs:all>
     </xs:complexType>
   </xs:element>
@@ -652,18 +652,42 @@ indicate support with a "false" value, but absence of this att is ok too.</xs:do
             <xs:element ref="prices"/>
           </xs:choice>
         </xs:choice>
-        <xs:element ref="sales_start_at"/>
-        <xs:element ref="sales_models"/>
+        <xs:group ref="imml.offer.sales_start_at"/>
+        <xs:group ref="imml.offer.sales_models"/>
       </xs:choice>
     </xs:complexType>
   </xs:element>
-  <xs:element name="sales_models">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element maxOccurs="unbounded" ref="sales_model"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
+  <xs:group name="imml.offer.sales_models">
+    <xs:annotation>
+      <xs:documentation>Various types of sales models</xs:documentation>
+    </xs:annotation>
+    <xs:choice>
+      <xs:group ref="imml.offer.sales_models.supported"/>
+      <xs:group ref="imml.offer.sales_models.unsupported"/>
+    </xs:choice>
+  </xs:group>
+  <xs:group name="imml.offer.sales_models.supported">
+    <xs:sequence>
+      <xs:element name="sales_models">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element maxOccurs="unbounded" ref="sales_model"/>
+          </xs:sequence>
+          <xs:attributeGroup ref="imml.supported"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="imml.offer.sales_models.unsupported">
+    <xs:sequence>
+      <xs:element name="sales_models">
+        <xs:complexType mixed="true">
+          <xs:group ref="imml.unsupported"/>
+          <xs:attributeGroup ref="imml.unsupported"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
   <xs:element name="sales_model">
     <xs:complexType>
       <xs:attribute name="type" use="required">
@@ -722,7 +746,38 @@ indicate support with a "false" value, but absence of this att is ok too.</xs:do
       <xs:attribute name="format" type="imml.offer.manifestation.datatype"/>
     </xs:complexType>
   </xs:element>
-  <xs:element name="sales_start_at" type="xs:date"/>
+  <xs:group name="imml.offer.sales_start_at">
+    <xs:annotation>
+      <xs:documentation>Date de mise à disposition</xs:documentation>
+    </xs:annotation>
+    <xs:choice>
+      <xs:group ref="imml.offer.sales_start_at.supported"/>
+      <xs:group ref="imml.offer.sales_start_at.unsupported"/>
+    </xs:choice>
+  </xs:group>
+  <xs:group name="imml.offer.sales_start_at.supported">
+    <xs:sequence>
+      <xs:element name="sales_start_at">
+        <xs:complexType>
+          <xs:simpleContent>
+            <xs:extension base="xs:date">
+              <xs:attributeGroup ref="imml.supported"/>
+            </xs:extension>
+          </xs:simpleContent>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="imml.offer.sales_start_at.unsupported">
+    <xs:sequence>
+      <xs:element name="sales_start_at">
+        <xs:complexType mixed="true">
+          <xs:group ref="imml.unsupported"/>
+          <xs:attributeGroup ref="imml.unsupported"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
   <xs:element name="prices">
     <xs:complexType>
       <xs:sequence>
@@ -879,16 +934,7 @@ Datatypes ##
     </xs:restriction>
   </xs:simpleType>
   <xs:simpleType name="imml.header.param.name.datatype">
-    <xs:restriction base="xs:token">
-      <xs:enumeration value="ean"/>
-      <xs:enumeration value="EAN"/>
-      <xs:enumeration value="quantity"/>
-      <xs:enumeration value="price"/>
-      <xs:enumeration value="day"/>
-      <xs:enumeration value="week"/>
-      <xs:enumeration value="month"/>
-      <xs:enumeration value="since"/>
-    </xs:restriction>
+    <xs:restriction base="xs:token"/>
   </xs:simpleType>
   <xs:simpleType name="imml.book.assets.url.datatype">
     <xs:restriction base="xs:anyURI"/>
