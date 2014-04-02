@@ -26,7 +26,7 @@ indicate support with a "false" value, but absence of this att is ok too.</a:doc
       <ref name="almostAnyContent"/>
     </interleave>
   </define>
-  <define name="imml.not_unsupported">
+  <define name="imml.supported">
     <optional>
       <attribute name="unsupported">
         <value>false</value>
@@ -324,125 +324,122 @@ Book ##
     </element>
   </define>
   <define name="imml.book.metadata.contributor.role">
+    <choice>
+      <ref name="imml.book.metadata.contributor.role.supported"/>
+      <ref name="imml.book.metadata.contributor.role.unsupported"/>
+    </choice>
+  </define>
+  <define name="imml.book.metadata.contributor.role.supported">
     <element name="role">
-      <choice>
+      <interleave>
         <ref name="imml.book.contributor.datatype"/>
-        <interleave>
-          <attribute name="unsupported">
-            <value>false</value>
-          </attribute>
-          <ref name="imml.book.contributor.datatype"/>
-        </interleave>
-        <interleave>
-          <attribute name="unsupported">
-            <value>true</value>
-          </attribute>
-          <ref name="almostAnyContent"/>
-        </interleave>
-      </choice>
+        <ref name="imml.supported"/>
+      </interleave>
+    </element>
+  </define>
+  <define name="imml.book.metadata.contributor.role.unsupported">
+    <element name="role">
+      <ref name="imml.unsupported"/>
     </element>
   </define>
   <!-- Book topics -->
   <define name="imml.book.metadata.topics">
+    <choice>
+      <ref name="imml.book.metadata.topics.supported"/>
+      <ref name="imml.book.metadata.topics.unsupported"/>
+    </choice>
+  </define>
+  <define name="imml.book.metadata.topics.supported">
     <element name="topics">
-      <choice>
+      <interleave>
         <oneOrMore>
           <ref name="imml.book.metadata.topic"/>
         </oneOrMore>
-        <interleave>
-          <attribute name="unsupported">
-            <value>false</value>
-          </attribute>
-          <oneOrMore>
-            <ref name="imml.book.metadata.topic"/>
-          </oneOrMore>
-        </interleave>
-        <interleave>
-          <attribute name="unsupported">
-            <value>true</value>
-          </attribute>
-          <ref name="almostAnyContent"/>
-        </interleave>
-      </choice>
+        <ref name="imml.supported"/>
+      </interleave>
+    </element>
+  </define>
+  <define name="imml.book.metadata.topics.unsupported">
+    <element name="topics">
+      <ref name="imml.unsupported"/>
     </element>
   </define>
   <define name="imml.book.metadata.topic">
     <element name="topic">
-      <ref name="imml.book.metadata.topic.class"/>
+      <choice>
+        <ref name="imml.book.metadata.topic.bisac"/>
+        <ref name="imml.book.metadata.topic.clil"/>
+        <ref name="imml.book.metadata.topic.keyword"/>
+      </choice>
     </element>
   </define>
-  <define name="imml.book.metadata.topic.class">
+  <define name="imml.book.metadata.topic.bisac">
     <choice>
-      <ref name="imml.book.metadata.topic.bisac"/>
-      <ref name="imml.book.metadata.topic.clil"/>
-      <ref name="imml.book.metadata.topic.keyword"/>
+      <ref name="imml.book.metadata.topic.bisac.supported"/>
+      <ref name="imml.book.metadata.topic.bisac.unsupported"/>
     </choice>
   </define>
-  <define name="imml.book.metadata.topic.bisac">
+  <define name="imml.book.metadata.topic.bisac.supported">
     <interleave>
       <attribute name="type">
         <value>bisac</value>
       </attribute>
-      <choice>
-        <ref name="imml.bisac.id.datatype"/>
-        <interleave>
-          <attribute name="unsupported">
-            <value>false</value>
-          </attribute>
-          <ref name="imml.bisac.id.datatype"/>
-        </interleave>
-        <interleave>
-          <attribute name="unsupported">
-            <value>true</value>
-          </attribute>
-          <ref name="almostAnyContent"/>
-        </interleave>
-      </choice>
+      <ref name="imml.supported"/>
+      <ref name="imml.bisac.id.datatype"/>
     </interleave>
   </define>
-  <!-- & ( imml.unsupported | ( imml.not_unsupported & imml.bisac.id.datatype ) ) -->
+  <define name="imml.book.metadata.topic.bisac.unsupported">
+    <interleave>
+      <attribute name="type">
+        <value>bisac</value>
+      </attribute>
+      <ref name="imml.unsupported"/>
+    </interleave>
+  </define>
   <define name="imml.book.metadata.topic.clil">
+    <choice>
+      <ref name="imml.book.metadata.topic.clil.supported"/>
+      <ref name="imml.book.metadata.topic.clil.unsupported"/>
+    </choice>
+  </define>
+  <define name="imml.book.metadata.topic.clil.supported">
     <interleave>
       <attribute name="type">
         <value>clil</value>
       </attribute>
-      <choice>
-        <ref name="imml.clil.id.datatype"/>
-        <interleave>
-          <attribute name="unsupported">
-            <value>false</value>
-          </attribute>
-          <ref name="imml.clil.id.datatype"/>
-        </interleave>
-        <interleave>
-          <attribute name="unsupported">
-            <value>true</value>
-          </attribute>
-          <ref name="almostAnyContent"/>
-        </interleave>
-      </choice>
+      <ref name="imml.supported"/>
+      <ref name="imml.clil.id.datatype"/>
+    </interleave>
+  </define>
+  <define name="imml.book.metadata.topic.clil.unsupported">
+    <interleave>
+      <attribute name="type">
+        <value>clil</value>
+      </attribute>
+      <ref name="imml.unsupported"/>
     </interleave>
   </define>
   <define name="imml.book.metadata.topic.keyword">
+    <choice>
+      <ref name="imml.book.metadata.topic.keyword.supported"/>
+      <ref name="imml.book.metadata.topic.keyword.unsupported"/>
+    </choice>
+  </define>
+  <define name="imml.book.metadata.topic.keyword.supported">
     <interleave>
       <attribute name="type">
         <value>keyword</value>
       </attribute>
-      <choice>
-        <ref name="imml.keyword.id.datatype"/>
-        <interleave>
-          <attribute name="unsupported">
-            <value>false</value>
-          </attribute>
-          <ref name="imml.keyword.id.datatype"/>
-        </interleave>
-        <interleave>
-          <attribute name="unsupported">
-            <value>true</value>
-          </attribute>
-          <ref name="almostAnyContent"/>
-        </interleave>
-      </choice>
+      <ref name="imml.supported"/>
+      <ref name="imml.keyword.id.datatype"/>
+    </interleave>
+  </define>
+  <define name="imml.book.metadata.topic.keyword.unsupported">
+    <interleave>
+      <attribute name="type">
+        <value>keyword</value>
+      </attribute>
+      <ref name="imml.unsupported"/>
     </interleave>
   </define>
   <!-- Book description -->
@@ -467,36 +464,35 @@ Book ##
   </define>
   <define name="imml.book.metadata.description">
     <element name="description">
-      <!-- imml.book.metadata.description.attributes & -->
-      <ref name="imml.book.metadata.description.content"/>
+      <choice>
+        <ref name="imml.book.metadata.description.content.xhtml"/>
+        <ref name="imml.book.metadata.description.content.text"/>
+      </choice>
     </element>
   </define>
-  <define name="imml.book.metadata.description.content">
+  <define name="imml.book.metadata.description.content.xhtml">
     <choice>
-      <ref name="imml.book.metadata.description.content.xhtml"/>
-      <ref name="imml.book.metadata.description.content.text"/>
+      <ref name="imml.book.metadata.description.xhtml.supported"/>
+      <ref name="imml.book.metadata.description.xhtml.unsupported"/>
     </choice>
   </define>
-  <define name="imml.book.metadata.description.content.xhtml">
+  <define name="imml.book.metadata.description.xhtml.supported">
     <interleave>
       <attribute name="format">
         <value>xhtml</value>
       </attribute>
-      <choice>
-        <ref name="anyXHTMLElement"/>
-        <interleave>
-          <attribute name="unsupported">
-            <value>false</value>
-          </attribute>
-          <ref name="anyXHTMLElement"/>
-        </interleave>
-        <interleave>
-          <attribute name="unsupported">
-            <value>true</value>
-          </attribute>
-          <ref name="almostAnyContent"/>
-        </interleave>
-      </choice>
+      <ref name="imml.supported"/>
+      <ref name="anyXHTMLElement"/>
+    </interleave>
+  </define>
+  <define name="imml.book.metadata.description.xhtml.unsupported">
+    <interleave>
+      <optional>
+        <attribute name="format">
+          <value>xhtml</value>
+        </attribute>
+      </optional>
+      <ref name="imml.unsupported"/>
     </interleave>
   </define>
   <define name="imml.book.metadata.description.content.text">
@@ -518,12 +514,38 @@ Book ##
       </interleave>
     </element>
   </define>
+  <define name="imml.book.assets.common_mandatory">
+    <attribute name="mimetype">
+      <ref name="imml.book.assets.mimetype.datatype"/>
+    </attribute>
+  </define>
+  <define name="imml.book.assets.common_optional">
+    <interleave>
+      <optional>
+        <attribute name="size">
+          <data type="integer">
+            <param name="minInclusive">0</param>
+          </data>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="url">
+          <ref name="imml.book.assets.url.datatype"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="last_modified">
+          <data type="dateTime"/>
+        </attribute>
+      </optional>
+    </interleave>
+  </define>
   <define name="imml.book.assets.cover">
     <a:documentation>Cover files are made available to the receiving reseller via an ad hoc url</a:documentation>
     <element name="cover">
       <interleave>
-        <ref name="imml.book.assets.url"/>
-        <ref name="imml.book.assets.mimetype"/>
+        <ref name="imml.book.assets.common_optional"/>
+        <ref name="imml.book.assets.common_mandatory"/>
       </interleave>
     </element>
   </define>
@@ -531,63 +553,49 @@ Book ##
     <a:documentation>Extract files are made available to the receiving reseller via an ad hoc url</a:documentation>
     <element name="extract">
       <choice>
-        <ref name="imml.book.assets.extract.content"/>
-        <interleave>
-          <attribute name="unsupported">
-            <value>false</value>
-          </attribute>
-          <ref name="imml.book.assets.extract.content"/>
-        </interleave>
-        <interleave>
-          <attribute name="unsupported">
-            <value>true</value>
-          </attribute>
-          <ref name="almostAnyContent"/>
-        </interleave>
+        <ref name="imml.book.assets.extract.supported"/>
+        <ref name="imml.book.assets.extract.unsupported"/>
       </choice>
     </element>
   </define>
+  <define name="imml.book.assets.extract.supported">
+    <interleave>
+      <ref name="imml.book.assets.extract.content"/>
+      <ref name="imml.supported"/>
+    </interleave>
+  </define>
+  <define name="imml.book.assets.extract.unsupported">
+    <ref name="imml.unsupported"/>
+  </define>
   <define name="imml.book.assets.extract.content">
     <interleave>
-      <ref name="imml.book.assets.url"/>
-      <ref name="imml.book.assets.mimetype"/>
+      <ref name="imml.book.assets.common_mandatory"/>
+      <ref name="imml.book.assets.common_optional"/>
     </interleave>
   </define>
   <define name="imml.book.assets.full">
     <a:documentation>Content files are made available via an ad hoc url tailored for the receiving warehouse</a:documentation>
     <element name="full">
       <choice>
-        <ref name="imml.book.assets.full.content"/>
-        <interleave>
-          <attribute name="unsupported">
-            <value>false</value>
-          </attribute>
-          <ref name="imml.book.assets.full.content"/>
-        </interleave>
-        <interleave>
-          <attribute name="unsupported">
-            <value>true</value>
-          </attribute>
-          <ref name="almostAnyContent"/>
-        </interleave>
+        <ref name="imml.book.assets.full.supported"/>
+        <ref name="imml.book.assets.full.unsupported"/>
       </choice>
     </element>
   </define>
-  <define name="imml.book.assets.full.content">
+  <define name="imml.book.assets.full.supported">
     <interleave>
-      <ref name="imml.book.assets.url"/>
-      <ref name="imml.book.assets.mimetype"/>
+      <ref name="imml.book.assets.full.content"/>
+      <ref name="imml.supported"/>
     </interleave>
   </define>
-  <define name="imml.book.assets.mimetype">
-    <attribute name="mimetype">
-      <ref name="imml.book.assets.mimetype.datatype"/>
-    </attribute>
+  <define name="imml.book.assets.full.unsupported">
+    <ref name="imml.unsupported"/>
   </define>
-  <define name="imml.book.assets.url">
-    <attribute name="url">
-      <ref name="imml.book.assets.url.datatype"/>
-    </attribute>
+  <define name="imml.book.assets.full.content">
+    <interleave>
+      <ref name="imml.book.assets.common_mandatory"/>
+      <ref name="imml.book.assets.common_optional"/>
+    </interleave>
   </define>
   <define name="imml.offer">
     <a:documentation/>
@@ -621,6 +629,54 @@ Book ##
           </interleave>
         </choice>
         <ref name="imml.offer.sales_start_at"/>
+        <optional>
+          <ref name="imml.offer.sales_models"/>
+        </optional>
+      </interleave>
+    </element>
+  </define>
+  <define name="imml.offer.sales_models">
+    <a:documentation>Various types of sales models</a:documentation>
+    <element name="sales_models">
+      <oneOrMore>
+        <ref name="imml.offer.sales_model"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="imml.offer.sales_model">
+    <element name="sales_model">
+      <interleave>
+        <attribute name="type">
+          <choice>
+            <value>purchase</value>
+            <value>subscription</value>
+            <value>freemium</value>
+          </choice>
+        </attribute>
+        <attribute name="available">
+          <data type="boolean"/>
+        </attribute>
+        <attribute name="customer">
+          <choice>
+            <value>individual</value>
+            <value>library</value>
+          </choice>
+        </attribute>
+        <attribute name="format">
+          <choice>
+            <value>epub</value>
+            <value>pdf</value>
+            <value>bundle</value>
+            <value>streaming</value>
+          </choice>
+        </attribute>
+        <attribute name="protection">
+          <choice>
+            <value>none</value>
+            <value>watermark</value>
+            <value>drm</value>
+          </choice>
+        </attribute>
       </interleave>
     </element>
   </define>
@@ -670,23 +726,9 @@ Book ##
     </element>
   </define>
   <define name="imml.offer.sales_start_at">
-    <a:documentation>Date d'effet</a:documentation>
+    <a:documentation>Date de mise à disposition</a:documentation>
     <element name="sales_start_at">
-      <choice>
-        <data type="date"/>
-        <interleave>
-          <attribute name="unsupported">
-            <value>false</value>
-          </attribute>
-          <data type="date"/>
-        </interleave>
-        <interleave>
-          <attribute name="unsupported">
-            <value>true</value>
-          </attribute>
-          <ref name="almostAnyContent"/>
-        </interleave>
-      </choice>
+      <data type="date"/>
     </element>
   </define>
   <define name="imml.offer.prices">
@@ -703,6 +745,9 @@ Book ##
         <ref name="imml.offer.price.currency"/>
         <ref name="imml.offer.price.current_amount"/>
         <ref name="imml.offer.price.territories"/>
+        <optional>
+          <ref name="imml.offer.price.intervals"/>
+        </optional>
       </interleave>
     </element>
   </define>
@@ -724,7 +769,44 @@ Book ##
       <ref name="imml.offer.territory.datatype"/>
     </element>
   </define>
-  <!-- As of version 0, nothing interesting -->
+  <define name="imml.offer.price.intervals">
+    <choice>
+      <ref name="imml.offer.price.intervals.supported"/>
+      <ref name="imml.offer.price.intervals.unsupported"/>
+    </choice>
+  </define>
+  <define name="imml.offer.price.intervals.supported">
+    <element name="intervals">
+      <interleave>
+        <ref name="imml.supported"/>
+        <oneOrMore>
+          <ref name="imml.offer.price.interval"/>
+        </oneOrMore>
+      </interleave>
+    </element>
+  </define>
+  <define name="imml.offer.price.intervals.unsupported">
+    <element name="intervals">
+      <ref name="imml.unsupported"/>
+    </element>
+  </define>
+  <define name="imml.offer.price.interval">
+    <element name="interval">
+      <interleave>
+        <optional>
+          <attribute name="start_at">
+            <data type="date"/>
+          </attribute>
+        </optional>
+        <optional>
+          <attribute name="end_at">
+            <data type="date"/>
+          </attribute>
+        </optional>
+        <ref name="imml.offer.price.datatype"/>
+      </interleave>
+    </element>
+  </define>
   <define name="imml.reporting">
     <a:documentation>
 Reporting ##
@@ -955,11 +1037,6 @@ Datatypes ##
       </oneOrMore>
     </list>
   </define>
-  <define name="imml.uid.datatype">
-    <data type="token">
-      <param name="pattern">C[A-Z]{1}[0-9]+</param>
-    </data>
-  </define>
   <define name="imml.message.id.datatype">
     <data type="NMTOKEN"/>
   </define>
@@ -984,20 +1061,17 @@ Datatypes ##
   <define name="imml.authentication.key.datatype">
     <data type="NMTOKEN"/>
   </define>
+  <define name="imml.uid.datatype">
+    <data type="token"/>
+  </define>
   <define name="imml.book.id.datatype">
-    <data type="token">
-      <param name="pattern">C[B][0-9]+</param>
-    </data>
+    <data type="token"/>
   </define>
   <define name="imml.book.metadata.publisher.id.datatype">
-    <data type="token">
-      <param name="pattern">C[P][0-9]+</param>
-    </data>
+    <data type="token"/>
   </define>
   <define name="imml.book.metadata.collection.id.datatype">
-    <data type="token">
-      <param name="pattern">C[C][0-9]+</param>
-    </data>
+    <data type="token"/>
   </define>
   <define name="imml.book.contributor.id.datatype">
     <ref name="imml.uid.datatype"/>
