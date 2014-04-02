@@ -91,9 +91,9 @@ imml.header.reason =
 # For testing new ws urls
 imml.header.test =
    element test {
-      element receive { imml.header.url.attribute }
-    & element check { imml.header.url.attribute }
-    & element sales { imml.header.url.attribute }
+      element receive { imml.header.url.attribute }?
+    & element check { imml.header.url.attribute }?
+    & element sales { imml.header.url.attribute }?
    }
 
 imml.header.url.attribute =
@@ -360,8 +360,18 @@ imml.offer =
 
 ## Various types of sales models
 imml.offer.sales_models =
+   imml.offer.sales_models.supported
+ | imml.offer.sales_models.unsupported
+
+imml.offer.sales_models.supported =
    element sales_models {
       imml.offer.sales_model+
+    & imml.supported
+   }
+
+imml.offer.sales_models.unsupported =
+   element sales_models {
+      imml.unsupported
    }
 
 imml.offer.sales_model =
@@ -401,8 +411,18 @@ imml.offer.alternative =
    }
 ## Date de mise à disposition
 imml.offer.sales_start_at =
+   imml.offer.sales_start_at.supported
+ | imml.offer.sales_start_at.unsupported
+
+imml.offer.sales_start_at.supported =
    element sales_start_at {
-      xsd:date
+      imml.supported
+    & xsd:date
+   }
+
+imml.offer.sales_start_at.unsupported =
+   element sales_start_at {
+      imml.unsupported
    }
 
 ## Book prices
@@ -513,8 +533,7 @@ almostAnyContent =
 ## Datatypes ##
 ###############
 imml.message.error.values = "bad_territory" | "out_of_tier" | "client_already_exists"
-imml.header.param.name.datatype = 
-   "ean" | "EAN" | "quantity" | "price" | "day" | "week" | "month" | "since"
+imml.header.param.name.datatype = xsd:token
 imml.book.assets.url.datatype = xsd:anyURI
 imml.book.assets.mimetype.datatype = 
    "image/jpeg" 
