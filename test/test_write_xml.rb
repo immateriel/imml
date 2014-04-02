@@ -18,8 +18,7 @@ class TestWriteXml < Test::Unit::TestCase
       @doc.book.assets.cover=IMML::Book::Cover.create("image/png",1000)
       @doc.book.offer=IMML::Book::Offer.create("digital",true)
       @doc.book.offer.prices << IMML::Book::Price.create("EUR",6.49,"WORLD")
-      @doc.book.offer.sales_start_at=IMML::Book::SalesStartAt.new
-      @doc.book.offer.sales_start_at.unsupported=true
+      @doc.book.offer.sales_start_at=IMML::Book::SalesStartAt.create_unsupported
       puts @doc.xml_builder.to_xml
 
     end
