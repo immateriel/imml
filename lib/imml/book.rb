@@ -228,13 +228,11 @@ module IMML
 
       def write(xml)
         super
-        if @collection.length > 0
           xml.topics(self.attributes) {
             @collection.each do |topic|
               topic.write(xml)
             end
           }
-        end
       end
 
     end
