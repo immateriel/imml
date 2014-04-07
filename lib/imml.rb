@@ -69,7 +69,7 @@ module IMML
     def parse(xml, valid=true)
       errors=[]
       if valid
-        errors=validate(xml)
+        errors=self.validate(xml)
       end
       if errors.length==0
         @version=xml.root["version"]
@@ -92,13 +92,17 @@ module IMML
         end
         true
       else
-        RnvValidator.errors(errors)
+        self.dump_errors(errors)
         false
       end
     end
 
     def validate(xml)
-      RnvValidator.validate(xml)
+      validator.validate(xml)
+    end
+
+    def dump_errors(errors)
+      validator.errors(errors)
     end
 
     def parse_data(data, valid=true)
