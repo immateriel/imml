@@ -1,9 +1,9 @@
 source "http://rubygems.org"
 
 gem 'nokogiri'
+gem "levenshtein"
 
 group :development do
-  gem "levenshtein"
   gem "shoulda", ">= 0"
   gem "rdoc", "~> 3.12"
   gem "bundler"
