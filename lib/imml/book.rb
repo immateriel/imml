@@ -685,8 +685,29 @@ module IMML
       end
     end
 
+    class Alternative < Entity
+      attr_accessor :ean, :medium
+
+      def self.create(ean,medium)
+        alternative=Alternative.new
+        alternative.ean=ean
+        alternative.medium=medium
+        alternative
+      end
+
+      def parse(node)
+        @ean=node["ean"]
+        @medium=node["medium"]
+      end
+
+      def write(xml)
+        xml.alternative(:ean=>@ean,:medium=>@medium)
+      end
+
+    end
+
     class Offer < Entity
-      attr_accessor :medium, :pagination, :ready_for_sale, :sales_start_at, :prices, :prices_with_currency, :sales_models
+      attr_accessor :medium, :pagination, :ready_for_sale, :sales_start_at, :prices, :prices_with_currency, :sales_models, :alternatives
 
       def self.create(medium, ready_for_sale)
         offer=Offer.new
@@ -699,6 +720,7 @@ module IMML
         @prices=[]
         @prices_with_currency={}
         @sales_models=[]
+        @alternatives=[]
       end
 
       def parse(node)
@@ -730,6 +752,14 @@ module IMML
                   @sales_models << model
                 end
               end
+            when "alternatives"
+              child.children.each do |alt_node|
+                if alt_node.element?
+                  alt=Alternative.new
+                  alt.parse(alt_node)
+                  @alternatives << alt
+                end
+              end
           end
         end
 
@@ -754,6 +784,13 @@ module IMML
           price.write(xml)
         end
         }
+        if alternatives.length > 0
+          xml.alternatives {
+            self.alternatives.each do |alt|
+              alt.write(xml)
+            end
+          }
+        end
         if sales_models.length > 0
         xml.sales_models {
           self.sales_models.each do |model|
