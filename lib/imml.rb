@@ -15,12 +15,16 @@ module IMML
     end
     def self.errors(out)
     end
+
+    def self.scheme_dir
+      File.dirname(__FILE__) + "/../data"
+    end
   end
 
   # does not work
   class NokogiriValidator < Validator
     def self.validate(xml)
-      schema = Nokogiri::XML::RelaxNG(File.open("data/imml.rng"))
+      schema = Nokogiri::XML::RelaxNG(File.open("#{self.scheme_dir}/imml.rng"))
       schema.validate(xml)
     end
 
@@ -35,7 +39,7 @@ module IMML
   class RnvValidator < Validator
     def self.validate(xml)
       if system("which rnv > /dev/null")
-      out,status=Open3.capture2e("rnv data/imml.rnc", :stdin_data=>xml.to_xml)
+      out,status=Open3.capture2e("rnv #{self.scheme_dir}/imml.rnc", :stdin_data=>xml.to_xml)
 
       if out
         out.split(/\n/)
