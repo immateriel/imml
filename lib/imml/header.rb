@@ -56,7 +56,11 @@ module IMML
       end
 
       def write(xml)
-        xml.reseller(:reseller_id => self.reseller_id, :reseller_dilicom_gencod => self.reseller_dilicom_gencod)
+        if self.reseller_id
+          xml.reseller(:reseller_id => self.reseller_id)
+        else
+          xml.reseller(:reseller_dilicom_gencod => self.reseller_dilicom_gencod)
+        end
       end
 
     end
