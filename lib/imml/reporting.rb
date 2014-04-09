@@ -39,18 +39,19 @@ module IMML
         line.quantity=quantity
         line.currency=currency
         line.country=country
+        line
       end
 
       def parse(node)
-        @ean=line["ean"]
-        @type=line["type"]
-        @customer=line["customer"]
-        @tax=line["tax"].to_f
-        @net_amount=line["net_amount"].to_f
-        @unit_price=line["unit_price"].to_f
-        @quantity=line["quantity"].to_i
-        @currency=line["currency"]
-        @country=line["country"]
+        @ean=node["ean"]
+        @type=node["type"]
+        @customer=node["customer"]
+        @tax=node["tax"].to_f
+        @net_amount=node["net_amount"].to_f
+        @unit_price=node["unit_price"].to_f
+        @quantity=node["quantity"].to_i
+        @currency=node["currency"]
+        @country=node["country"]
       end
 
       def write(xml)
@@ -63,8 +64,13 @@ module IMML
         }
       end
     end
+
     class Reporting
       attr_accessor :date, :lines
+
+      def initialize
+        @lines=[]
+      end
 
       def self.create(date)
         reporting=Reporting.new
@@ -77,7 +83,7 @@ module IMML
           case child.name
             when "lines"
               child.children.each do |line_child|
-                if param_node.element?
+                if line_child.element?
                   line=Line.new
                   line.parse(line_child)
                   @lines << line

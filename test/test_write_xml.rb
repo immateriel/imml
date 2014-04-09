@@ -19,17 +19,36 @@ class TestWriteXml < Test::Unit::TestCase
       @doc.book.offer=IMML::Book::Offer.create("digital",true)
       @doc.book.offer.prices << IMML::Book::Price.create("EUR",6.49,"WORLD")
       @doc.book.offer.sales_start_at=IMML::Book::SalesStartAt.create_unsupported
-      puts @doc.xml_builder.to_xml
+      puts @doc.to_xml
 
     end
 
 
     should "be valid" do
-        testdoc = IMML::Document.new
+      testdoc = IMML::Document.new
       res=testdoc.parse_data(@doc.to_xml)
       assert_equal true,res
     end
 
+
+  end
+
+  context "write reporting" do
+    setup do
+      puts "WRITE REPORTING"
+
+      @doc = IMML::Document.new
+      @doc.reporting = IMML::Reporting::Reporting.create(Date.today)
+      @doc.reporting.lines << IMML::Reporting::Line.create("9781909782471","unit_purchase","individual",5.5,1.87,1.99,1,"EUR","FR")
+      puts @doc.to_xml
+
+    end
+
+    should "be valid" do
+      testdoc = IMML::Document.new
+      res=testdoc.parse_data(@doc.to_xml)
+      assert_equal true,res
+    end
 
   end
 end
