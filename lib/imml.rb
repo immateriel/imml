@@ -7,7 +7,7 @@ require 'levenshtein'
 require 'open3'
 require 'imml/header'
 require 'imml/book'
-require 'imml/order'
+require 'imml/reporting'
 
 module IMML
   class Validator
@@ -60,7 +60,7 @@ module IMML
   end
 
   class Document
-    attr_accessor :version, :header, :book, :order
+    attr_accessor :version, :header, :book, :reporting
 
     def validator
       RnvValidator
@@ -89,7 +89,9 @@ module IMML
                   when "book"
                     @book=Book::Book.new
                     @book.parse(child)
-                  when "order"
+                  when "reporting"
+                    @reporting=Reporting::Reporting.new
+                    @reporting.parse(child)
                 end
               end
           end
@@ -125,6 +127,9 @@ module IMML
         end
         if self.book
           self.book.write(xml)
+        end
+        if self.reporting
+          self.reporting.write(xml)
         end
       }
     end
