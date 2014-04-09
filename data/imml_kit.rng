@@ -1026,7 +1026,7 @@ Datatypes ##
   </define>
   <define name="imml.offer.type.datatype">
     <choice>
-      <value>unit_purchase</value>
+      <value>purchase</value>
       <value>subscription</value>
       <value>freemium</value>
     </choice>

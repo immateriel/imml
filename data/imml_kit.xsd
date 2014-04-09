@@ -992,7 +992,7 @@ Datatypes ##
   </xs:simpleType>
   <xs:simpleType name="imml.offer.type.datatype">
     <xs:restriction base="xs:token">
-      <xs:enumeration value="unit_purchase"/>
+      <xs:enumeration value="purchase"/>
       <xs:enumeration value="subscription"/>
       <xs:enumeration value="freemium"/>
     </xs:restriction>

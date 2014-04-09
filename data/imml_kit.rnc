@@ -554,7 +554,7 @@ imml.book.contributor.datatype = list {"author" | "translator" | "editor" | "typ
 imml.bisac.id.datatype = xsd:token { pattern="[A-Z]{3}[0-9]{6}" } 
 imml.clil.id.datatype = xsd:token { pattern="[0-9]{4}" } 
 imml.keyword.id.datatype = text 
-imml.offer.type.datatype = "unit_purchase" | "subscription" | "freemium"
+imml.offer.type.datatype = "purchase" | "subscription" | "freemium"
 imml.offer.customer.datatype = "individual" | "library"
 imml.offer.medium.datatype = "printed" | "digital"
 imml.offer.manifestation.datatype = "epub" | "pdf" | "streaming" | "bundle"

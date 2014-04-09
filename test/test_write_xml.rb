@@ -39,7 +39,7 @@ class TestWriteXml < Test::Unit::TestCase
 
       @doc = IMML::Document.new
       @doc.reporting = IMML::Reporting::Reporting.create(Date.today)
-      @doc.reporting.lines << IMML::Reporting::Line.create("9781909782471","unit_purchase","individual",5.5,1.87,1.99,1,"EUR","FR")
+      @doc.reporting.lines << IMML::Reporting::Line.create("9781909782471","purchase","individual",5.5,1.87,1.99,1,"EUR","FR")
       puts @doc.to_xml
 
     end
