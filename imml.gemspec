@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["julbouln"]
-  s.date = "2014-04-08"
+  s.date = "2014-04-10"
   s.description = "immat\u{e9}riel.fr IMML parser/writer"
   s.email = "jboulnois@immateriel.fr"
   s.executables = ["imml_pp.rb"]
@@ -28,7 +28,7 @@ Gem::Specification.new do |s|
     "lib/imml.rb",
     "lib/imml/book.rb",
     "lib/imml/header.rb",
-    "lib/imml/order.rb"
+    "lib/imml/reporting.rb"
   ]
   s.homepage = "http://github.com/immateriel/imml"
   s.require_paths = ["lib"]
