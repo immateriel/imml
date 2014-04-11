@@ -431,19 +431,20 @@ module IMML
       private
       # ImageMagick needed
       def self.check_image(img1, img2, uniq_str, cleanup=true)
-        tmp1="/tmp/check_image_#{Time.now.to_i}_#{uniq_str}_tmp1.png"
+        nsec="%10.9f" % Time.now.to_f
+        tmp1="/tmp/check_image_#{nsec}_#{uniq_str}_tmp1.png"
         # on supprime le transparent
         conv1=`convert #{img1} -trim +repage -resize 64 #{tmp1}`
         if File.exists?(tmp1)
           # on recupere la taille
           size1=`identify #{tmp1}`.chomp.gsub(/.*[^\d](\d+x\d+)[^\d].*/, '\1').split("x").map { |v| v.to_i }
 
-          tmp2="/tmp/check_image_#{Time.now.to_i}_#{uniq_str}_tmp2.png"
+          tmp2="/tmp/check_image_#{nsec}_#{uniq_str}_tmp2.png"
           # on convertit l'image deux dans la taille de l'image un
           conv2=`convert #{img2} -trim +repage -resize #{size1.first}x#{size1.last}\\! #{tmp2}`
 
           if File.exists?(tmp2)
-            tmp3="/tmp/check_image_#{Time.now.to_i}_#{uniq_str}_tmp3.png"
+            tmp3="/tmp/check_image_#{nsec}_#{uniq_str}_tmp3.png"
             # on compare
             result=`compare -dissimilarity-threshold 1 -metric mae #{tmp1} #{tmp2} #{tmp3} 2>/dev/stdout`.chomp
             if cleanup
