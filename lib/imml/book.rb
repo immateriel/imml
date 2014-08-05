@@ -350,6 +350,10 @@ module IMML
             self.publisher.write(xml)
           end
 
+          if self.publication
+            xml.publication(self.publication.strftime("%Y-%m-%d"))
+          end
+
           if self.description
             xml.description(self.description)
           end
