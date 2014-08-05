@@ -21,19 +21,26 @@ module IMML
     end
   end
 
+  class ValidationError
+     attr_accessor :line, :column, :message
+     def initialize(line,column,message)
+       @line=line
+       @column=column
+       @message=message
+     end
+
+     def dump
+       puts "#{@line}:#{column}: error: #{message}"
+     end
+  end
+
   # does not work
   class NokogiriValidator < Validator
     def self.validate(xml)
       schema = Nokogiri::XML::RelaxNG(File.open("#{self.scheme_dir}/imml.rng"))
-      schema.validate(xml)
+      schema.validate(xml).map{|e| ValidationError.new(e.line,e.column,e.message)}
     end
 
-    def self.errors(out)
-      puts "IMML is invalid: "
-      out.each do |error|
-        puts " #{error.file}:#{error.line}:#{error.column}: error: #{error.message}"
-      end
-    end
   end
 
   class RnvValidator < Validator
@@ -42,7 +49,21 @@ module IMML
       out,status=Open3.capture2e("rnv #{self.scheme_dir}/imml.rnc", :stdin_data=>xml.to_xml)
 
       if out
-        out.split(/\n/)
+        err=[]
+        out.split(/\n/).each do |l|
+          if l=~/.*\:\d+\:\d+\: error\:.*/
+          line=l.gsub(/.*\:(\d+)\:(\d+)\: error\:(.*)/,'\1').strip
+          col=l.gsub(/.*\:(\d+)\:(\d+)\: error\:(.*)/,'\2').strip
+          msg=l.gsub(/.*\:(\d+)\:(\d+)\: error\:(.*)/,'\3').strip
+          err << ValidationError.new(line,col,msg)
+          else
+            case l
+              when /^required/,/^allowed/,/^\t/
+                err.last.message+="\n"+l
+            end
+          end
+        end
+        err
       else
         []
       end
@@ -51,16 +72,10 @@ module IMML
       end
     end
 
-    def self.errors(out)
-      puts "IMML is invalid: "
-      out.each do |error|
-        puts error
-      end
-    end
   end
 
   class Document
-    attr_accessor :version, :header, :book, :reporting
+    attr_accessor :version, :header, :book, :reporting, :errors
 
     def validator
       RnvValidator
@@ -71,11 +86,11 @@ module IMML
     end
 
     def parse(xml, valid=true)
-      errors=[]
+      @errors=[]
       if valid
-        errors=self.validate(xml)
+        @errors=self.validate(xml)
       end
-      if errors.length==0
+      if @errors.length==0
         @version=xml.root["version"]
         xml.children.each do |root|
           case root.name
@@ -108,7 +123,13 @@ module IMML
     end
 
     def dump_errors(errors)
-      validator.errors(errors)
+      if @errors.length > 0
+        puts "IMML is invalid: "
+
+        @errors.each do |error|
+          error.dump
+        end
+      end
     end
 
     def parse_data(data, valid=true)
