@@ -28,9 +28,11 @@ module IMML
        @column=column
        @message=message
      end
-
+     def to_s
+       "#{@line}:#{column}: error: #{message}"
+     end
      def dump
-       puts "#{@line}:#{column}: error: #{message}"
+       puts self.to_s
      end
   end
 
