@@ -14,11 +14,16 @@ class TestWriteXml < Test::Unit::TestCase
       @doc.book.metadata.topics=IMML::Book::Topics.create
       @doc.book.metadata.topics << IMML::Book::Topic.create("bisac","FIC027120")
 
+      @doc.book.metadata.edition = 1
+
       @doc.book.assets=IMML::Book::Assets.create
       @doc.book.assets.cover=IMML::Book::Cover.create("image/png",1000)
+      @doc.book.assets.extracts << IMML::Book::Extract.create("application/epub+zip",1000)
+      @doc.book.assets.fulls << IMML::Book::Full.create("application/epub+zip",1000,nil,nil,"http://localhost/full.epub","3210123456789")
+
       @doc.book.offer=IMML::Book::Offer.create("digital",true)
       @doc.book.offer.prices << IMML::Book::Price.create("EUR",6.49,"WORLD")
-      @doc.book.offer.sales_start_at=IMML::Book::SalesStartAt.create_unsupported
+      @doc.book.offer.sales_start_at=IMML::Book::SalesStartAt.create(Date.new(2012,1,1))
       puts @doc.to_xml
 
     end

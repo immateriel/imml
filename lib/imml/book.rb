@@ -44,7 +44,15 @@ module IMML
 
     class EntityCollection < Array
       include EntityMethods
+      attr_accessor :version
       attr_accessor :attributes, :unsupported
+
+      def << value
+        if value.respond_to?(:version)
+          value.version=self.version
+        end
+        super value
+      end
     end
 
     class EntityWithUid < Entity
@@ -269,7 +277,11 @@ module IMML
         @collection=nil
         @publisher=nil
 
-        @contributors=[]
+        @contributors=EntityCollection.new
+      end
+
+      def attach_version v
+        @contributors.version=v
       end
 
       def self.create(title,language,description,subtitle=nil,publication=nil)
@@ -306,14 +318,14 @@ module IMML
               @publisher=Publisher.new
               @publisher.parse(child)
             when "topics"
-              @topics=Topics.new
-              @topics.parse(child)
+              self.topics=Topics.new
+              self.topics.parse(child)
             when "contributors"
               child.children.each do |contributor_node|
                 if contributor_node.element?
                 contributor=Contributor.new
                 contributor.parse(contributor_node)
-                @contributors << contributor
+                self.contributors << contributor
                 end
               end
           end
@@ -391,7 +403,7 @@ module IMML
       end
 
       def write(xml)
-        if @version.to_i > 200
+        if self.version.to_i > 200
           if @unsupported
             @attributes[:unsupported]=@unsupported
           end
@@ -524,11 +536,16 @@ module IMML
     end
 
     class Assets < IMML::Object
-      attr_accessor :cover, :extracts, :fulls
+      attr_accessor_with_version :cover, :extracts, :fulls
 
       def initialize
-        @extracts=[]
-        @fulls=[]
+        @extracts=EntityCollection.new
+        @fulls=EntityCollection.new
+      end
+
+      def attach_version v
+        @extracts.version = v
+        @fulls.version = v
       end
 
       def self.create
@@ -544,11 +561,11 @@ module IMML
             when "extract"
               extract=Extract.new
               extract.parse(child)
-              @extracts << extract
+              self.extracts << extract
             when "full"
               full=Full.new
               full.parse(child)
-              @fulls << full
+              self.fulls << full
           end
         end
       end

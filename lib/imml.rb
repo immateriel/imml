@@ -14,20 +14,24 @@ class Class
         @#{attr_name}=val
         if @#{attr_name}.respond_to?(:version)
           @#{attr_name}.version=self.version
+          if @#{attr_name}.respond_to?(:attach_version)
+            @#{attr_name}.attach_version self.version
+          end
         else
           puts "WARN: #{attr_name} do not have version attribute"
         end
       end
     }
     end
-
   end
-
 end
 
 module IMML
   class Object
     attr_accessor :version
+
+    def attach_version v
+    end
   end
 end
 
@@ -117,8 +121,8 @@ module IMML
                 line=$1.strip
                 col=$2.strip
                 msg=$3.strip
+                err << ValidationError.new(line, col, msg)
               end
-              err << ValidationError.new(line, col, msg)
             else
               case l
                 when /^required/, /^allowed/, /^\t/
@@ -163,14 +167,14 @@ module IMML
               root.children.each do |child|
                 case child.name
                   when "header"
-                    @header=Header::Header.new
-                    @header.parse(child)
+                    self.header=Header::Header.new
+                    self.header.parse(child)
                   when "book"
-                    @book=Book::Book.new
-                    @book.parse(child)
+                    self.book=Book::Book.new
+                    self.book.parse(child)
                   when "reporting"
-                    @reporting=Reporting::Reporting.new
-                    @reporting.parse(child)
+                    self.reporting=Reporting::Reporting.new
+                    self.reporting.parse(child)
                 end
               end
           end
