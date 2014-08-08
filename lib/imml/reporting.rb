@@ -65,7 +65,7 @@ module IMML
       end
     end
 
-    class Reporting
+    class Reporting < IMML::Object
       attr_accessor :date, :lines
 
       def initialize

@@ -5,17 +5,9 @@ module IMML
 
   module Book
 
-    class Entity
-      attr_accessor :attributes, :unsupported
-
+    module EntityMethods
       def initialize
         @attributes={}
-      end
-
-      def self.create_unsupported
-        entity=self.new
-        entity.unsupported=true
-        entity
       end
 
       def parse(node)
@@ -37,29 +29,31 @@ module IMML
       def unsupported?
         @unsupported
       end
-
     end
 
-    class EntityCollection < Entity
-      attr_accessor :collection
-      def initialize
-        super
-        @collection=[]
-      end
-      def each &block
-        self.collection.each &block
-      end
-      def << v
-        self.collection << v
-      end
+    class Entity < IMML::Object
+      include EntityMethods
+      attr_accessor :attributes, :unsupported
 
+      def self.create_unsupported
+        entity=self.new
+        entity.unsupported=true
+        entity
+      end
+    end
+
+    class EntityCollection < Array
+      include EntityMethods
+      attr_accessor :attributes, :unsupported
     end
 
     class EntityWithUid < Entity
       attr_accessor :uid
 
       def write(xml)
-        super
+        if @unsupported
+          @attributes[:unsupported]=@unsupported
+        end
         if @uid
           @attributes[:uid]=@uid
         end
@@ -216,7 +210,7 @@ module IMML
           if child.element?
             topic=Topic.new
             topic.parse(child)
-            @collection << topic
+            self << topic
           end
         end
       end
@@ -229,7 +223,7 @@ module IMML
       def write(xml)
         super
           xml.topics(self.attributes) {
-            @collection.each do |topic|
+            self.each do |topic|
               topic.write(xml)
             end
           }
@@ -265,9 +259,11 @@ module IMML
 
     end
 
-    class Metadata
+    class Metadata < IMML::Object
 
       attr_accessor :title, :subtitle, :contributors, :topics, :collection, :language, :publication, :publisher, :description
+      attr_accessor :edition # 201
+
 
       def initialize
         @collection=nil
@@ -295,6 +291,8 @@ module IMML
               @title=Text.new(child.text)
             when "subtitle"
               @subtitle=Text.new(child.text)
+            when "edition"
+              @edition=child.text.to_i
             when "description"
               @description=Text.new(child.text)
             when "collection"
@@ -342,6 +340,12 @@ module IMML
             self.collection.write(xml)
           end
 
+          if self.version.to_i > 200
+            if self.edition
+              xml.edition(self.edition)
+            end
+          end
+
           if self.topics
             self.topics.write(xml)
           end
@@ -364,6 +368,8 @@ module IMML
 
     class Asset < Entity
       attr_accessor :mimetype, :url, :checksum, :size, :last_modified
+      attr_accessor :uid # 201
+
       def parse(node)
         super
         @mimetype=node["mimetype"]
@@ -384,7 +390,17 @@ module IMML
       end
 
       def write(xml)
-        super
+        if @version.to_i > 200
+          if @unsupported
+            @attributes[:unsupported]=@unsupported
+          end
+          if @uid
+            @attributes[:uid]=@uid
+          end
+        else
+          super
+        end
+
         if @mimetype
           @attributes[:mimetype]=@mimetype
         end
@@ -506,7 +522,7 @@ module IMML
       end
     end
 
-    class Assets
+    class Assets < IMML::Object
       attr_accessor :cover, :extracts, :fulls
 
       def initialize
@@ -522,7 +538,7 @@ module IMML
         node.children.each do |child|
           case child.name
             when "cover"
-              @cover=Cover.new
+              self.cover=Cover.new
               @cover.parse(child)
             when "extract"
               extract=Extract.new
@@ -738,7 +754,7 @@ module IMML
             when "ready_for_sale"
               @ready_for_sale=(child.text == "true")
             when "sales_start_at"
-              @sales_start_at=SalesStartAt.new
+              self.sales_start_at=SalesStartAt.new
               @sales_start_at.parse(child)
             when "prices"
               child.children.each do |price_node|
@@ -816,8 +832,9 @@ module IMML
       end
     end
 
-    class Book
-      attr_accessor :ean, :metadata, :assets, :offer
+    class Book < IMML::Object
+      attr_accessor :ean
+      attr_accessor_with_version :metadata, :assets, :offer
 
       def self.create(ean)
         book=Book.new
@@ -830,14 +847,14 @@ module IMML
         node.children.each do |child|
           case child.name
             when "metadata"
-              @metadata=Metadata.new
-              @metadata.parse(child)
+              self.metadata=Metadata.new
+              self.metadata.parse(child)
             when "assets"
-              @assets=Assets.new
-              @assets.parse(child)
+              self.assets=Assets.new
+              self.assets.parse(child)
             when "offer"
-              @offer=Offer.new
-              @offer.parse(child)
+              self.offer=Offer.new
+              self.offer.parse(child)
           end
         end
       end

@@ -1,7 +1,7 @@
 module IMML
   module Header
 
-    class Param
+    class Param < IMML::Object
       attr_accessor :name, :value
 
       def self.create(name,value)
@@ -21,7 +21,7 @@ module IMML
       end
     end
 
-    class Authentication
+    class Authentication < IMML::Object
       attr_accessor :api_key
 
       def self.create(api_key)
@@ -39,7 +39,7 @@ module IMML
       end
     end
 
-    class Reseller
+    class Reseller < IMML::Object
       attr_accessor :reseller_id, :reseller_dilicom_gencod
 
       def self.create(reseller_id,reseller_dilicom_gencod=nil)
@@ -64,7 +64,7 @@ module IMML
 
     end
 
-    class Test
+    class Test < IMML::Object
       attr_accessor :receive_url, :check_url, :sales_url
 
       def self.create(receive_url,check_url,sales_url)
@@ -104,7 +104,7 @@ module IMML
 
     end
 
-    class Reason
+    class Reason < IMML::Object
       attr_accessor :type, :text
 
       def self.create(type,text)
@@ -124,7 +124,7 @@ module IMML
       end
     end
 
-    class Header
+    class Header < IMML::Object
       attr_accessor :params, :authentication, :reseller, :test, :reason
 
       def self.create
