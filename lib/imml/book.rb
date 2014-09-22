@@ -1,5 +1,6 @@
 require 'date'
 require 'digest'
+require 'shellwords'
 
 module IMML
 
@@ -446,8 +447,9 @@ module IMML
       def check_file(local_file)
 #        Immateriel.info binding, @url
         uniq_str=Digest::MD5.hexdigest("#{@url}:#{local_file}")
-        fn="/tmp/#{uniq_str}_"+File.basename(@url)
-        system("wget -q #{@url} -O #{fn}")
+        uri = URI.parse(@url)
+        fn="/tmp/#{uniq_str}_"+File.basename(uri.path)
+        system("wget -q #{Shellwords.escape(@url)} -O #{Shellwords.escape(fn)}")
         if File.exists?(fn)
           check_result=self.class.check_image(fn, local_file, uniq_str)
           FileUtils.rm_f(fn)
