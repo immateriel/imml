@@ -448,8 +448,8 @@ module IMML
 #        Immateriel.info binding, @url
         uniq_str=Digest::MD5.hexdigest("#{@url}:#{local_file}")
         uri = URI.parse(@url)
-        fn="/tmp/#{uniq_str}_"+File.basename(uri.path)
-        system("wget -q #{Shellwords.escape(@url)} -O #{Shellwords.escape(fn)}")
+        fn="/tmp/#{uniq_str}_"+Digest::MD5.hexdigest(File.basename(uri.path))
+        system("wget -q #{Shellwords.escape(@url)} -O #{fn}")
         if File.exists?(fn)
           check_result=self.class.check_image(fn, local_file, uniq_str)
           FileUtils.rm_f(fn)
