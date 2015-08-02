@@ -134,6 +134,8 @@ Error message and password prompt
 
 <li>$:/core/ui/ViewTemplate/title</li>
 
+<li>$:/core/ui/ViewTemplate/title 1</li>
+
 <li>$:/DefaultTiddlers</li>
 
 <li>$:/editions/clientserver/download-offline</li>
@@ -158,6 +160,8 @@ Error message and password prompt
 
 <li>$:/immat/toto</li>
 
+<li>$:/immat/View title in choosen language</li>
+
 <li>$:/Import</li>
 
 <li>$:/isEncrypted</li>
@@ -174,19 +178,33 @@ Error message and password prompt
 
 <li>$:/SiteTitle</li>
 
+<li>$:/state/tab--1498284803</li>
+
+<li>$:/state/tab--1963855381</li>
+
+<li>$:/state/tab-1749438307</li>
+
+<li>$:/state/tab/sidebar--1835078512</li>
+
 <li>$:/status/IsLoggedIn</li>
 
 <li>$:/status/UserName</li>
 
 <li>$:/StoryList</li>
 
-<li>$:/TagManager</li>
+<li>$:/temp/advancedsearch</li>
 
 <li>$:/temp/info-plugin</li>
+
+<li>$:/temp/NewTagName</li>
+
+<li>$:/temp/search</li>
 
 <li>$:/themes/tiddlywiki/snowwhite</li>
 
 <li>$:/themes/tiddlywiki/vanilla</li>
+
+<li>$:/themes/tiddlywiki/vanilla/options/sidebarlayout</li>
 
 <li>$:/tools/newelement skeleton</li>
 
@@ -662,11 +680,11 @@ Error message and password prompt
 <!--~~ Ordinary tiddlers ~~-->
 
 <div id="storeArea" style="display:none;">
-<div bag="default" created="20131129194646834" creator="TonGerner" description="Ajouter le tag $:/tags/ViewToolbar si nécessaire" modified="20140626214632897" modifier="TonGerner" revision="1" tags="button" title="$:/_clone-tiddler-button" type="text/vnd.tiddlywiki">
-<pre>&lt;span title=&quot;Clone this tiddler&quot;&gt;&lt;$button message=&quot;tw-new-tiddler&quot; class=&quot;btn-invisible&quot; param=&lt;&lt;currentTiddler&gt;&gt;&gt;{{$:/_images/clone-tiddler-button}}&lt;/$button&gt;&lt;/span&gt;</pre>
+<div bag="default" created="20131129194646834" creator="TonGerner" description="Ajouter le tag $:/tags/ViewToolbar si nécessaire" modified="20150802123709631" modifier="xc@im" revision="1" tags="button" title="$:/_clone-tiddler-button" type="text/vnd.tiddlywiki">
+<pre>&lt;span title=&quot;Clone this tiddler&quot;&gt;&lt;$button message=&quot;tm-new-tiddler&quot; class=&quot;tc-btn-invisible&quot; param=&lt;&lt;currentTiddler&gt;&gt;&gt;{{$:/_images/clone-tiddler-button}}&lt;/$button&gt;&lt;/span&gt;</pre>
 </div>
-<div bag="default" created="20131129194807378" creator="TonGerner" modified="20140521201411046" modifier="TonGerner" revision="0" tags="image" title="$:/_images/clone-tiddler-button" type="text/vnd.tiddlywiki">
-<pre>&lt;svg class=&quot;tw-image-button&quot; height=&quot;30px&quot; width=&quot;30px&quot; viewBox=&quot;100 50 412 412&quot;&gt;&lt;polygon points=&quot;144,416 144,400 144,112 112,112 112,448 352,448 352,416 160,416  &quot;/&gt;&lt;path d=&quot;M325.3,64H160v48v288h192h48V139L325.3,64z M368,176h-80V96h16v64h64V176z&quot;/&gt;&lt;/svg&gt;</pre>
+<div bag="default" created="20131129194807378" creator="TonGerner" modified="20150802124129682" modifier="xc@im" revision="0" tags="image" title="$:/_images/clone-tiddler-button" type="text/vnd.tiddlywiki">
+<pre>&lt;svg class=&quot;tc-image-button&quot; height=&quot;30px&quot; width=&quot;30px&quot; viewBox=&quot;100 50 412 412&quot;&gt;&lt;polygon points=&quot;144,416 144,400 144,112 112,112 112,448 352,448 352,416 160,416  &quot;/&gt;&lt;path d=&quot;M325.3,64H160v48v288h192h48V139L325.3,64z M368,176h-80V96h16v64h64V176z&quot;/&gt;&lt;/svg&gt;</pre>
 </div>
 <div modified="20140703143650457" modifier="xc@im" title="$:/config/AutoSave">
 <pre>no</pre>
@@ -6382,45 +6400,82 @@ Error message and password prompt
     }
 }</pre>
 </div>
-<div bag="default" created="20140622120456790" modified="20140627132443917" revision="0" tags="$:/tags/ViewTemplate" title="$:/core/ui/ViewTemplate/title" type="text/vnd.tiddlywiki">
+<div created="20150802155701884" creator="xc@im" modified="20150802160427884" modifier="xc@im" tags="$:/tags/ViewTemplate" title="$:/core/ui/ViewTemplate/title">
 <pre>\define title-styles()
 fill:$(foregroundColor)$;
 \end
-
-&lt;div class=&quot;tw-tiddler-title&quot;&gt;
-&lt;h2 class=&quot;titlebar&quot;&gt;
-&lt;span class=&quot;tw-tiddler-controls&quot;&gt;
-&lt;$list filter=&quot;[all[shadows+tiddlers]tag[$:/tags/ViewToolbar]!has[draft.of]]&quot; variable=&quot;listItem&quot;&gt;&lt;$transclude tiddler=&lt;&lt;listItem&gt;&gt;/&gt;&lt;/$list&gt;
+\define config-title()
+$:/config/ViewToolbarButtons/Visibility/$(listItem)$
+\end
+&lt;div class=&quot;tc-tiddler-title&quot;&gt;
+&lt;div class=&quot;tc-titlebar&quot;&gt;
+&lt;span class=&quot;tc-tiddler-controls&quot;&gt;
+&lt;$list filter=&quot;[all[shadows+tiddlers]tag[$:/tags/ViewToolbar]!has[draft.of]]&quot; variable=&quot;listItem&quot;&gt;&lt;$reveal type=&quot;nomatch&quot; state=&lt;&lt;config-title&gt;&gt; text=&quot;hide&quot;&gt;&lt;$transclude tiddler=&lt;&lt;listItem&gt;&gt;/&gt;&lt;/$reveal&gt;&lt;/$list&gt;
 &lt;/span&gt;
+&lt;$set name=&quot;tv-wikilinks&quot; value={{$:/config/Tiddlers/TitleLinks}}&gt;
+&lt;$link&gt;
 &lt;$set name=&quot;foregroundColor&quot; value={{!!color}}&gt;
-&lt;span style=&lt;&lt;title-styles&gt;&gt;&gt;
+&lt;span class=&quot;tc-tiddler-title-icon&quot; style=&lt;&lt;title-styles&gt;&gt;&gt;
 &lt;$transclude tiddler={{!!icon}}/&gt;
 &lt;/span&gt;
 &lt;/$set&gt;
 &lt;$list filter=&quot;[all[current]removeprefix[$:/]]&quot;&gt;
-&lt;span class=&quot;title&quot; title={{$:/language/SystemTiddler/Tooltip}}&gt;
-&lt;span class=&quot;tw-system-title-prefix&quot;&gt;$:/&lt;/span&gt;&lt;$text text=&lt;&lt;currentTiddler&gt;&gt;/&gt;
-&lt;/span&gt;
+&lt;h2 class=&quot;tc-title&quot; title={{$:/language/SystemTiddler/Tooltip}}&gt;
+&lt;span class=&quot;tc-system-title-prefix&quot;&gt;$:/&lt;/span&gt;&lt;$text text=&lt;&lt;currentTiddler&gt;&gt;/&gt;
+&lt;/h2&gt;
 &lt;/$list&gt;
 &lt;$list filter=&quot;[all[current]!prefix[$:/]]&quot;&gt;
-&lt;span class=&quot;title&quot;&gt;
-&lt;$reveal type=&quot;nomatch&quot; text=&quot;fr&quot; state=&quot;$:/immat/currentlanguage&quot;&gt;
-&lt;$view field=&quot;caption&quot;&gt;
-&lt;$view field=&quot;title-en&quot;&gt;
-&lt;$view field=&quot;title&quot;/&gt;
-&lt;/$view&gt;
-&lt;/$view&gt;
-&lt;/$reveal&gt;
-&lt;$reveal type=&quot;match&quot; text=&quot;fr&quot; state=&quot;$:/immat/currentlanguage&quot;&gt;
-&lt;$view field=&quot;title-fr&quot;&gt;
-&lt;$view field=&quot;title&quot;/&gt;
-&lt;/$view&gt;
-&lt;/$reveal&gt;
-&lt;/span&gt;
-&lt;/$list&gt;
+&lt;h2 class=&quot;tc-title&quot;&gt;
+&lt;$transclude tiddler=&quot;$:/immat/View title in choosen language&quot; field=&quot;text&quot; mode=&quot;inline&quot;/&gt;
 &lt;/h2&gt;
+&lt;/$list&gt;
+&lt;/$link&gt;
+&lt;/$set&gt;
+&lt;/div&gt;
 
-&lt;$reveal type=&quot;nomatch&quot; text=&quot;&quot; default=&quot;&quot; state=&lt;&lt;tiddlerInfoState&gt;&gt; class=&quot;tw-tiddler-info tw-popup&quot; animate=&quot;yes&quot; retain=&quot;yes&quot;&gt;
+&lt;$reveal type=&quot;nomatch&quot; text=&quot;&quot; default=&quot;&quot; state=&lt;&lt;tiddlerInfoState&gt;&gt; class=&quot;tc-tiddler-info tc-popup-handle&quot; animate=&quot;yes&quot; retain=&quot;yes&quot;&gt;
+
+&lt;$transclude tiddler=&quot;$:/core/ui/TiddlerInfo&quot;/&gt;
+
+&lt;/$reveal&gt;
+&lt;/div&gt;</pre>
+</div>
+<div created="20150802155247363" creator="xc@im" modified="20150802155725472" modifier="xc@im" title="$:/core/ui/ViewTemplate/title 1">
+<pre>\define title-styles()
+fill:$(foregroundColor)$;
+\end
+
+\define config-title()
+$:/config/ViewToolbarButtons/Visibility/$(listItem)$
+\end
+
+&lt;div class=&quot;tc-tiddler-title&quot;&gt;
+&lt;div class=&quot;tc-titlebar&quot;&gt;
+&lt;span class=&quot;tc-tiddler-controls&quot;&gt;
+
+&lt;$list filter=&quot;[all[shadows+tiddlers]tag[$:/tags/ViewToolbar]!has[draft.of]]&quot; variable=&quot;listItem&quot;&gt;&lt;$reveal type=&quot;nomatch&quot; state=&lt;&lt;config-title&gt;&gt; text=&quot;hide&quot;&gt;&lt;$transclude tiddler=&lt;&lt;listItem&gt;&gt;/&gt;&lt;/$reveal&gt;&lt;/$list&gt;
+
+&lt;/span&gt;
+&lt;$set name=&quot;tv-wikilinks&quot; value={{$:/config/Tiddlers/TitleLinks}}&gt;
+&lt;$link&gt;
+&lt;$set name=&quot;foregroundColor&quot; value={{!!color}}&gt;
+&lt;span class=&quot;tc-tiddler-title-icon&quot; style=&lt;&lt;title-styles&gt;&gt;&gt;
+&lt;$transclude tiddler={{!!icon}}/&gt;
+&lt;/span&gt;
+&lt;/$set&gt;
+&lt;$list filter=&quot;[all[current]removeprefix[$:/]]&quot;&gt;
+&lt;h2 class=&quot;tc-title&quot; title={{$:/language/SystemTiddler/Tooltip}}&gt;
+&lt;span class=&quot;tc-system-title-prefix&quot;&gt;$:/&lt;/span&gt;&lt;$text text=&lt;&lt;currentTiddler&gt;&gt;/&gt;
+&lt;/h2&gt;
+&lt;/$list&gt;
+&lt;$list filter=&quot;[all[current]!prefix[$:/]]&quot;&gt;
+&lt;h2 class=&quot;tc-title&quot;&gt;&lt;$transclude tiddler=&quot;View title in choosen language&quot; field=&quot;title&quot; mode=&quot;inline&quot;/&gt;&lt;/h2&gt;
+&lt;/$list&gt;
+&lt;/$link&gt;
+&lt;/$set&gt;
+&lt;/div&gt;
+
+&lt;$reveal type=&quot;nomatch&quot; text=&quot;&quot; default=&quot;&quot; state=&lt;&lt;tiddlerInfoState&gt;&gt; class=&quot;tc-tiddler-info tc-popup-handle&quot; animate=&quot;yes&quot; retain=&quot;yes&quot;&gt;
 
 &lt;$transclude tiddler=&quot;$:/core/ui/TiddlerInfo&quot;/&gt;
 
@@ -6437,8 +6492,8 @@ fill:$(foregroundColor)$;
 {{$:/core/templates/tiddlywiki5.html}}
 </pre>
 </div>
-<div bag="default" created="20140417202949787" modified="20140417202949787" revision="0" title="$:/editions/clientserver/download-offline-button" type="text/vnd.tiddlywiki">
-<pre>&lt;$button message=&quot;tw-download-file&quot; param=&quot;$:/editions/clientserver/download-offline&quot; class=&quot;btn-big-green&quot;&gt;Download Offline Snapshot {{$:/core/images/save-button}}&lt;/$button&gt;</pre>
+<div bag="default" created="20140417202949787" creator="xc@im" modified="20150802124202017" modifier="xc@im" revision="0" title="$:/editions/clientserver/download-offline-button" type="text/vnd.tiddlywiki">
+<pre>&lt;$button message=&quot;tc-download-file&quot; param=&quot;$:/editions/clientserver/download-offline&quot; class=&quot;tc-btn-big-green&quot;&gt;Download Offline Snapshot {{$:/core/images/save-button}}&lt;/$button&gt;</pre>
 </div>
 <div bag="default" created="20140415105034033" creator="imml" modified="20140415105112743" modifier="imml" revision="0" title="$:/favicon.ico" type="image/png">
 <pre>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</pre>
@@ -6484,7 +6539,7 @@ We get a &lt;$set name=&quot;f1&quot; value=&lt;&lt;qualify &quot;unique&quot;&g
 
 Clicking it, will open a new tiddler with some values pre-filled.</pre>
 </div>
-<div bag="default" created="20140614105044293" modified="20140703170739364" modifier="xc@im" revision="3" tags="$:/HELP" title="$:/immat/currentlanguage" type="text/vnd.tiddlywiki">
+<div bag="default" created="20140614105044293" modified="20150802160210263" modifier="xc@im" revision="3" tags="$:/HELP" title="$:/immat/currentlanguage" type="text/vnd.tiddlywiki">
 <pre>en</pre>
 </div>
 <div bag="default" created="20140622093555982" modified="20140622153423227" revision="0" tags="$:/tags/Macro" title="$:/immat/globalmacros" type="text/vnd.tiddlywiki">
@@ -6526,6 +6581,20 @@ Clicking it, will open a new tiddler with some values pre-filled.</pre>
 </div>
 <div bag="default" created="20140622164614356" modified="20140623073518679" revision="0" title="$:/immat/toto" type="text/vnd.tiddlywiki">
 <pre>&lt;$list filter=&quot;[list[$:/immat/start]lang{$:/immat/currentlanguage}]&quot; storyview=&quot;zoomin&quot;/&gt;</pre>
+</div>
+<div created="20150802154030453" creator="xc@im" modified="20150802160431027" modifier="xc@im" tags="template" title="$:/immat/View title in choosen language">
+<pre>&lt;$reveal type=&quot;nomatch&quot; text=&quot;fr&quot; state=&quot;$:/immat/currentlanguage&quot;&gt;
+&lt;$view field=&quot;caption&quot;&gt;
+&lt;$view field=&quot;title-en&quot;&gt;
+&lt;$view field=&quot;title&quot;/&gt;
+&lt;/$view&gt;
+&lt;/$view&gt;
+&lt;/$reveal&gt;
+&lt;$reveal type=&quot;match&quot; text=&quot;fr&quot; state=&quot;$:/immat/currentlanguage&quot;&gt;
+&lt;$view field=&quot;title-fr&quot;&gt;
+&lt;$view field=&quot;title&quot;/&gt;
+&lt;/$view&gt;
+&lt;/$reveal&gt;</pre>
 </div>
 <div status="complete" title="$:/Import">
 <pre>The following tiddlers were imported:
@@ -9310,52 +9379,29 @@ Clicking it, will open a new tiddler with some values pre-filled.</pre>
 <div bag="default" created="20140622173322730" modified="20140622173351282" revision="1" title="$:/SiteTitle" type="text/vnd.tiddlywiki">
 <pre>{{IMML||mise en forme du titre}}</pre>
 </div>
+<div modified="20150802160353611" modifier="xc@im" title="$:/state/tab--1498284803">
+<pre>$:/core/ui/AdvancedSearch/Shadows</pre>
+</div>
+<div modified="20150802151611851" modifier="xc@im" title="$:/state/tab--1963855381">
+<pre>$:/themes/tiddlywiki/vanilla/themetweaks</pre>
+</div>
+<div modified="20150802124240785" modifier="xc@im" title="$:/state/tab-1749438307">
+<pre>$:/core/ui/ControlPanel/Appearance</pre>
+</div>
+<div modified="20150802172438751" modifier="xc@im" title="$:/state/tab/sidebar--1835078512">
+<pre>$:/core/ui/SideBar/Open</pre>
+</div>
 <div bag="default" created="20140627075903449" modified="20140627075903449" revision="2" title="$:/status/IsLoggedIn">
 <pre>yes</pre>
 </div>
 <div bag="default" created="20140627075903449" creator="i" modified="20140703143202581" modifier="xc@i" revision="1" title="$:/status/UserName">
 <pre>xc@im</pre>
 </div>
-<div list="" title="$:/StoryList">
+<div list="[[Documentation IMML]]" title="$:/StoryList">
 <pre></pre>
 </div>
-<div bag="default" created="20140417202949797" creator="imml" modified="20140417202949797" modifier="imml" revision="0" title="$:/TagManager" type="text/vnd.tiddlywiki">
-<pre>\define lingo-base() $:/language/TagManager/
-\define iconEditor(title)
-&lt;$edit-text field=&quot;icon&quot; tag=&quot;input&quot;/&gt; &lt;$button popup=&lt;&lt;qualify &quot;$:/state/iconDropdown/$title$&quot;&gt;&gt; class=&quot;btn-invisible btn-dropdown&quot;&gt;{{$:/core/images/down-arrow}}&lt;/$button&gt;
-&lt;div class=&quot;tw-block-dropdown-wrapper&quot;&gt;
-&lt;$reveal state=&lt;&lt;qualify &quot;$:/state/iconDropdown/$title$&quot;&gt;&gt; type=&quot;nomatch&quot; text=&quot;&quot; default=&quot;&quot;&gt;
-&lt;$linkcatcher to=&quot;$title$!!icon&quot;&gt;
-&lt;div class=&quot;tw-block-dropdown tw-edit-type-dropdown&quot;&gt;
-&lt;$list filter=&quot;[all[tiddlers+shadows]is[image]] [all[tiddlers+shadows]tag[$:/tags/Image]] +[sort[title]]&quot;&gt;
-&lt;$link to={{!!title}}&gt;
-&lt;$view field=&quot;title&quot;/&gt;
-&lt;/$link&gt;
-&lt;/$list&gt;
-&lt;/div&gt;
-&lt;/$linkcatcher&gt;
-&lt;/$reveal&gt;
-&lt;/div&gt;
-\end
-&lt;table&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;th&gt;&lt;&lt;lingo Tag/Heading&gt;&gt;&lt;/th&gt;
-&lt;th&gt;&lt;&lt;lingo Count/Heading&gt;&gt;&lt;/th&gt;
-&lt;th&gt;&lt;&lt;lingo Colour/Heading&gt;&gt;&lt;/th&gt;
-&lt;th&gt;&lt;&lt;lingo Icon/Heading&gt;&gt;&lt;/th&gt;
-&lt;/tr&gt;
-&lt;$list filter=&quot;[tags[]!is[system]sort[title]]&quot;&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;$transclude tiddler=&quot;$:/core/ui/TagTemplate&quot;/&gt;&lt;/td&gt;
-&lt;td&gt;&lt;$count filter=&quot;[all[current]tagging[]]&quot;/&gt;&lt;/td&gt;
-&lt;td&gt;&lt;$edit-text field=&quot;color&quot; tag=&quot;input&quot; type=&quot;color&quot;/&gt;&lt;/td&gt;
-&lt;td&gt;&lt;$macrocall $name=&quot;iconEditor&quot; title={{!!title}}/&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/$list&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;
-</pre>
+<div created="20150802123626929" creator="xc@im" modified="20150802160359121" modifier="xc@im" title="$:/temp/advancedsearch">
+<pre>viewte</pre>
 </div>
 <div plugin-type="info" title="$:/temp/info-plugin" type="application/json">
 <pre>{
@@ -9370,6 +9416,12 @@ Clicking it, will open a new tiddler with some values pre-filled.</pre>
         }
     }
 }</pre>
+</div>
+<div created="20150802154046256" creator="xc@im" modified="20150802154047082" modifier="xc@im" title="$:/temp/NewTagName">
+<pre></pre>
+</div>
+<div created="20150802123447930" creator="xc@im" modified="20150802145851186" modifier="xc@im" title="$:/temp/search">
+<pre></pre>
 </div>
 <div author="JeremyRuston" core-version="&gt;=5.0.0" dependents="$:/themes/tiddlywiki/vanilla" description="Emphasises individual tiddlers" name="Snow White" plugin-type="theme" title="$:/themes/tiddlywiki/snowwhite" type="application/json" version="5.1.9">
 <pre>{
@@ -9475,6 +9527,9 @@ Clicking it, will open a new tiddler with some values pre-filled.</pre>
         }
     }
 }</pre>
+</div>
+<div modified="20150802151615755" modifier="xc@im" title="$:/themes/tiddlywiki/vanilla/options/sidebarlayout">
+<pre>fluid-fixed</pre>
 </div>
 <div bag="default" created="20140413093208134" creator="imml" mandatory="yes" modified="20140413103346420" modifier="imml" revision="0" tags="element doc" title="$:/tools/newelement skeleton" type="text/vnd.tiddlywiki">
 <pre>{{!!description}}.</pre>
@@ -10678,9 +10733,9 @@ Voir le site de référence http://www-01.sil.org/iso639-3/.</pre>
 <div bag="default" caption="mimetype" created="20140623204641783" creator="imml" description="Mime type of the file" lang="en" modified="20140623204812049" modifier="imml" revision="0" tags="doc attribute" title="mimetype-en" type="text/vnd.tiddlywiki">
 <pre>{{!!description}}.</pre>
 </div>
-<div bag="default" created="20140415123032759" creator="imml" modified="20140621061856681" modifier="imml" revision="0" tags="template" title="mise en forme du titre" type="text/vnd.tiddlywiki">
+<div bag="default" created="20140415123032759" creator="imml" modified="20150802123524580" modifier="xc@im" revision="0" tags="template" title="mise en forme du titre" type="text/vnd.tiddlywiki">
 <pre>{{$:/immat/icons##exchange}}
-&lt;$button message=&quot;tw-home&quot; class=&quot;btn-invisible&quot;&gt;@@font-family:zapfino;{{!!title}}@@&lt;/$button&gt;
+&lt;$button message=&quot;tw-home&quot; class=&quot;tc-btn-invisible&quot;&gt;@@font-family:zapfino;{{!!title}}@@&lt;/$button&gt;
 {{$:/immat/icons##exchange}}</pre>
 </div>
 <div bag="default" created="20140413091253907" creator="imml" description="Nom du contributeur, sous la forme Prénom Nom ou seulement Nom pour les pseudonymes" example="`&lt;name&gt;Prénom Nom&lt;/name&gt;`" mandatory="yes" modified="20140623190330717" modifier="imml" revision="0" tags="element doc" title="name" type="text/vnd.tiddlywiki" xpath="`/book/metadata/contributors/contributor/name`">
