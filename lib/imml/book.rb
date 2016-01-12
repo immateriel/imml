@@ -814,7 +814,7 @@ module IMML
         if self.pagination
           xml.pagination(self.pagination)
         end
-        if self.ready_for_sale
+        unless self.ready_for_sale.nil?
           xml.ready_for_sale(self.ready_for_sale)
         end
         if self.sales_start_at
