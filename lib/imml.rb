@@ -36,7 +36,7 @@ module IMML
 end
 
 require 'nokogiri'
-require 'levenshtein'
+require 'levenshtein-ffi'
 require 'open3'
 require 'imml/header'
 require 'imml/book'

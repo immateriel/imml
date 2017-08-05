@@ -5,15 +5,16 @@
 # stub: imml 1.0.1 ruby lib
 
 Gem::Specification.new do |s|
-  s.name = "imml"
+  s.name = "imml".freeze
   s.version = "1.0.1"
 
-  s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["julbouln"]
-  s.date = "2014-08-27"
-  s.description = "immat\u{e9}riel.fr IMML parser/writer"
-  s.email = "jboulnois@immateriel.fr"
-  s.executables = ["imml_pp.rb"]
+  s.required_rubygems_version = Gem::Requirement.new(">= 0".freeze) if s.respond_to? :required_rubygems_version=
+  s.require_paths = ["lib".freeze]
+  s.authors = ["julbouln".freeze]
+  s.date = "2017-08-05"
+  s.description = "immat\u{e9}riel.fr IMML parser/writer".freeze
+  s.email = "jboulnois@immateriel.fr".freeze
+  s.executables = ["imml_pp.rb".freeze]
   s.extra_rdoc_files = [
     "README.md"
   ]
@@ -28,39 +29,41 @@ Gem::Specification.new do |s|
     "lib/imml/header.rb",
     "lib/imml/reporting.rb"
   ]
-  s.homepage = "http://github.com/immateriel/imml"
-  s.require_paths = ["lib"]
-  s.rubygems_version = "2.1.11"
-  s.summary = "immat\u{e9}riel.fr IMML parser/writer"
+  s.homepage = "http://github.com/immateriel/imml".freeze
+  s.rubygems_version = "2.6.10".freeze
+  s.summary = "immat\u{e9}riel.fr IMML parser/writer".freeze
 
   if s.respond_to? :specification_version then
     s.specification_version = 4
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<nokogiri>, [">= 0"])
-      s.add_runtime_dependency(%q<levenshtein>, [">= 0"])
-      s.add_development_dependency(%q<shoulda>, [">= 0"])
-      s.add_development_dependency(%q<rdoc>, ["~> 3.12"])
-      s.add_development_dependency(%q<bundler>, [">= 0"])
-      s.add_development_dependency(%q<jeweler>, ["~> 1.8.4"])
-      s.add_development_dependency(%q<simplecov>, [">= 0"])
+      s.add_runtime_dependency(%q<nokogiri>.freeze, [">= 0"])
+      s.add_runtime_dependency(%q<levenshtein-ffi>.freeze, [">= 0"])
+      s.add_development_dependency(%q<shoulda>.freeze, [">= 0"])
+      s.add_development_dependency(%q<rdoc>.freeze, ["~> 3.12"])
+      s.add_development_dependency(%q<bundler>.freeze, [">= 0"])
+      s.add_development_dependency(%q<jeweler>.freeze, ["~> 2.1.0"])
+      s.add_development_dependency(%q<simplecov>.freeze, [">= 0"])
+      s.add_development_dependency(%q<rack>.freeze, ["= 1.6.0"])
     else
-      s.add_dependency(%q<nokogiri>, [">= 0"])
-      s.add_dependency(%q<levenshtein>, [">= 0"])
-      s.add_dependency(%q<shoulda>, [">= 0"])
-      s.add_dependency(%q<rdoc>, ["~> 3.12"])
-      s.add_dependency(%q<bundler>, [">= 0"])
-      s.add_dependency(%q<jeweler>, ["~> 1.8.4"])
-      s.add_dependency(%q<simplecov>, [">= 0"])
+      s.add_dependency(%q<nokogiri>.freeze, [">= 0"])
+      s.add_dependency(%q<levenshtein-ffi>.freeze, [">= 0"])
+      s.add_dependency(%q<shoulda>.freeze, [">= 0"])
+      s.add_dependency(%q<rdoc>.freeze, ["~> 3.12"])
+      s.add_dependency(%q<bundler>.freeze, [">= 0"])
+      s.add_dependency(%q<jeweler>.freeze, ["~> 2.1.0"])
+      s.add_dependency(%q<simplecov>.freeze, [">= 0"])
+      s.add_dependency(%q<rack>.freeze, ["= 1.6.0"])
     end
   else
-    s.add_dependency(%q<nokogiri>, [">= 0"])
-    s.add_dependency(%q<levenshtein>, [">= 0"])
-    s.add_dependency(%q<shoulda>, [">= 0"])
-    s.add_dependency(%q<rdoc>, ["~> 3.12"])
-    s.add_dependency(%q<bundler>, [">= 0"])
-    s.add_dependency(%q<jeweler>, ["~> 1.8.4"])
-    s.add_dependency(%q<simplecov>, [">= 0"])
+    s.add_dependency(%q<nokogiri>.freeze, [">= 0"])
+    s.add_dependency(%q<levenshtein-ffi>.freeze, [">= 0"])
+    s.add_dependency(%q<shoulda>.freeze, [">= 0"])
+    s.add_dependency(%q<rdoc>.freeze, ["~> 3.12"])
+    s.add_dependency(%q<bundler>.freeze, [">= 0"])
+    s.add_dependency(%q<jeweler>.freeze, ["~> 2.1.0"])
+    s.add_dependency(%q<simplecov>.freeze, [">= 0"])
+    s.add_dependency(%q<rack>.freeze, ["= 1.6.0"])
   end
 end
 
