@@ -1,0 +1,88 @@
+<grammar datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes" xmlns="http://relaxng.org/ns/structure/1.0" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:x="http://www.w3.org/1999/xhtml">
+  <include href="imml_kit_201.rng"/>
+  <define combine="choice" name="imml.book.metadata">
+    <element name="metadata">
+      <interleave>
+        <ref name="imml.book.metadata.title"/>
+        <ref name="imml.book.metadata.language"/>
+        <optional>
+          <ref name="imml.book.metadata.edition"/>
+        </optional>
+        <optional>
+          <ref name="imml.book.metadata.subtitle"/>
+        </optional>
+        <optional>
+          <ref name="imml.book.metadata.collection"/>
+        </optional>
+        <optional>
+          <ref name="imml.book.metadata.pubdate"/>
+        </optional>
+        <ref name="imml.book.metadata.publisher"/>
+        <optional>
+          <ref name="imml.book.metadata.imprint"/>
+        </optional>
+        <ref name="imml.book.metadata.contributors"/>
+        <ref name="imml.book.metadata.topics"/>
+        <ref name="imml.book.metadata.description"/>
+      </interleave>
+    </element>
+  </define>
+  <define combine="choice" name="imml.book">
+    <a:documentation>Book ##</a:documentation>
+    <element name="book">
+      <interleave>
+        <attribute name="ean">
+          <ref name="imml.offer.ean.datatype"/>
+        </attribute>
+        <optional>
+          <attribute name="uid">
+            <ref name="imml.book.id.datatype"/>
+          </attribute>
+        </optional>
+        <ref name="imml.book.metadata"/>
+        <ref name="imml.book.assets"/>
+        <!-- multiple offers -->
+        <choice>
+          <ref name="imml.offer"/>
+          <element name="offers">
+            <oneOrMore>
+              <ref name="imml.offer"/>
+            </oneOrMore>
+          </element>
+        </choice>
+      </interleave>
+    </element>
+  </define>
+  <!-- unsupported lang -->
+  <define combine="choice" name="imml.book.metadata.language">
+    <choice>
+      <choice>
+        <element name="language">
+          <ref name="imml.book.metadata.language.datatype"/>
+        </element>
+        <element name="language">
+          <ref name="imml.unsupported"/>
+        </element>
+      </choice>
+      <attribute name="lang">
+        <ref name="imml.book.metadata.language.datatype"/>
+      </attribute>
+    </choice>
+  </define>
+  <!-- Imprint -->
+  <define name="imml.book.metadata.imprint">
+    <element name="imprint">
+      <interleave>
+        <optional>
+          <attribute name="uid">
+            <ref name="imml.book.metadata.imprint.id.datatype"/>
+          </attribute>
+        </optional>
+        <text/>
+      </interleave>
+    </element>
+  </define>
+  <define name="imml.book.metadata.imprint.id.datatype">
+    <data type="token"/>
+  </define>
+</grammar>

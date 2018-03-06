@@ -1,0 +1,44 @@
+<grammar datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes" xmlns="http://relaxng.org/ns/structure/1.0" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:x="http://www.w3.org/1999/xhtml">
+	<include href="imml_kit.rng"/>
+	
+	<define combine="choice" name="imml.book.metadata">
+		<element name="metadata">
+			<interleave>
+				<ref name="imml.book.metadata.title"/>
+				<ref name="imml.book.metadata.language"/>
+				<optional>
+					<ref name="imml.book.metadata.edition"/>
+				</optional>
+				<optional>
+					<ref name="imml.book.metadata.subtitle"/>
+				</optional>
+				<optional>
+					<ref name="imml.book.metadata.collection"/>
+				</optional>
+				<optional>
+					<ref name="imml.book.metadata.pubdate"/>
+				</optional>
+				<ref name="imml.book.metadata.publisher"/>
+				<ref name="imml.book.metadata.contributors"/>
+				<ref name="imml.book.metadata.topics"/>
+				<ref name="imml.book.metadata.description"/>
+			</interleave>
+		</element>
+	</define>
+	<!-- assets uid -->
+	<define combine="interleave" name="imml.book.assets.optional_attr.common">
+		<interleave>
+			<optional>
+				<attribute name="uid">
+					<ref name="imml.uid.datatype"/>
+				</attribute>
+			</optional>
+		</interleave>
+	</define>
+	<!-- Edition number	 -->
+	<define name="imml.book.metadata.edition">
+		<element name="edition">
+			<data type="integer"/>
+		</element>
+	</define>
+</grammar>

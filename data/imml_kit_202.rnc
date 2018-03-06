@@ -1,0 +1,42 @@
+namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
+namespace x = "http://www.w3.org/1999/xhtml"
+
+include "imml_kit_201.rnc"
+imml.book.metadata |=
+  element metadata {
+    imml.book.metadata.title
+    & imml.book.metadata.language
+    & imml.book.metadata.edition?
+    & imml.book.metadata.subtitle?
+    & imml.book.metadata.collection?
+    & imml.book.metadata.pubdate?
+    & imml.book.metadata.publisher
+    & imml.book.metadata.imprint?
+    & imml.book.metadata.contributors
+    & imml.book.metadata.topics
+    & imml.book.metadata.description
+  }
+
+## Book ##
+imml.book |=
+  element book {
+    attribute ean { imml.offer.ean.datatype }
+    & attribute uid { imml.book.id.datatype }?
+    & imml.book.metadata
+    & imml.book.assets
+    & # multiple offers
+      (imml.offer
+       | element offers { imml.offer+ })
+  }
+# unsupported lang
+imml.book.metadata.language |=
+  (element language { imml.book.metadata.language.datatype }
+   | element language { imml.unsupported })
+  | attribute lang { imml.book.metadata.language.datatype }
+# Imprint
+imml.book.metadata.imprint =
+  element imprint {
+    attribute uid { imml.book.metadata.imprint.id.datatype }?
+    & text
+  }
+imml.book.metadata.imprint.id.datatype = xsd:token

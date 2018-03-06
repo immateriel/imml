@@ -70,6 +70,12 @@ module IMML
     end
 
     class Text < String
+      attr_accessor :unsupported
+
+      def unsupported?
+        @unsupported
+      end
+
       def like?(t)
         dist=self.distance(t)
         if dist < ((self.length + t.length)/2.0) * 0.33
@@ -265,14 +271,40 @@ module IMML
         xml.publisher(attrs, @name)
         end
       end
+    end
+
+    class Imprint < EntityWithUid
+      attr_accessor :name, :uid
+
+      def parse(node)
+        super
+        @uid=node["uid"]
+        @name=Text.new(node.text)
+      end
+
+      def self.create(name, uid=nil)
+        publisher=Imprint.new
+        publisher.name=Text.new(name)
+        if uid
+          publisher.uid=uid
+        end
+        publisher
+      end
+
+      def write(xml)
+        super
+        if @name
+          attrs=self.attributes
+          xml.publisher(attrs, @name)
+        end
+      end
 
     end
 
     class Metadata < IMML::Object
-
       attr_accessor :title, :subtitle, :contributors, :topics, :collection, :language, :publication, :publisher, :description
       attr_accessor :edition # 201
-
+      attr_accessor :imprint # 202
 
       def initialize
         @collection=nil
@@ -313,11 +345,15 @@ module IMML
               @collection.parse(child)
             when "language"
               @language=Text.new(child.text)
+              @language.unsupported = child[:unsupported]
             when "publication"
               @publication=Date.strptime(child.text,"%Y-%m-%d")
             when "publisher"
               @publisher=Publisher.new
               @publisher.parse(child)
+            when "imprint"
+              @imprint=Imprint.new
+              @imprint.parse(child)
             when "topics"
               self.topics=Topics.new
               self.topics.parse(child)
@@ -854,7 +890,16 @@ module IMML
 
     class Book < IMML::Object
       attr_accessor :ean
-      attr_accessor_with_version :metadata, :assets, :offer
+      attr_accessor_with_version :metadata, :assets, :offers
+
+      def initialize
+        super
+        @offers = []
+      end
+
+      def offer
+        self.offers.first
+      end
 
       def self.create(ean)
         book=Book.new
@@ -873,8 +918,18 @@ module IMML
               self.assets=Assets.new
               self.assets.parse(child)
             when "offer"
-              self.offer=Offer.new
-              self.offer.parse(child)
+              o=Offer.new
+              o.parse(child)
+              self.offers << o
+            when "offers"
+              child.children.each do |subchild|
+                case subchild.name
+                  when "offer"
+                    o=Offer.new
+                    o.parse(subchild)
+                    self.offers << o
+                end
+              end
           end
         end
       end
@@ -887,8 +942,14 @@ module IMML
           if self.assets
             self.assets.write(xml)
           end
-          if self.offer
-            self.offer.write(xml)
+          if self.offers.count > 0
+            if self.offers.count > 1
+              self.offers.each do |o|
+                o.write(xml)
+              end
+            else
+              self.offer.write(xml)
+            end
           end
         }
       end

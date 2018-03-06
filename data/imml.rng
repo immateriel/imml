@@ -1,13 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns="http://relaxng.org/ns/structure/1.0">
-  <!-- default namespace = "http://ns.immateriel.fr/imml" -->
-  <include href="imml_kit.rng">
-    <a:documentation>Here, one can customize imml schema.  
-Typical uses are upgrading versions without modifying current kit version 
-or creating a special schema that validates only offers for one publisher, 
-with fixed supplier-id or fixed publisher-id.</a:documentation>
-    <define name="imml.schema.version">
-      <value>2.0</value>
-    </define>
-  </include>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">
+	<!-- default namespace = "http://ns.immateriel.fr/imml" -->
+	<define name="imml.versioned">
+		<choice>
+			<element name="imml">
+				<attribute name="version">
+					<value>2.0</value>
+				</attribute>
+				<externalRef href="imml_kit.rng"/>
+			</element>
+			<element name="imml">
+				<attribute name="version">
+					<value>2.0.1</value>
+				</attribute>
+				<externalRef href="imml_kit_201.rng"/>
+			</element>
+			<element name="imml" ns="http://ns.immateriel.fr/imml">
+				<attribute name="version">
+					<value>2.0.2</value>
+				</attribute>
+				<externalRef href="imml_kit_202.rng"/>
+			</element>
+		</choice>
+	</define>
+	<start>
+		<ref name="imml.versioned"/>
+	</start>
 </grammar>

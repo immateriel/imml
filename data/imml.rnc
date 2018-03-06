@@ -1,11 +1,18 @@
-## Here, one can customize imml schema.  
-## Typical uses are upgrading versions without modifying current kit version 
-## or creating a special schema that validates only offers for one publisher, 
-## with fixed supplier-id or fixed publisher-id.
+namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
+namespace ns1 = "http://ns.immateriel.fr/imml"
 
-#default namespace = "http://ns.immateriel.fr/imml"
-include "imml_kit.rnc" {
-   imml.schema.version = "2.0"
-}
-
-
+# default namespace = "http://ns.immateriel.fr/imml"
+imml.versioned =
+  element imml {
+    attribute version { "2.0" },
+    external "imml_kit.rnc"
+  }
+  | element imml {
+      attribute version { "2.0.1" },
+      external "imml_kit_201.rnc"
+    }
+  | element ns1:imml {
+      attribute version { "2.0.2" },
+      external "imml_kit_202.rnc" inherit = ns1
+    }
+start = imml.versioned
