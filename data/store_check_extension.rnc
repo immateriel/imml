@@ -1,0 +1,17 @@
+namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
+namespace ns1 = "http://ns.immateriel.fr/imml/store_check"
+namespace x = "http://www.w3.org/1999/xhtml"
+
+imml.store_check.score =
+  attribute ns1:score {
+    xsd:decimal { minInclusive = "0" fractionDigits = "2" }
+  }
+imml.book.metadata.title.attributes &= imml.store_check.score?
+imml.book.metadata.subtitle.attributes &= imml.store_check.score?
+imml.book.metadata.publisher.attributes &= imml.store_check.score?
+imml.book.metadata.contributors.attributes &= imml.store_check.score?
+imml.book.metadata.description.attributes &= imml.store_check.score?
+imml.book.metadata.publication.attributes &= imml.store_check.score?
+imml.offer.prices.attributes &= imml.store_check.score?
+imml.offer.pagination.attributes &= imml.store_check.score?
+imml.book.assets.optional_attr.common &= imml.store_check.score?

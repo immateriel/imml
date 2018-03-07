@@ -40,3 +40,4 @@ imml.book.metadata.imprint =
     & text
   }
 imml.book.metadata.imprint.id.datatype = xsd:token
+include "store_check_extension.rnc"

@@ -1,6 +1,5 @@
 module IMML
   module Header
-
     class Param < IMML::Object
       attr_accessor :name, :value
 
@@ -84,6 +83,8 @@ module IMML
               @check_url=child[:url]
             when "sales"
               @sales_url=child[:url]
+            else
+              # unknown
           end
         end
       end
@@ -158,12 +159,13 @@ module IMML
             when "test"
               @test=Test.new
               @test.parse(child)
+            else
+              # unknown
           end
         end
       end
 
       def write(xml)
-
         xml.header {
           if @reason
             @reason.write(xml)
@@ -185,7 +187,6 @@ module IMML
             self.test.write(xml)
           end
         }
-
       end
     end
   end

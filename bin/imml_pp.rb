@@ -42,7 +42,8 @@ if filename
           puts "    Topic: #{topic.identifier} (#{topic.type})"
         end
       end
-      puts "   Description: #{doc.book.metadata.description.without_html.with_stripped_spaces}"
+#      puts "   Description: #{doc.book.metadata.description.without_html.with_stripped_spaces}"
+      puts "   Description: #{doc.book.metadata.description}"
       puts "  Assets"
       if doc.book.assets.cover
         puts "   Cover: #{doc.book.assets.cover.url} (#{doc.book.assets.cover.mimetype})"

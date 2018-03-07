@@ -1,0 +1,37 @@
+<imml version="2.0.2" xmlns="http://ns.immateriel.fr/imml" xmlns:sc="http://ns.immateriel.fr/imml/store_check">
+  <book ean="9782363761514" uid="CB16358231">
+    <metadata>
+      <title sc:score="0.9">Moi Bobby bébé zombie</title>
+      <language unsupported="true"/>
+      <contributors sc:score="0.6">
+        <contributor uid="CA37103">
+          <role unsupported="true"/>
+          <name>Neil Jomunsi</name>
+        </contributor>
+      </contributors>
+      <topics>
+        <topic type="bisac" unsupported="true"/>
+        <topic type="clil" unsupported="true"/>
+      </topics>
+      <publisher uid="CP1492" sc:score="0.9">Walrus</publisher>
+      <description lang="fre" sc:score="0.8" >Le petit Bobby est un bébé tout ce qu'il y a de plus bête: rien ne le prédestinait à devenir une légende. Pourtant, terrassé par la piqûre d'un moustique mutant, le voilà devenu le premier bébé zombie de l'Histoire! Avec Papa d'abord, puis avec Maman, l'épidémie s'étend... et si la petite famille allait déjeuner en ville? Neil Jomunsi persiste et signe avec cet album "pour enfants" à ne pas mettre entre toutes les mains, à réserver aux parents amateurs de morts-vivants qui souhaiteraient donner quelques cauchemars à leurs chers bambins. par aghui Un régal ! Je suis fan, c'est frais, c'est décalé, limite chantant vu le rythme du texte, comme une histoire du soir, que l'on lirait sourire aux lèvres. 1er degré s'abstenir, romero's addict venez sourire.</description>
+    </metadata>
+    <assets>
+      <cover sc:score="0.8" mimetype="image/png" url="http://catalogue.immateriel.fr/resources/e1/b3/6e2a157a2e05d9828ac58cb85fbb4f5c922a931a6bde4e39247fb65ab72b.png"/>
+      <extract unsupported="true"/>
+      <full unsupported="true"/>
+    </assets>
+    <offer>
+      <medium>digital</medium>
+      <pagination sc:score="0.8">30</pagination>
+      <ready_for_sale>true</ready_for_sale>
+      <sales_start_at unsupported="true"/>
+      <prices sc:score="1.0">
+        <price currency="EUR">
+          <current_amount>2.49</current_amount>
+          <territories>FR</territories>
+        </price>
+      </prices>
+    </offer>
+  </book>
+</imml>

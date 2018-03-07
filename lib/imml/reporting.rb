@@ -1,6 +1,5 @@
 module IMML
   module Reporting
-
     class ExtraParam
       attr_accessor :key, :value
 
@@ -89,6 +88,8 @@ module IMML
                   @lines << line
                 end
               end
+            else
+              # unknown
           end
         end
       end
@@ -102,7 +103,6 @@ module IMML
           }
         }
       end
-
     end
   end
 end

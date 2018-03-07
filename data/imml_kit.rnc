@@ -83,7 +83,6 @@ imml.header.url.attribute =
 # # # # # # # # #
 imml.message.content = imml.book | imml.reporting
 
-## 
 ## Book ##
 ##
 imml.book =
@@ -110,18 +109,26 @@ imml.book.metadata =
     & imml.book.metadata.topics
     & imml.book.metadata.description
   }
+imml.book.metadata.title.attributes = empty
+imml.book.metadata.subtitle.attributes = empty
+imml.book.metadata.contributors.attributes = empty
 # Work title
-imml.book.metadata.title = element title { text }
+imml.book.metadata.title =
+  element title { imml.book.metadata.title.attributes, text }
 # Work subtitle
-imml.book.metadata.subtitle = element subtitle { text }
+imml.book.metadata.subtitle =
+  element subtitle { imml.book.metadata.subtitle.attributes, text }
 # First publication date for this work
-imml.book.metadata.pubdate = element publication { xsd:date }
+imml.book.metadata.pubdate.attributes = empty
+imml.book.metadata.pubdate =
+  element publication {
+    imml.book.metadata.pubdate.attributes, xsd:date
+  }
+imml.book.metadata.publisher.attributes =
+  attribute uid { imml.book.metadata.publisher.id.datatype }?
 # Book current publisher
 imml.book.metadata.publisher =
-  element publisher {
-    attribute uid { imml.book.metadata.publisher.id.datatype }?
-    & text
-  }
+  element publisher { imml.book.metadata.publisher.attributes, text }
 # Book collection
 imml.book.metadata.collection =
   element collection {
@@ -134,7 +141,10 @@ imml.book.metadata.language =
   | attribute lang { imml.book.metadata.language.datatype }
 # Book contributors
 imml.book.metadata.contributors =
-  element contributors { imml.book.metadata.contributor+ }
+  element contributors {
+    imml.book.metadata.contributors.attributes,
+    imml.book.metadata.contributor+
+  }
 imml.book.metadata.contributor =
   element contributor {
     attribute uid { imml.book.contributor.id.datatype }?
@@ -208,13 +218,16 @@ imml.book.metadata.description.content.xhtml =
   imml.book.metadata.description.xhtml.supported
   | imml.book.metadata.description.xhtml.unsupported
 imml.book.metadata.description.xhtml.supported =
-  attribute format { "xhtml" }
+  imml.book.metadata.description.attributes
+  & attribute format { "xhtml" }
   & imml.supported
   & anyXHTMLElement
 imml.book.metadata.description.xhtml.unsupported =
-  attribute format { "xhtml" }?
+  (imml.book.metadata.description.attributes,
+   attribute format { "xhtml" })?
   & imml.unsupported
-imml.book.metadata.description.content.text = text
+imml.book.metadata.description.content.text =
+  imml.book.metadata.description.attributes, text
 
 ##
 # Book assets
@@ -310,10 +323,13 @@ imml.offer.medium = element medium { imml.offer.medium.datatype }
 ## Manifestation
 imml.offer.manifestation =
   element format { imml.offer.manifestation.datatype }
+imml.offer.pagination.attributes = empty
 
 ## Pagination of whatever alternative format where it makes sense
 imml.offer.pagination =
-  element pagination { imml.offer.pagination.datatype }
+  element pagination {
+    imml.offer.pagination.attributes, imml.offer.pagination.datatype
+  }
 
 ## Alternative offers for the same content
 imml.offer.alternatives =
@@ -333,9 +349,11 @@ imml.offer.sales_start_at.supported =
   element sales_start_at { imml.supported & xsd:date }
 imml.offer.sales_start_at.unsupported =
   element sales_start_at { imml.unsupported }
+imml.offer.prices.attributes = empty
 
 ## Book prices
-imml.offer.prices = element prices { imml.offer.price+ }
+imml.offer.prices =
+  element prices { imml.offer.prices.attributes, imml.offer.price+ }
 imml.offer.price =
   element price {
     imml.offer.price.currency
@@ -367,7 +385,6 @@ imml.offer.price.interval =
     & imml.offer.price.datatype
   }
 
-## 
 ## Reporting ##
 ##
 imml.reporting =
@@ -400,7 +417,6 @@ imml.order.line.xtra =
     & attribute value { text }
   }
 
-## 
 ## Tools for expressing "whatever child"
 ## See http://www.relaxng.org/compact-tutorial-20030326.html#id2816343
 anyElement =
@@ -421,7 +437,6 @@ almostAnyContent =
    | text
    | anyElement)*
 
-## 
 ## Datatypes ##
 ##
 imml.message.error.values =

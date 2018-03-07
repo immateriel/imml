@@ -85,4 +85,6 @@
   <define name="imml.book.metadata.imprint.id.datatype">
     <data type="token"/>
   </define>
+
+  <include href="store_check_extension.rng"/>
 </grammar>

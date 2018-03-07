@@ -9,11 +9,11 @@
   indicate support with a "false" value, but absence of this att is ok too.
 -->
 <!-- default namespace = "http://ns.immateriel.fr/imml" -->
-<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:x="http://www.w3.org/1999/xhtml" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+<grammar datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes" xmlns="http://relaxng.org/ns/structure/1.0" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:x="http://www.w3.org/1999/xhtml">
   <define name="imml.unsupported">
     <a:documentation>when an element is not supported at the provider end, it must have
-an unsupported attribute with "true" value. Otherwise, it may explicitly 
-indicate support with a "false" value, but absence of this att is ok too.</a:documentation>
+an unsupported attribute with &quot;true&quot; value. Otherwise, it may explicitly 
+indicate support with a &quot;false&quot; value, but absence of this att is ok too.</a:documentation>
     <interleave>
       <attribute name="unsupported">
         <value>true</value>
@@ -31,22 +31,21 @@ indicate support with a "false" value, but absence of this att is ok too.</a:doc
   <start>
     <ref name="imml.root"/>
   </start>
-
-  <define name="imml.root" combine="choice">
-      <interleave>
-        <ref name="imml.message.attributes"/>
-        <choice>
-          <ref name="imml.message.error"/>
-          <group>
-            <optional>
-              <ref name="imml.header"/>
-            </optional>
-            <optional>
-              <ref name="imml.message.content"/>
-            </optional>
-          </group>
-        </choice>
-      </interleave>
+  <define combine="choice" name="imml.root">
+    <interleave>
+      <ref name="imml.message.attributes"/>
+      <choice>
+        <ref name="imml.message.error"/>
+        <group>
+          <optional>
+            <ref name="imml.header"/>
+          </optional>
+          <optional>
+            <ref name="imml.message.content"/>
+          </optional>
+        </group>
+      </choice>
+    </interleave>
   </define>
   <define name="imml.message.attributes">
     <interleave>
@@ -199,8 +198,7 @@ indicate support with a "false" value, but absence of this att is ok too.</a:doc
     </choice>
   </define>
   <define name="imml.book">
-    <a:documentation>
-Book ##
+    <a:documentation>Book ##
 </a:documentation>
     <element name="book">
       <interleave>
@@ -242,35 +240,53 @@ Book ##
       </interleave>
     </element>
   </define>
+  <define name="imml.book.metadata.title.attributes">
+    <empty/>
+  </define>
+  <define name="imml.book.metadata.subtitle.attributes">
+    <empty/>
+  </define>
+  <define name="imml.book.metadata.contributors.attributes">
+    <empty/>
+  </define>
   <!-- Work title -->
   <define name="imml.book.metadata.title">
     <element name="title">
+      <ref name="imml.book.metadata.title.attributes"/>
       <text/>
     </element>
   </define>
   <!-- Work subtitle -->
   <define name="imml.book.metadata.subtitle">
     <element name="subtitle">
+      <ref name="imml.book.metadata.subtitle.attributes"/>
       <text/>
     </element>
   </define>
   <!-- First publication date for this work -->
+  <define name="imml.book.metadata.pubdate.attributes">
+    <empty/>
+  </define>
   <define name="imml.book.metadata.pubdate">
     <element name="publication">
+      <ref name="imml.book.metadata.pubdate.attributes"/>
       <data type="date"/>
     </element>
+  </define>
+  <define name="imml.book.metadata.publisher.attributes">
+    <interleave>
+      <optional>
+        <attribute name="uid">
+          <ref name="imml.book.metadata.publisher.id.datatype"/>
+        </attribute>
+      </optional>
+    </interleave>
   </define>
   <!-- Book current publisher -->
   <define name="imml.book.metadata.publisher">
     <element name="publisher">
-      <interleave>
-        <optional>
-          <attribute name="uid">
-            <ref name="imml.book.metadata.publisher.id.datatype"/>
-          </attribute>
-        </optional>
-        <text/>
-      </interleave>
+      <ref name="imml.book.metadata.publisher.attributes"/>
+      <text/>
     </element>
   </define>
   <!-- Book collection -->
@@ -300,6 +316,7 @@ Book ##
   <!-- Book contributors -->
   <define name="imml.book.metadata.contributors">
     <element name="contributors">
+      <ref name="imml.book.metadata.contributors.attributes"/>
       <oneOrMore>
         <ref name="imml.book.metadata.contributor"/>
       </oneOrMore>
@@ -478,6 +495,7 @@ Book ##
   </define>
   <define name="imml.book.metadata.description.xhtml.supported">
     <interleave>
+      <ref name="imml.book.metadata.description.attributes"/>
       <attribute name="format">
         <value>xhtml</value>
       </attribute>
@@ -488,6 +506,7 @@ Book ##
   <define name="imml.book.metadata.description.xhtml.unsupported">
     <interleave>
       <optional>
+        <ref name="imml.book.metadata.description.attributes"/>
         <attribute name="format">
           <value>xhtml</value>
         </attribute>
@@ -496,6 +515,7 @@ Book ##
     </interleave>
   </define>
   <define name="imml.book.metadata.description.content.text">
+    <ref name="imml.book.metadata.description.attributes"/>
     <text/>
   </define>
   <define name="imml.book.assets">
@@ -713,9 +733,13 @@ Book ##
       <ref name="imml.offer.manifestation.datatype"/>
     </element>
   </define>
+  <define name="imml.offer.pagination.attributes">
+    <empty/>
+  </define>
   <define name="imml.offer.pagination">
     <a:documentation>Pagination of whatever alternative format where it makes sense</a:documentation>
     <element name="pagination">
+      <ref name="imml.offer.pagination.attributes"/>
       <ref name="imml.offer.pagination.datatype"/>
     </element>
   </define>
@@ -766,9 +790,13 @@ Book ##
       <ref name="imml.unsupported"/>
     </element>
   </define>
+  <define name="imml.offer.prices.attributes">
+    <empty/>
+  </define>
   <define name="imml.offer.prices">
     <a:documentation>Book prices</a:documentation>
     <element name="prices">
+      <ref name="imml.offer.prices.attributes"/>
       <oneOrMore>
         <ref name="imml.offer.price"/>
       </oneOrMore>
@@ -843,8 +871,7 @@ Book ##
     </element>
   </define>
   <define name="imml.reporting">
-    <a:documentation>
-Reporting ##
+    <a:documentation>Reporting ##
 </a:documentation>
     <element name="reporting">
       <interleave>
@@ -914,8 +941,7 @@ Reporting ##
     </element>
   </define>
   <define name="anyElement">
-    <a:documentation>
-Tools for expressing "whatever child"
+    <a:documentation>Tools for expressing &quot;whatever child&quot;
 See http://www.relaxng.org/compact-tutorial-20030326.html#id2816343</a:documentation>
     <element>
       <anyName/>
@@ -963,8 +989,7 @@ See http://www.relaxng.org/compact-tutorial-20030326.html#id2816343</a:documenta
     </zeroOrMore>
   </define>
   <define name="imml.message.error.values">
-    <a:documentation>
-Datatypes ##
+    <a:documentation>Datatypes ##
 </a:documentation>
     <choice>
       <value>bad_territory</value>

@@ -1,8 +1,7 @@
-
 # automaticaly set version to children nodes
 class Class
   def attr_accessor_with_version(*attrs_name)
-    attrs_name.map!{|attr| attr.to_s}
+    attrs_name.map! { |attr| attr.to_s }
 
     attrs_name.each do |attr_name|
       #getter
@@ -41,11 +40,12 @@ require 'open3'
 require 'imml/header'
 require 'imml/book'
 require 'imml/reporting'
+require 'imml/validator'
 
 module IMML
 
   def self.current_version
-    "2.0"
+    "2.0.2"
   end
 
   class Version
@@ -70,87 +70,19 @@ module IMML
     def to_i
       100*@major+10*@minor+@fixes
     end
-
-  end
-
-  class Validator
-    def self.validate(xml)
-    end
-    def self.errors(out)
-    end
-
-    def self.scheme_dir
-      File.dirname(__FILE__) + "/../data"
-    end
-  end
-
-  class ValidationError
-     attr_accessor :line, :column, :message
-     def initialize(line,column,message)
-       @line=line
-       @column=column
-       @message=message
-     end
-     def to_s
-       "#{@line}:#{column}: error: #{message}"
-     end
-     def dump
-       puts self.to_s
-     end
-  end
-
-  # does not work
-  class NokogiriValidator < Validator
-    def self.validate(xml)
-      schema = Nokogiri::XML::RelaxNG(File.open("#{self.scheme_dir}/imml.rng"))
-      schema.validate(xml).map{|e| ValidationError.new(e.line,e.column,e.message)}
-    end
-
-  end
-
-  class RnvValidator < Validator
-    def self.validate(xml)
-      if system("which rnv > /dev/null")
-        out, status=Open3.capture2e("rnv #{self.scheme_dir}/imml.rnc", :stdin_data => xml.to_xml)
-
-        if out
-          err=[]
-          out.split(/\n/).each do |l|
-            if l=~/.*\:\d+\:\d+\: error\:.*/
-              l.gsub(/.*\:(\d+)\:(\d+)\: error\:(.*)/) do
-                line=$1.strip
-                col=$2.strip
-                msg=$3.strip
-                err << ValidationError.new(line, col, msg)
-              end
-            else
-              case l
-                when /^required/, /^allowed/, /^\t/
-                  err.last.message+="\n"+l
-              end
-            end
-          end
-          err
-        else
-          []
-        end
-      else
-        raise "You must install rnv (http://www.davidashen.net/rnv.html) for XML validation"
-      end
-    end
-
   end
 
   class Document < IMML::Object
     attr_accessor :errors
-    attr_accessor_with_version :header, :book, :reporting
+    attr_accessor_with_version :header, :book, :reporting, :extensions
 
     def validator
       RnvValidator
     end
 
-    def initialize(version=IMML.current_version)
-      @version=Version.new(version)
+    def initialize(version=IMML.current_version, extensions = [])
+      @version = Version.new(version)
+      @extensions = extensions
     end
 
     def parse(xml, valid=true)
@@ -175,6 +107,8 @@ module IMML
                   when "reporting"
                     self.reporting=Reporting::Reporting.new
                     self.reporting.parse(child)
+                  else
+                    # unknown
                 end
               end
           end
@@ -203,7 +137,7 @@ module IMML
 
     def parse_data(data, valid=true)
       xml=Nokogiri::XML.parse(data)
-      self.parse(xml,valid)
+      self.parse(xml, valid)
     end
 
     def parse_file(file, valid=true)
@@ -211,7 +145,19 @@ module IMML
     end
 
     def write(xml)
-      xml.imml(:version=>@version.to_s) {
+      attrs={:version => @version.to_s}
+      if @version.to_i > 201
+        attrs[:xmlns] = "http://ns.immateriel.fr/imml"
+      end
+      @extensions.each do |ext|
+        case ext
+          when :store_check
+            attrs["xmlns:sc"] = "http://ns.immateriel.fr/imml/store_check"
+          else
+            # unknown extension
+        end
+      end
+      xml.imml(attrs) {
         if self.header
           self.header.write(xml)
         end
@@ -225,16 +171,13 @@ module IMML
     end
 
     def xml_builder
-      builder = Nokogiri::XML::Builder.new do |xml|
+      Nokogiri::XML::Builder.new do |xml|
         self.write(xml)
       end
-      builder
     end
 
     def to_xml
       self.xml_builder.to_xml
     end
-
   end
-
 end

@@ -1,0 +1,55 @@
+<grammar datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes" xmlns="http://relaxng.org/ns/structure/1.0" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:x="http://www.w3.org/1999/xhtml">
+	<define name="imml.store_check.score">
+		<attribute name="score" ns="http://ns.immateriel.fr/imml/store_check">
+			<data type="decimal">
+				<param name="minInclusive">0</param>
+				<param name="fractionDigits">2</param>
+			</data>
+		</attribute>
+	</define>
+	<define combine="interleave" name="imml.book.metadata.title.attributes">
+		<optional>
+			<ref name="imml.store_check.score"/>
+		</optional>
+	</define>
+	<define combine="interleave" name="imml.book.metadata.subtitle.attributes">
+		<optional>
+			<ref name="imml.store_check.score"/>
+		</optional>
+	</define>
+	<define combine="interleave" name="imml.book.metadata.publisher.attributes">
+		<optional>
+			<ref name="imml.store_check.score"/>
+		</optional>
+	</define>
+	<define combine="interleave" name="imml.book.metadata.contributors.attributes">
+		<optional>
+			<ref name="imml.store_check.score"/>
+		</optional>
+	</define>
+	<define combine="interleave" name="imml.book.metadata.description.attributes">
+		<optional>
+			<ref name="imml.store_check.score"/>
+		</optional>
+	</define>
+	<define combine="interleave" name="imml.book.metadata.publication.attributes">
+		<optional>
+			<ref name="imml.store_check.score"/>
+		</optional>
+	</define>
+	<define combine="interleave" name="imml.offer.prices.attributes">
+		<optional>
+			<ref name="imml.store_check.score"/>
+		</optional>
+	</define>
+	<define combine="interleave" name="imml.offer.pagination.attributes">
+		<optional>
+			<ref name="imml.store_check.score"/>
+		</optional>
+	</define>
+	<define combine="interleave" name="imml.book.assets.optional_attr.common">
+		<optional>
+			<ref name="imml.store_check.score"/>
+		</optional>
+	</define>
+</grammar>
