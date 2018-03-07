@@ -58,7 +58,9 @@ class TestWriteXml < Minitest::Test
       @doc.book.metadata.publisher=IMML::Book::Publisher.create("Walrus")
       @doc.book.metadata.contributors << IMML::Book::Contributor.create("Neil Jomunsi","author")
       @doc.book.metadata.topics=IMML::Book::Topics.create
-      @doc.book.metadata.topics << IMML::Book::Topic.create_unsupported
+      unsupported_bisac = IMML::Book::Topic.create_unsupported
+      unsupported_bisac.type = "bisac"
+      @doc.book.metadata.topics << unsupported_bisac
 
       @doc.book.assets=IMML::Book::Assets.create
       @doc.book.assets.cover=IMML::Book::Cover.create("image/png",1000)

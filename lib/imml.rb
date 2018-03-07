@@ -89,6 +89,7 @@ module IMML
       @errors=[]
       if valid
         @errors=self.validate(xml)
+        puts @errors
       end
       if @errors.length==0
         @version=Version.new(xml.root["version"])

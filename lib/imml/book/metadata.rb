@@ -112,13 +112,11 @@ module IMML
 
       def write(xml)
         super
-        if @identifier
-          attrs={}
-          if @type
-            attrs[:type]=@type
-          end
-          xml.topic(attrs, @identifier)
+        attrs=self.attributes
+        if @type
+          attrs[:type]=@type
         end
+        xml.topic(attrs, @identifier)
       end
     end
 
@@ -295,7 +293,7 @@ module IMML
           }
 
           if self.language
-            self.language.write_tag(xml,"language")
+            self.language.write_tag(xml, "language")
           end
 
           if self.collection
@@ -327,7 +325,7 @@ module IMML
           end
 
           if self.description
-            self.description.write_tag(xml,"description")
+            self.description.write_tag(xml, "description")
           end
         }
       end

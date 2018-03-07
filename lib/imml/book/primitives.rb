@@ -75,6 +75,12 @@ module IMML
         @attributes={}
       end
 
+      def self.create_unsupported
+        entity=self.new
+        entity.unsupported=true
+        entity
+      end
+
       def parse(node)
         self.parse_unsupported(node)
         self.parse_score(node)

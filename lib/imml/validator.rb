@@ -2,11 +2,12 @@ module IMML
   class Validator
     def self.validate(xml)
     end
+
     def self.errors(out)
     end
 
     def self.scheme_dir
-      File.dirname(__FILE__) + "/../data"
+      File.dirname(__FILE__) + "/../../data"
     end
   end
 
@@ -39,6 +40,7 @@ module IMML
         out, status=Open3.capture2e("rnv #{self.scheme_dir}/imml.rnc", :stdin_data => xml.to_xml)
 
         if out
+          puts out
           err=[]
           out.split(/\n/).each do |l|
             if l=~/.*\:\d+\:\d+\: error\:.*/
