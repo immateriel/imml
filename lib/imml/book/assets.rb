@@ -71,11 +71,11 @@ module IMML
         uniq_str=Digest::MD5.hexdigest("#{@url}:#{local_file}")
         uri = URI.parse(@url)
         fn="/tmp/#{uniq_str}_"+Digest::MD5.hexdigest(File.basename(uri.path))
-        system("wget -q #{Shellwords.escape(@url)} -O #{fn}")
+        self.class.download(@url, fn)
         if File.exists?(fn)
           check_result=self.class.check_image(fn, local_file, uniq_str)
           FileUtils.rm_f(fn)
-          if check_result*100 < 25
+          if check_result
             true
           else
             false
@@ -86,8 +86,37 @@ module IMML
       end
 
       private
-      # ImageMagick needed
       def self.check_image(img1, img2, uniq_str, cleanup=true)
+        if system("which perceptualdiff > /dev/null")
+          self.check_image_perceptualdiff_fork(img1, img2, uniq_str, cleanup)
+        else
+          self.check_image_imagemagick(img1, img2, uniq_str, cleanup)
+        end
+      end
+
+      def self.download(url, fn)
+        if system("which wget > /dev/null")
+          self.download_wget(url, fn)
+        else
+          self.download_curl(url, fn)
+        end
+      end
+
+      def self.download_wget(url, fn)
+        system("wget -q #{Shellwords.escape(url)} -O #{fn}")
+      end
+
+      def self.download_curl(url, fn)
+        system("curl -s -o #{fn} #{Shellwords.escape(url)}")
+      end
+
+      # https://github.com/immateriel/perceptualdiff
+      def self.check_image_perceptualdiff_fork(img1, img2, uniq_str, cleanup=true)
+        system("perceptualdiff #{img1} #{img2} --scale --luminance-only --threshold 0.1")
+      end
+
+      # ImageMagick needed
+      def self.check_image_imagemagick(img1, img2, uniq_str, cleanup=true)
         nsec="%10.9f" % Time.now.to_f
         tmp1="/tmp/check_image_#{nsec}_#{uniq_str}_tmp1.png"
         # on supprime le transparent
@@ -109,12 +138,13 @@ module IMML
               FileUtils.rm_f(tmp2)
               FileUtils.rm_f(tmp3)
             end
-            result.gsub(/.*[^\(]\((.*)\).*/, '\1').to_f
+            r=result.gsub(/.*[^\(]\((.*)\).*/, '\1').to_f
+            r < 0.25
           else
-            1.0
+            false
           end
         else
-          1.0
+          false
         end
       end
     end

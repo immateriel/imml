@@ -30,6 +30,13 @@ class TestParseXml < Minitest::Test
       assert_equal "fre", @metadata.language
     end
 
+    should "have matching cover" do
+      system("wget -q https://images.immateriel.fr/covers/6EUR43A.thumb.jpg -O /tmp/6EUR43A.jpg")
+      assert_equal true, @book.assets.cover.check_file("/tmp/6EUR43A.jpg")
+      system("wget -q https://images.immateriel.fr/covers/2NBL7Z5.thumb.jpg -O /tmp/2NBL7Z5.jpg")
+      assert_equal false, @book.assets.cover.check_file("/tmp/2NBL7Z5.jpg")
+    end
+
 #    should "be bundle" do
 #      assert_equal "bundle", @offer.format
 #    end
