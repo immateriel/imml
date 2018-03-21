@@ -70,7 +70,7 @@ module IMML
 #        Immateriel.info binding, @url
         uniq_str=Digest::MD5.hexdigest("#{@url}:#{local_file}")
         uri = URI.parse(@url)
-        fn="/tmp/#{uniq_str}_"+Digest::MD5.hexdigest(File.basename(uri.path))
+        fn="/tmp/#{uniq_str}_"+Digest::MD5.hexdigest(File.basename(uri.path))+File.extname(uri.path)
         self.class.download(@url, fn)
         if File.exists?(fn)
           check_result=self.class.check_image(fn, local_file, uniq_str)
