@@ -115,7 +115,7 @@ module IMML
         end
         true
       else
-        self.dump_errors(errors)
+#        self.dump_errors(errors)
         false
       end
     end

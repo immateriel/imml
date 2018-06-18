@@ -87,6 +87,17 @@ if filename
         puts "    Price: #{price.current_amount} #{price.currency} (#{price.territories})"
       end
     end
+  else
+    puts "IMML is invalid: "
+    doc.errors.each do |err|
+      puts "#{err.line}:#{err.column} #{err.message}"
+      err.details.each do |k,lines|
+        puts "#{k}:"
+        lines.each do |line|
+          puts "\t#{line}"
+        end
+      end
+    end
   end
 
 end
