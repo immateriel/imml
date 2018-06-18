@@ -22,7 +22,15 @@ module IMML
     end
 
     def to_s
-      "#{@line}:#{column}: error: #{message}"
+      out = ""
+        out << "#{@line}:#{@column} #{@message}\n"
+        @details.each do |k,lines|
+          out << "#{k}:\n"
+          lines.each do |line|
+            out << "\t#{line}\n"
+          end
+        end
+      out
     end
 
     def dump

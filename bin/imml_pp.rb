@@ -90,13 +90,7 @@ if filename
   else
     puts "IMML is invalid: "
     doc.errors.each do |err|
-      puts "#{err.line}:#{err.column} #{err.message}"
-      err.details.each do |k,lines|
-        puts "#{k}:"
-        lines.each do |line|
-          puts "\t#{line}"
-        end
-      end
+      puts err.to_s
     end
   end
 
