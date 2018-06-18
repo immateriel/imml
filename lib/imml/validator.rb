@@ -12,15 +12,19 @@ module IMML
   end
 
   class ValidationError
-    attr_accessor :line, :column, :message
-    def initialize(line,column,message)
-      @line=line
-      @column=column
-      @message=message
+    attr_accessor :line, :column, :message, :details
+
+    def initialize(line, column, message)
+      @line = line
+      @column = column
+      @message = message
+      @details = details
     end
+
     def to_s
       "#{@line}:#{column}: error: #{message}"
     end
+
     def dump
       puts self.to_s
     end
@@ -30,30 +34,36 @@ module IMML
   class NokogiriValidator < Validator
     def self.validate(xml)
       schema = Nokogiri::XML::RelaxNG(File.open("#{self.scheme_dir}/imml.rng"))
-      schema.validate(xml).map{|e| ValidationError.new(e.line,e.column,e.message)}
+      schema.validate(xml).map {|e| ValidationError.new(e.line, e.column, e.message)}
     end
   end
 
   class RnvValidator < Validator
     def self.validate(xml)
       if system("which rnv > /dev/null")
-        out, status=Open3.capture2e("rnv #{self.scheme_dir}/imml.rnc", :stdin_data => xml.to_xml)
+        out, status = Open3.capture2e("rnv #{self.scheme_dir}/imml.rnc", :stdin_data => xml.to_xml)
 
         if out
-          puts out
-          err=[]
+          last_details = nil
+          err = []
           out.split(/\n/).each do |l|
-            if l=~/.*\:\d+\:\d+\: error\:.*/
+            if l =~ /.*\:\d+\:\d+\: error\:.*/
               l.gsub(/.*\:(\d+)\:(\d+)\: error\:(.*)/) do
-                line=$1.strip
-                col=$2.strip
-                msg=$3.strip
+                line = $1.strip
+                col = $2.strip
+                msg = $3.strip
                 err << ValidationError.new(line, col, msg)
               end
             else
               case l
-                when /^required/, /^allowed/, /^\t/
-                  err.last.message+="\n"+l
+                when /^required/
+                  last_details = :required
+                when /^allowed/
+                  last_details = :allowed
+                when /^\t/
+                  err.last.details ||= {}
+                  err.last.details[last_details] ||= []
+                  err.last.details[last_details] << l.gsub(/\t/,"")
               end
             end
           end

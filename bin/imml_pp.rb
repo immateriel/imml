@@ -7,7 +7,7 @@ filename=ARGV[0]
 
 if filename
   doc=IMML::Document.new
-  if doc.parse_file(filename)
+  if doc.parse_file(filename, true)
 
     puts "Version: #{doc.version}"
 
@@ -62,7 +62,7 @@ if filename
           if f.unsupported?
             puts "   Full: UNSUPPORTED"
           else
-            puts "   Full: #{f.url} (#{f.mimetype})"
+            puts "   Full: #{f.url} (#{f.mimetype}) [#{f.checksum}]"
           end
         end
       end
