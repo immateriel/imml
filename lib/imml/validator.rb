@@ -18,7 +18,7 @@ module IMML
       @line = line
       @column = column
       @message = message
-      @details = details
+      @details = {}
     end
 
     def to_s
