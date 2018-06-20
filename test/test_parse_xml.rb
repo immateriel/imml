@@ -63,4 +63,36 @@ class TestParseXml < Minitest::Test
 
   end
 
+  context "check 9782366020649 at 3025596562609" do
+    setup do
+      @doc = IMML::Document.new
+      @valid = @doc.parse_file("test/fixtures/check_9782366020649_at_3025596562609.xml",true)
+    end
+
+    should "be valid" do
+      assert_equal true, @valid
+    end
+
+    should "have reseller" do
+      assert_equal "3025596562609", @doc.header.reseller.reseller_dilicom_gencod
+    end
+  end
+
+  context "request 9782366020649 from 3025596562609" do
+    setup do
+      @doc = IMML::Document.new
+      @valid = @doc.parse_file("test/fixtures/request_9782366020649_from_3025596562609.xml",true)
+    end
+
+    should "be valid" do
+      assert_equal true, @valid
+    end
+
+    should "have auth" do
+      assert_equal "3025596562609", @doc.header.reseller.reseller_dilicom_gencod
+      assert_equal "WoC43KlQX3wg", @doc.header.authentication.api_key
+    end
+  end
+
+
 end

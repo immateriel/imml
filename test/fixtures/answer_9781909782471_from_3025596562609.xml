@@ -1,9 +1,4 @@
 <imml version="2.0">
-  <header>
-    <!-- LivreMoi répond à un test sur le titre 9781909782471 -->
-    <reseller dilicom_gencod="3025596562609"/>
-    <authentication api_key="WoC43KlQX3wg"/>
-  </header>
   <book ean="9781909782471" uid="CB370201">
     <metadata>
       <title>Le faiseur d'anges</title>
