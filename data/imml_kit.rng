@@ -125,10 +125,10 @@ indicate support with a &quot;false&quot; value, but absence of this att is ok t
   </define>
   <define name="imml.header.reseller.id">
     <choice>
-      <attribute name="id">
+      <attribute name="reseller_id">
         <ref name="imml.reseller.id.datatype"/>
       </attribute>
-      <attribute name="dilicom_gencod">
+      <attribute name="reseller_dilicom_gencod">
         <ref name="imml.reseller.clil_gencod.datatype"/>
       </attribute>
     </choice>

@@ -53,8 +53,10 @@ imml.header.params =
 # Emitter or recipient can use immateriel reseller id or clil gencod
 imml.header.reseller = element reseller { imml.header.reseller.id }
 imml.header.reseller.id =
-  attribute id { imml.reseller.id.datatype }
-  | attribute dilicom_gencod { imml.reseller.clil_gencod.datatype }
+  attribute reseller_id { imml.reseller.id.datatype }
+  | attribute reseller_dilicom_gencod {
+      imml.reseller.clil_gencod.datatype
+    }
 # Make sure the emitter is the right one
 imml.header.authentication =
   element authentication {
