@@ -1027,6 +1027,7 @@ See http://www.relaxng.org/compact-tutorial-20030326.html#id2816343</a:documenta
         <value>translator</value>
         <value>editor</value>
         <value>typesetter</value>
+        <value>illustrator</value>
       </choice>
     </list>
   </define>
