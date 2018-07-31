@@ -11,7 +11,8 @@ module IMML
 
       def write(xml)
         super
-        xml.role(@role)
+        attrs=self.attributes
+        xml.role(attrs, @role)
       end
     end
 
