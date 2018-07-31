@@ -58,8 +58,10 @@ module IMML
       def write(xml)
         super
         xml.contributor(self.attributes) {
-          @role.write(xml) if @role and @role.role
-          xml.name(@name) if @name
+          if @name
+            @role.write(xml)
+            xml.name(@name)
+          end
         }
       end
     end
