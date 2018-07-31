@@ -4,32 +4,32 @@ module IMML
     class Interval < Entity
       attr_accessor :start_at, :end_at, :amount
 
-      def self.create(amount, start_at=nil, end_at=nil)
-        interval=Interval.new
-        interval.amount=amount
-        interval.start_at=start_at
-        interval.end_at=end_at
+      def self.create(amount, start_at = nil, end_at = nil)
+        interval = Interval.new
+        interval.amount = amount
+        interval.start_at = start_at
+        interval.end_at = end_at
         interval
       end
 
       def parse(node)
-        @amount=node.text.to_f
+        @amount = node.text.to_f
         if node["start_at"]
-          @start_at=Date.strptime(node["start_at"], "%Y-%m-%d")
+          @start_at = Date.strptime(node["start_at"], "%Y-%m-%d")
         end
         if node["end_at"]
-          @end_at=Date.strptime(node["end_at"], "%Y-%m-%d")
+          @end_at = Date.strptime(node["end_at"], "%Y-%m-%d")
         end
       end
 
       def write(xml)
         super
-        attrs=self.attributes
+        attrs = self.attributes
         if @start_at
-          attrs[:start_at]=@start_at
+          attrs[:start_at] = @start_at
         end
         if @end_at
-          attrs[:end_at]=@end_at
+          attrs[:end_at] = @end_at
         end
         xml.interval(attrs, @amount)
       end
@@ -39,31 +39,31 @@ module IMML
       attr_accessor :currency, :current_amount, :territories, :intervals
 
       def initialize
-        @intervals=[]
+        @intervals = []
       end
 
       def self.create(currency, amount, territories)
-        price=Price.new
-        price.currency=currency
-        price.current_amount=amount
-        price.territories=territories
+        price = Price.new
+        price.currency = currency
+        price.current_amount = amount
+        price.territories = territories
         price
       end
 
       def parse(node)
         super
-        @currency=node["currency"]
+        @currency = node["currency"]
         node.children.each do |child|
           case child.name
             when "current_amount"
               # Float or Integer ?
-              @current_amount=child.text.to_f
+              @current_amount = child.text.to_f
             when "territories"
-              @territories=Text.new(child.text)
+              @territories = Text.new(child.text)
             when "intervals"
               child.children.each do |interval_node|
                 if interval_node.element?
-                  interval=Interval.new
+                  interval = Interval.new
                   interval.parse(interval_node)
                   @intervals << interval
                 end
@@ -94,15 +94,15 @@ module IMML
       attr_accessor :date
 
       def self.create(date)
-        sales_start_at=SalesStartAt.new
-        sales_start_at.date=date
+        sales_start_at = SalesStartAt.new
+        sales_start_at.date = date
         sales_start_at
       end
 
       def parse(node)
         super
-        if node.text and node.text!=""
-          @date=Date.strptime(node.text, "%Y-%m-%d")
+        if node.text and node.text != ""
+          @date = Date.strptime(node.text, "%Y-%m-%d")
         end
       end
 
@@ -116,21 +116,21 @@ module IMML
       attr_accessor :type, :available, :customer, :format, :protection
 
       def self.create(type, available, customer, format, protection)
-        model=SalesModel.new
-        model.type=type
-        model.available=available
-        model.customer=customer
-        model.format=format
-        model.protection=protection
+        model = SalesModel.new
+        model.type = type
+        model.available = available
+        model.customer = customer
+        model.format = format
+        model.protection = protection
         model
       end
 
       def parse(node)
-        @type=node["type"]
-        @available=node["available"] == "true" ? true : false
-        @customer=node["customer"]
-        @format=node["format"]
-        @protection=node["protection"]
+        @type = node["type"]
+        @available = node["available"] == "true" ? true : false
+        @customer = node["customer"]
+        @format = node["format"]
+        @protection = node["protection"]
       end
 
       def write(xml)
@@ -142,15 +142,15 @@ module IMML
       attr_accessor :ean, :medium
 
       def self.create(ean, medium)
-        alternative=Alternative.new
-        alternative.ean=ean
-        alternative.medium=medium
+        alternative = Alternative.new
+        alternative.ean = ean
+        alternative.medium = medium
         alternative
       end
 
       def parse(node)
-        @ean=node["ean"]
-        @medium=node["medium"]
+        @ean = node["ean"]
+        @medium = node["medium"]
       end
 
       def write(xml)
@@ -162,35 +162,35 @@ module IMML
       attr_accessor :medium, :pagination, :ready_for_sale, :sales_start_at, :prices, :prices_with_currency, :sales_models, :alternatives
 
       def self.create(medium, ready_for_sale)
-        offer=Offer.new
-        offer.medium=medium
-        offer.ready_for_sale=ready_for_sale
+        offer = Offer.new
+        offer.medium = medium
+        offer.ready_for_sale = ready_for_sale
         offer
       end
 
       def initialize
-        @prices=[]
-        @prices_with_currency={}
-        @sales_models=[]
-        @alternatives=[]
+        @prices = []
+        @prices_with_currency = {}
+        @sales_models = []
+        @alternatives = []
       end
 
       def parse(node)
         node.children.each do |child|
           case child.name
             when "medium"
-              @medium=child.text
+              @medium = child.text
             when "pagination"
-              @pagination=child.text.to_i
+              @pagination = child.text.to_i
             when "ready_for_sale"
-              @ready_for_sale=(child.text == "true")
+              @ready_for_sale = (child.text == "true")
             when "sales_start_at"
-              self.sales_start_at=SalesStartAt.new
+              self.sales_start_at = SalesStartAt.new
               @sales_start_at.parse(child)
             when "prices"
               child.children.each do |price_node|
                 if price_node.element?
-                  price=Price.new
+                  price = Price.new
                   price.parse(price_node)
                   @prices << price
                 end
@@ -199,7 +199,7 @@ module IMML
             when "sales_models"
               child.children.each do |model_node|
                 if model_node.element?
-                  model=SalesModel.new
+                  model = SalesModel.new
                   model.parse(model_node)
                   @sales_models << model
                 end
@@ -207,7 +207,7 @@ module IMML
             when "alternatives"
               child.children.each do |alt_node|
                 if alt_node.element?
-                  alt=Alternative.new
+                  alt = Alternative.new
                   alt.parse(alt_node)
                   @alternatives << alt
                 end
@@ -232,11 +232,13 @@ module IMML
           if self.sales_start_at
             self.sales_start_at.write(xml)
           end
-          xml.prices {
-            self.prices.each do |price|
-              price.write(xml)
-            end
-          }
+          if self.prices.length > 0
+            xml.prices {
+              self.prices.each do |price|
+                price.write(xml)
+              end
+            }
+          end
           if alternatives.length > 0
             xml.alternatives {
               self.alternatives.each do |alt|
@@ -257,7 +259,7 @@ module IMML
       private
       def update_currency_hash
         @prices.each do |price|
-          @prices_with_currency[price.currency]=price
+          @prices_with_currency[price.currency] = price
         end
       end
     end

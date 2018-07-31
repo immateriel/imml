@@ -6,12 +6,12 @@ module IMML
 
       def parse(node)
         super
-        @role=Text.new(node.text)
+        @role = Text.new(node.text)
       end
 
       def write(xml)
         super
-        attrs=self.attributes
+        attrs = self.attributes
         xml.role(attrs, @role)
       end
     end
@@ -21,34 +21,34 @@ module IMML
 
       def initialize
         super
-        @role=ContributorRole.new
+        @role = ContributorRole.new
       end
 
-      def self.create(name, role=nil, uid=nil)
-        contributor=Contributor.new
-        contributor.name=name
-        contributor_role=ContributorRole.new
+      def self.create(name, role = nil, uid = nil)
+        contributor = Contributor.new
+        contributor.name = name
+        contributor_role = ContributorRole.new
         if role
-          contributor_role.role=role
+          contributor_role.role = role
         else
-          contributor_role.unsupported=true
+          contributor_role.unsupported = true
         end
-        contributor.role=contributor_role
+        contributor.role = contributor_role
         if uid
-          contributor.uid=uid
+          contributor.uid = uid
         end
         contributor
       end
 
       def parse(node)
         super
-        @uid=node["uid"]
+        @uid = node["uid"]
         node.children.each do |child|
           case child.name
             when "role"
               @role.parse(child)
             when "name"
-              @name=Text.new(child.text)
+              @name = Text.new(child.text)
             else
               # unknown
           end
@@ -69,15 +69,15 @@ module IMML
 
       def parse(node)
         super
-        @name=Text.new(node.text)
-        @uid=node["uid"]
+        @name = Text.new(node.text)
+        @uid = node["uid"]
       end
 
-      def self.create(name, uid=nil)
-        collection=Collection.new
-        collection.name=name
+      def self.create(name, uid = nil)
+        collection = Collection.new
+        collection.name = name
         if uid
-          collection.uid=uid
+          collection.uid = uid
         end
         collection
       end
@@ -85,7 +85,7 @@ module IMML
       def write(xml)
         super
         if @name
-          attrs=self.attributes
+          attrs = self.attributes
           xml.collection(attrs, @name)
         end
       end
@@ -100,22 +100,22 @@ module IMML
 
       def parse(node)
         super
-        @type=node["type"]
-        @identifier=Text.new(node.text)
+        @type = node["type"]
+        @identifier = Text.new(node.text)
       end
 
       def self.create(type, identifier)
-        topic=Topic.new
-        topic.type=type
-        topic.identifier=Text.new(identifier)
+        topic = Topic.new
+        topic.type = type
+        topic.identifier = Text.new(identifier)
         topic
       end
 
       def write(xml)
         super
-        attrs=self.attributes
+        attrs = self.attributes
         if @type
-          attrs[:type]=@type
+          attrs[:type] = @type
         end
         xml.topic(attrs, @identifier)
       end
@@ -126,7 +126,7 @@ module IMML
         super
         node.children.each do |child|
           if child.element?
-            topic=Topic.new
+            topic = Topic.new
             topic.parse(child)
             self << topic
           end
@@ -134,7 +134,7 @@ module IMML
       end
 
       def self.create
-        topics=Topics.new
+        topics = Topics.new
         topics
       end
 
@@ -153,15 +153,15 @@ module IMML
 
       def parse(node)
         super
-        @uid=node["uid"]
-        @name=Text.new(node.text)
+        @uid = node["uid"]
+        @name = Text.new(node.text)
       end
 
-      def self.create(name, uid=nil)
-        publisher=Publisher.new
-        publisher.name=Text.new(name)
+      def self.create(name, uid = nil)
+        publisher = Publisher.new
+        publisher.name = Text.new(name)
         if uid
-          publisher.uid=uid
+          publisher.uid = uid
         end
         publisher
       end
@@ -169,7 +169,7 @@ module IMML
       def write(xml)
         super
         if @name
-          attrs=self.attributes
+          attrs = self.attributes
           xml.publisher(attrs, @name)
         end
       end
@@ -180,15 +180,15 @@ module IMML
 
       def parse(node)
         super
-        @uid=node["uid"]
-        @name=Text.new(node.text)
+        @uid = node["uid"]
+        @name = Text.new(node.text)
       end
 
-      def self.create(name, uid=nil)
-        imprint=Imprint.new
-        imprint.name=Text.new(name)
+      def self.create(name, uid = nil)
+        imprint = Imprint.new
+        imprint.name = Text.new(name)
         if uid
-          imprint.uid=uid
+          imprint.uid = uid
         end
         imprint
       end
@@ -196,7 +196,7 @@ module IMML
       def write(xml)
         super
         if @name
-          attrs=self.attributes
+          attrs = self.attributes
           xml.publisher(attrs, @name)
         end
       end
@@ -208,24 +208,24 @@ module IMML
       attr_accessor :imprint # 202
 
       def initialize
-        @collection=nil
-        @publisher=nil
+        @collection = nil
+        @publisher = nil
 
-        @contributors=EntityCollection.new
+        @contributors = EntityCollection.new
       end
 
       def attach_version v
-        @contributors.version=v
+        @contributors.version = v
       end
 
-      def self.create(title, language, description, subtitle=nil, publication=nil)
-        metadata=Metadata.new
-        metadata.title=Text.new(title)
+      def self.create(title, language, description, subtitle = nil, publication = nil)
+        metadata = Metadata.new
+        metadata.title = Text.new(title)
         metadata.language = Text.new(language)
-        metadata.description=Text.new(description)
-        metadata.publication=publication
-        if subtitle and subtitle!=""
-          metadata.subtitle=Text.new(subtitle)
+        metadata.description = Text.new(description)
+        metadata.publication = publication
+        if subtitle and subtitle != ""
+          metadata.subtitle = Text.new(subtitle)
         end
         metadata
       end
@@ -234,41 +234,41 @@ module IMML
         node.children.each do |child|
           case child.name
             when "title"
-              @title=Text.new(child.text)
+              @title = Text.new(child.text)
               @title.parse(child)
             when "subtitle"
-              @subtitle=Text.new(child.text)
+              @subtitle = Text.new(child.text)
               @subtitle.parse(child)
             when "edition"
-              @edition=child.text.to_i
+              @edition = child.text.to_i
             when "description"
-              if child["format"]=="xhtml"
-                @description=Text.new(child.to_xml)
+              if child["format"] == "xhtml"
+                @description = Text.new(child.to_xml)
               else
-                @description=Text.new(child.text)
+                @description = Text.new(child.text)
               end
               @description.parse(child)
             when "collection"
-              @collection=Collection.new
+              @collection = Collection.new
               @collection.parse(child)
             when "language"
               @language = Text.new(child.text)
               @language.parse(child)
             when "publication"
-              @publication=Date.strptime(child.text, "%Y-%m-%d")
+              @publication = Date.strptime(child.text, "%Y-%m-%d")
             when "publisher"
-              @publisher=Publisher.new
+              @publisher = Publisher.new
               @publisher.parse(child)
             when "imprint"
-              @imprint=Imprint.new
+              @imprint = Imprint.new
               @imprint.parse(child)
             when "topics"
-              self.topics=Topics.new
+              self.topics = Topics.new
               self.topics.parse(child)
             when "contributors"
               child.children.each do |contributor_node|
                 if contributor_node.element?
-                  contributor=Contributor.new
+                  contributor = Contributor.new
                   contributor.parse(contributor_node)
                   self.contributors << contributor
                 end
@@ -287,11 +287,13 @@ module IMML
             self.subtitle.write_tag(xml, "subtitle")
           end
 
-          xml.contributors {
-            self.contributors.each do |c|
-              c.write(xml)
-            end
-          }
+          if self.contributors.length > 0
+            xml.contributors {
+              self.contributors.each do |c|
+                c.write(xml)
+              end
+            }
+          end
 
           if self.language
             self.language.write_tag(xml, "language")
