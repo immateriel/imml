@@ -61,6 +61,9 @@ class TestParseXml < Minitest::Test
       assert_equal 0.9, @metadata.title.score
     end
 
+    should "have cover score" do
+      assert_equal 0.8, @book.assets.cover.score
+    end
   end
 
   context "check 9782366020649 at 3025596562609" do

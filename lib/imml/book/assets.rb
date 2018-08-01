@@ -2,6 +2,7 @@ require 'imml/book/primitives'
 module IMML
   module Book
     class Asset < Entity
+      include StoreCheckMethods
       attr_accessor :mimetype, :url, :checksum, :size, :last_modified
       attr_accessor :uid # 201
 
@@ -33,6 +34,7 @@ module IMML
           if @uid
             @attributes[:uid]=@uid
           end
+          self.write_score(xml)
         else
           super
         end
