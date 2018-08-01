@@ -90,6 +90,35 @@ module IMML
       end
     end
 
+    class Prices < EntityCollection
+      def parse(node)
+        super
+        node.children.each do |child|
+          if child.element?
+            price = Price.new
+            price.parse(child)
+            self << price
+          end
+        end
+      end
+
+      def self.create
+        prices = Prices.new
+        prices
+      end
+
+      def write(xml)
+        super
+        if self.length > 0
+          xml.prices(self.attributes) {
+            self.each do |price|
+              price.write(xml)
+            end
+          }
+        end
+      end
+    end
+
     class SalesStartAt < Entity
       attr_accessor :date
 
@@ -169,7 +198,7 @@ module IMML
       end
 
       def initialize
-        @prices = []
+        @prices = Prices.new
         @prices_with_currency = {}
         @sales_models = []
         @alternatives = []
@@ -188,13 +217,8 @@ module IMML
               self.sales_start_at = SalesStartAt.new
               @sales_start_at.parse(child)
             when "prices"
-              child.children.each do |price_node|
-                if price_node.element?
-                  price = Price.new
-                  price.parse(price_node)
-                  @prices << price
-                end
-              end
+              self.prices = Prices.new
+              self.prices.parse(child)
               update_currency_hash
             when "sales_models"
               child.children.each do |model_node|
@@ -232,13 +256,10 @@ module IMML
           if self.sales_start_at
             self.sales_start_at.write(xml)
           end
-          if self.prices.length > 0
-            xml.prices {
-              self.prices.each do |price|
-                price.write(xml)
-              end
-            }
+          if self.prices
+            self.prices.write(xml)
           end
+
           if alternatives.length > 0
             xml.alternatives {
               self.alternatives.each do |alt|

@@ -66,6 +66,33 @@ module IMML
       end
     end
 
+    class Contributors < EntityCollection
+      def parse(node)
+        super
+        node.children.each do |child|
+          if child.element?
+            contributor = Contributor.new
+            contributor.parse(child)
+            self << contributor
+          end
+        end
+      end
+
+      def self.create
+        contributors = Contributors.new
+        contributors
+      end
+
+      def write(xml)
+        super
+        xml.contributors(self.attributes) {
+          self.each do |contributor|
+            contributor.write(xml)
+          end
+        }
+      end
+    end
+
     class Collection < EntityWithUid
       attr_accessor :name, :uid
 
@@ -213,7 +240,7 @@ module IMML
         @collection = nil
         @publisher = nil
 
-        @contributors = EntityCollection.new
+        @contributors = Contributors.new
       end
 
       def attach_version v
@@ -268,13 +295,7 @@ module IMML
               self.topics = Topics.new
               self.topics.parse(child)
             when "contributors"
-              child.children.each do |contributor_node|
-                if contributor_node.element?
-                  contributor = Contributor.new
-                  contributor.parse(contributor_node)
-                  self.contributors << contributor
-                end
-              end
+              self.contributors.parse(child)
             else
               # unknown
           end
@@ -289,12 +310,8 @@ module IMML
             self.subtitle.write_tag(xml, "subtitle")
           end
 
-          if self.contributors.length > 0
-            xml.contributors {
-              self.contributors.each do |c|
-                c.write(xml)
-              end
-            }
+          if self.contributors
+            self.contributors.write(xml)
           end
 
           if self.language
