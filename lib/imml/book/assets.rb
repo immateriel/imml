@@ -2,7 +2,6 @@ require 'imml/book/primitives'
 module IMML
   module Book
     class Asset < Entity
-      include StoreCheckMethods
       attr_accessor :mimetype, :url, :checksum, :size, :last_modified
       attr_accessor :uid # 201
 
