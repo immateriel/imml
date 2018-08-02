@@ -30,6 +30,10 @@ class TestParseXml < Minitest::Test
       assert_equal "fre", @metadata.language
     end
 
+    should "have nil title score" do
+      assert_equal nil, @metadata.title.score
+    end
+
     should "have matching cover" do
       system("wget -q https://images.immateriel.fr/covers/6EUR43A.thumb.jpg -O /tmp/6EUR43A.jpg")
       assert_equal true, @book.assets.cover.check_file("/tmp/6EUR43A.jpg")
@@ -64,6 +68,11 @@ class TestParseXml < Minitest::Test
     should "have cover score" do
       assert_equal 0.8, @book.assets.cover.score
     end
+
+    should "have url" do
+      assert_equal "http://example.com/9782363761514", @book.url
+    end
+
   end
 
   context "check 9782366020649 at 3025596562609" do

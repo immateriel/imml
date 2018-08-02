@@ -7,6 +7,13 @@
 			</data>
 		</attribute>
 	</define>
+	<define combine="interleave" name="imml.book.attributes">
+		<optional>
+			<attribute name="url" ns="http://ns.immateriel.fr/imml/store_check">
+				<data type="string"/>
+			</attribute>
+		</optional>
+	</define>
 	<define combine="interleave" name="imml.book.metadata.title.attributes">
 		<optional>
 			<ref name="imml.store_check.score"/>

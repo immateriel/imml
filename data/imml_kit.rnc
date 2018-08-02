@@ -13,7 +13,7 @@ namespace x = "http://www.w3.org/1999/xhtml"
 
 
 ## when an element is not supported at the provider end, it must have
-## an unsupported attribute with "true" value. Otherwise, it may explicitly 
+## an unsupported attribute with "true" value. Otherwise, it may explicitly
 ## indicate support with a "false" value, but absence of this att is ok too.
 imml.unsupported =
   attribute unsupported { "true" }
@@ -89,12 +89,14 @@ imml.message.content = imml.book | imml.reporting
 ##
 imml.book =
   element book {
-    attribute ean { imml.offer.ean.datatype }
-    & attribute uid { imml.book.id.datatype }?
+    imml.book.attributes
     & imml.book.metadata
     & imml.book.assets
     & imml.offer
   }
+imml.book.attributes =
+  attribute ean { imml.offer.ean.datatype }
+  & attribute uid { imml.book.id.datatype }?
 
 ##
 # Book metadata

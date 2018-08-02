@@ -9,7 +9,7 @@ require 'imml/book/offer'
 module IMML
   module Book
     class Book < IMML::Object
-      attr_accessor :ean
+      attr_accessor :ean, :uid, :url
       attr_accessor_with_version :metadata, :assets, :offers
 
       def initialize
@@ -30,30 +30,32 @@ module IMML
       end
 
       def self.create(ean)
-        book=Book.new
-        book.ean=ean
+        book = Book.new
+        book.ean = ean
         book
       end
 
       def parse(node)
-        @ean=node["ean"]
+        @ean = node["ean"]
+        @uid = node.attributes["uid"].value if node.attributes["uid"]
+        @url = node.attributes["url"].value if node.attributes["url"]
         node.children.each do |child|
           case child.name
             when "metadata"
-              self.metadata=Metadata.new
+              self.metadata = Metadata.new
               self.metadata.parse(child)
             when "assets"
-              self.assets=Assets.new
+              self.assets = Assets.new
               self.assets.parse(child)
             when "offer"
-              o=Offer.new
+              o = Offer.new
               o.parse(child)
               self.offers << o
             when "offers"
               child.children.each do |subchild|
                 case subchild.name
                   when "offer"
-                    o=Offer.new
+                    o = Offer.new
                     o.parse(subchild)
                     self.offers << o
                   else
@@ -67,7 +69,10 @@ module IMML
       end
 
       def write(xml)
-        xml.book(:ean => @ean) {
+        attrs = {"ean"=>@ean}
+        attrs["uid"] = @uid if @uid
+        attrs["sc:url"] = @url if @url
+        xml.book(attrs) {
           if self.metadata
             self.metadata.write(xml)
           end

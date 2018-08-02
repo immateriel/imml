@@ -1,5 +1,5 @@
 <imml version="2.0.2" xmlns="http://ns.immateriel.fr/imml" xmlns:sc="http://ns.immateriel.fr/imml/store_check">
-  <book ean="9782363761514" uid="CB16358231">
+  <book ean="9782363761514" uid="CB16358231" sc:url="http://example.com/9782363761514">
     <metadata>
       <title sc:score="0.9">Moi Bobby bébé zombie</title>
       <language unsupported="true"/>

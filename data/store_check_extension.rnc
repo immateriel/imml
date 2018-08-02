@@ -6,6 +6,7 @@ imml.store_check.score =
   attribute ns1:score {
     xsd:decimal { minInclusive = "0" fractionDigits = "2" }
   }
+imml.book.attributes &= attribute ns1:url { xsd:string }?
 imml.book.metadata.title.attributes &= imml.store_check.score?
 imml.book.metadata.subtitle.attributes &= imml.store_check.score?
 imml.book.metadata.publisher.attributes &= imml.store_check.score?
