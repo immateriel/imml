@@ -113,7 +113,7 @@ module IMML
 
       # https://github.com/immateriel/perceptualdiff
       def self.check_image_perceptualdiff_fork(img1, img2, uniq_str, cleanup=true)
-        system("perceptualdiff #{img1} #{img2} --scale --luminance-only --threshold 0.1")
+        system("perceptualdiff #{img1} #{img2} --scale --luminance-only --down-sample 1 --threshold 0.15")
       end
 
       # ImageMagick needed
