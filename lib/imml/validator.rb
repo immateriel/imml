@@ -1,3 +1,4 @@
+require 'posix/spawn'
 module IMML
   class Validator
     def self.validate(xml)
@@ -49,12 +50,14 @@ module IMML
   class RnvValidator < Validator
     def self.validate(xml)
       if system("which rnv > /dev/null")
-        out, status = Open3.capture2e("rnv #{self.scheme_dir}/imml.rnc", :stdin_data => xml.to_xml)
 
-        if out
+        cmd = "rnv #{self.scheme_dir}/imml.rnc"
+        child = POSIX::Spawn::Child.new(cmd, :input => xml.to_xml)
+
+        if child.status.exitstatus == 1
           last_details = nil
           err = []
-          out.split(/\n/).each do |l|
+          child.err.split(/\n/).each do |l|
             if l =~ /.*\:\d+\:\d+\: error\:.*/
               l.gsub(/.*\:(\d+)\:(\d+)\: error\:(.*)/) do
                 line = $1.strip

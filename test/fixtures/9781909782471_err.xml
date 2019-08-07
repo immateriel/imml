@@ -1,0 +1,37 @@
+<imml version="2.0">
+  <book ean="9781909782471" uid="CB371558">
+    <metadata>
+      <language>fre</language>
+      <contributors>
+        <contributor uid="CA85206">
+          <role>author</role>
+          <name>Christopher Wobble</name>
+        </contributor>
+      </contributors>
+      <topics>
+        <topic type="bisac" unsupported="true"/>
+        <topic type="clil" unsupported="true"/>
+      </topics>
+      <publication>2013-02-12</publication>
+      <publisher uid="CP2804">Les Editions De Londres</publisher>
+      <description>&lt;p&gt;Après plusieurs années d’exil, l’officier de santé Jacques Viscus revient au Puy-en-Velay, son pays natal. Un homme qui a fauté avec sa domestique ne tarde pas à le contacter et le supplie de lui apporter son aide. Jacques a beau être un fervent chrétien, tout le monde ne se félicite pas de son retour en terre auvergnate. Celui-ci est-il le signe de sa rédemption ou l’ultime étape d’un parcours parsemé de zones d’ombre ? &lt;em&gt;Le faiseur d’anges &lt;/em&gt; est une nouvelle de la série « Jacques l’Éventreur », pour laquelle les auteurs doivent librement s’inspirer de l’histoire de « Jack l’Éventreur » en situant leur histoire en France. &lt;/p&gt;</description>
+    </metadata>
+    <assets>
+      <cover mimetype="image/png" url="https://images.immateriel.fr/covers/6EUR43A.main.png"/>
+      <extract unsupported="true"/>
+      <full unsupported="true"/>
+    </assets>
+    <offer>
+      <medium>digital</medium>
+      <format>bundle</format>
+      <ready_for_sale>true</ready_for_sale>
+      <sales_start_at unsupported="true"/>
+      <prices>
+        <price currency="EUR">
+          <current_amount>1.99</current_amount>
+          <territories>FR</territories>
+        </price>
+      </prices>
+    </offer>
+  </book>
+</imml>

@@ -44,7 +44,18 @@ class TestParseXml < Minitest::Test
 #    should "be bundle" do
 #      assert_equal "bundle", @offer.format
 #    end
+  end
 
+  context "le faiseur d'anges invalid" do
+    setup do
+      @doc = IMML::Document.new
+      @valid = @doc.parse_file("test/fixtures/9781909782471_err.xml",true)
+    end
+
+    should "be invalid" do
+      assert_equal false, @valid
+      assert_equal 1, @doc.errors.length
+    end
   end
 
   # test store check

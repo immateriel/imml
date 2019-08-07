@@ -36,5 +36,6 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'nokogiri'
   spec.add_dependency 'levenshtein-ffi'
+  spec.add_dependency 'posix-spawn'
 end
 
