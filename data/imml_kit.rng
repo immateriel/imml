@@ -1033,6 +1033,7 @@ See http://www.relaxng.org/compact-tutorial-20030326.html#id2816343</a:documenta
         <value>editor</value>
         <value>typesetter</value>
         <value>illustrator</value>
+        <value>prefacer</value>
       </choice>
     </list>
   </define>

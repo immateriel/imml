@@ -463,7 +463,7 @@ imml.book.assets.mimetype.datatype =
   | "application/epub+zip"
 imml.book.contributor.datatype =
   list {
-    "author" | "translator" | "editor" | "typesetter" | "illustrator"
+    "author" | "translator" | "editor" | "typesetter" | "illustrator" | "prefacer"
   }
 imml.bisac.id.datatype = xsd:token { pattern = "[A-Z]{3}[0-9]{6}" }
 imml.clil.id.datatype = xsd:token { pattern = "[0-9]{4}" }
