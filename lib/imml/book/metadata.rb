@@ -45,12 +45,12 @@ module IMML
         @uid = node["uid"]
         node.children.each do |child|
           case child.name
-            when "role"
-              @role.parse(child)
-            when "name"
-              @name = Text.new(child.text)
-            else
-              # unknown
+          when "role"
+            @role.parse(child)
+          when "name"
+            @name = Text.new(child.text)
+          else
+            # unknown
           end
         end
       end
@@ -262,42 +262,42 @@ module IMML
       def parse(node)
         node.children.each do |child|
           case child.name
-            when "title"
-              @title = Text.new(child.text)
-              @title.parse(child)
-            when "subtitle"
-              @subtitle = Text.new(child.text)
-              @subtitle.parse(child)
-            when "edition"
-              @edition = child.text.to_i
-            when "description"
-              if child["format"] == "xhtml"
-                @description = Text.new(child.to_xml)
-              else
-                @description = Text.new(child.text)
-              end
-              @description.parse(child)
-            when "collection"
-              @collection = Collection.new
-              @collection.parse(child)
-            when "language"
-              @language = Text.new(child.text)
-              @language.parse(child)
-            when "publication"
-              @publication = Date.strptime(child.text, "%Y-%m-%d")
-            when "publisher"
-              @publisher = Publisher.new
-              @publisher.parse(child)
-            when "imprint"
-              @imprint = Imprint.new
-              @imprint.parse(child)
-            when "topics"
-              self.topics = Topics.new
-              self.topics.parse(child)
-            when "contributors"
-              self.contributors.parse(child)
+          when "title"
+            @title = Text.new(child.text)
+            @title.parse(child)
+          when "subtitle"
+            @subtitle = Text.new(child.text)
+            @subtitle.parse(child)
+          when "edition"
+            @edition = child.text.to_i
+          when "description"
+            if child["format"] == "xhtml"
+              @description = Text.new(child.to_xml)
             else
-              # unknown
+              @description = Text.new(child.text)
+            end
+            @description.parse(child)
+          when "collection"
+            @collection = Collection.new
+            @collection.parse(child)
+          when "language"
+            @language = Text.new(child.text)
+            @language.parse(child)
+          when "publication"
+            @publication = Date.strptime(child.text, "%Y-%m-%d")
+          when "publisher"
+            @publisher = Publisher.new
+            @publisher.parse(child)
+          when "imprint"
+            @imprint = Imprint.new
+            @imprint.parse(child)
+          when "topics"
+            self.topics = Topics.new
+            self.topics.parse(child)
+          when "contributors"
+            self.contributors.parse(child)
+          else
+            # unknown
           end
         end
       end

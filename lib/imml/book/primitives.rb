@@ -5,13 +5,13 @@ module IMML
 
       def parse_unsupported(node)
         if node["unsupported"]
-          @unsupported=true
+          @unsupported = true
         end
       end
 
       def write_unsupported(xml)
         if @unsupported
-          @attributes[:unsupported]=@unsupported
+          @attributes[:unsupported] = @unsupported
         end
       end
 
@@ -29,13 +29,13 @@ module IMML
 
       def parse_score(node)
         if node.attributes["score"]
-          @score=node.attributes["score"].value.to_f
+          @score = node.attributes["score"].value.to_f
         end
       end
 
       def write_score(xml)
         if @score
-          @attributes["sc:score"]=@score
+          @attributes["sc:score"] = @score
         end
       end
     end
@@ -45,12 +45,12 @@ module IMML
       include StoreCheckMethods
 
       def initialize
-        @attributes={}
+        @attributes = {}
       end
 
       def self.create_unsupported
-        entity=self.new
-        entity.unsupported=true
+        entity = self.new
+        entity.unsupported = true
         entity
       end
 
@@ -72,12 +72,12 @@ module IMML
       attr_accessor :version
 
       def initialize
-        @attributes={}
+        @attributes = {}
       end
 
       def self.create_unsupported
-        entity=self.new
-        entity.unsupported=true
+        entity = self.new
+        entity.unsupported = true
         entity
       end
 
@@ -93,7 +93,7 @@ module IMML
 
       def << value
         if value.respond_to?(:version)
-          value.version=self.version
+          value.version = self.version
         end
         super value
       end
@@ -106,7 +106,7 @@ module IMML
         self.write_unsupported(xml)
         self.write_score(xml)
         if @uid
-          @attributes[:uid]=@uid
+          @attributes[:uid] = @uid
         end
       end
     end
@@ -121,8 +121,8 @@ module IMML
       end
 
       def like?(t)
-        dist=self.distance(t)
-        if dist < ((self.length + t.length)/2.0) * 0.33
+        dist = self.distance(t)
+        if dist < ((self.length + t.length) / 2.0) * 0.33
           true
         else
           false

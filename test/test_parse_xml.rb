@@ -1,5 +1,4 @@
-# coding: utf-8
-require 'helper'
+require 'test_helper'
 
 class TestParseXml < Minitest::Test
   context "le faiseur d'anges" do
@@ -31,7 +30,7 @@ class TestParseXml < Minitest::Test
     end
 
     should "have nil title score" do
-      assert_equal nil, @metadata.title.score
+      assert_nil @metadata.title.score
     end
 
     should "have matching cover" do
@@ -58,7 +57,7 @@ class TestParseXml < Minitest::Test
     end
   end
 
-  # test store check
+  # test store check
   context "Moi Bobby bébé zombie" do
     setup do
       @doc = IMML::Document.new
@@ -116,6 +115,4 @@ class TestParseXml < Minitest::Test
       assert_equal "WoC43KlQX3wg", @doc.header.authentication.api_key
     end
   end
-
-
 end

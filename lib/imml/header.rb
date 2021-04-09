@@ -3,16 +3,16 @@ module IMML
     class Param < IMML::Object
       attr_accessor :name, :value
 
-      def self.create(name,value)
-        param=Param.new
-        param.name=name
-        param.value=value
+      def self.create(name, value)
+        param = Param.new
+        param.name = name
+        param.value = value
         param
       end
 
       def parse(node)
-        @name=node[:name]
-        @value=node[:value]
+        @name = node[:name]
+        @value = node[:value]
       end
 
       def write(xml)
@@ -24,13 +24,13 @@ module IMML
       attr_accessor :api_key
 
       def self.create(api_key)
-        authentication=Authentication.new
-        authentication.api_key=api_key
+        authentication = Authentication.new
+        authentication.api_key = api_key
         authentication
       end
 
       def parse(node)
-        @api_key=node[:api_key]
+        @api_key = node[:api_key]
       end
 
       def write(xml)
@@ -41,16 +41,16 @@ module IMML
     class Reseller < IMML::Object
       attr_accessor :reseller_id, :reseller_dilicom_gencod
 
-      def self.create(reseller_id,reseller_dilicom_gencod=nil)
-        reseller=Reseller.new
-        reseller.reseller_id=reseller_id
-        reseller.reseller_dilicom_gencod=reseller_dilicom_gencod
+      def self.create(reseller_id, reseller_dilicom_gencod = nil)
+        reseller = Reseller.new
+        reseller.reseller_id = reseller_id
+        reseller.reseller_dilicom_gencod = reseller_dilicom_gencod
         reseller
       end
 
       def parse(node)
-        @reseller_id=node[:reseller_id]
-        @reseller_dilicom_gencod=node[:reseller_dilicom_gencod]
+        @reseller_id = node[:reseller_id]
+        @reseller_dilicom_gencod = node[:reseller_dilicom_gencod]
       end
 
       def write(xml)
@@ -66,25 +66,25 @@ module IMML
     class Test < IMML::Object
       attr_accessor :receive_url, :check_url, :sales_url
 
-      def self.create(receive_url,check_url,sales_url)
-        test=Test.new
-        test.receive_url=receive_url
-        test.check_url=check_url
-        test.sales_url=sales_url
+      def self.create(receive_url, check_url, sales_url)
+        test = Test.new
+        test.receive_url = receive_url
+        test.check_url = check_url
+        test.sales_url = sales_url
         test
       end
 
       def parse(node)
         node.children.each do |child|
           case child.name
-            when "receive"
-              @receive_url=child[:url]
-            when "check"
-              @check_url=child[:url]
-            when "sales"
-              @sales_url=child[:url]
-            else
-              # unknown
+          when "receive"
+            @receive_url = child[:url]
+          when "check"
+            @check_url = child[:url]
+          when "sales"
+            @sales_url = child[:url]
+          else
+            # unknown
           end
         end
       end
@@ -108,20 +108,20 @@ module IMML
     class Reason < IMML::Object
       attr_accessor :type, :text
 
-      def self.create(type,text)
-        reason=Reason.new
-        reason.type=type
-        reason.text=text
+      def self.create(type, text)
+        reason = Reason.new
+        reason.type = type
+        reason.text = text
         reason
       end
 
       def parse(node)
-        @type=node["type"]
-        @text=node.text
+        @type = node["type"]
+        @text = node.text
       end
 
       def write(xml)
-        xml.reason({:type=>self.type}, self.text)
+        xml.reason({ :type => self.type }, self.text)
       end
     end
 
@@ -133,34 +133,34 @@ module IMML
       end
 
       def initialize
-        @params=[]
+        @params = []
       end
 
       def parse(node)
         node.children.each do |child|
           case child.name
-            when "reason"
-              @reason=Reason.new
-              @reason.parse(child)
-            when "params"
-              child.children.each do |param_node|
-                if param_node.element?
-                  param=Param.new
-                  param.parse(param_node)
-                  @params << param
-                end
+          when "reason"
+            @reason = Reason.new
+            @reason.parse(child)
+          when "params"
+            child.children.each do |param_node|
+              if param_node.element?
+                param = Param.new
+                param.parse(param_node)
+                @params << param
               end
-            when "authentication"
-              @authentication=Authentication.new
-              @authentication.parse(child)
-            when "reseller"
-              @reseller=Reseller.new
-              @reseller.parse(child)
-            when "test"
-              @test=Test.new
-              @test.parse(child)
-            else
-              # unknown
+            end
+          when "authentication"
+            @authentication = Authentication.new
+            @authentication.parse(child)
+          when "reseller"
+            @reseller = Reseller.new
+            @reseller.parse(child)
+          when "test"
+            @test = Test.new
+            @test.parse(child)
+          else
+            # unknown
           end
         end
       end

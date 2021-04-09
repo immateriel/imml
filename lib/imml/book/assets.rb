@@ -7,31 +7,31 @@ module IMML
 
       def parse(node)
         super
-        @mimetype=node["mimetype"]
-        @size=node["size"]
-        @last_modified=node["last_modified"]
-        @checksum=node["checksum"]
-        @url=node["url"]
+        @mimetype = node["mimetype"]
+        @size = node["size"]
+        @last_modified = node["last_modified"]
+        @checksum = node["checksum"]
+        @url = node["url"]
       end
 
-      def self.create(mimetype, size, last_modified=nil, checksum=nil, url=nil, uid=nil)
-        asset=self.new
-        asset.mimetype=mimetype
-        asset.size=size
-        asset.last_modified=last_modified
-        asset.checksum=checksum
-        asset.url=url
-        asset.uid=uid
+      def self.create(mimetype, size, last_modified = nil, checksum = nil, url = nil, uid = nil)
+        asset = self.new
+        asset.mimetype = mimetype
+        asset.size = size
+        asset.last_modified = last_modified
+        asset.checksum = checksum
+        asset.url = url
+        asset.uid = uid
         asset
       end
 
       def write(xml)
         if self.version.to_i > 200
           if @unsupported
-            @attributes[:unsupported]=@unsupported
+            @attributes[:unsupported] = @unsupported
           end
           if @uid
-            @attributes[:uid]=@uid
+            @attributes[:uid] = @uid
           end
           self.write_score(xml)
         else
@@ -39,19 +39,19 @@ module IMML
         end
 
         if @mimetype
-          @attributes[:mimetype]=@mimetype
+          @attributes[:mimetype] = @mimetype
         end
         if @size
-          @attributes[:size]=@size
+          @attributes[:size] = @size
         end
         if @last_modified
-          @attributes[:last_modified]=@last_modified
+          @attributes[:last_modified] = @last_modified
         end
         if @checksum
-          @attributes[:checksum]=@checksum
+          @attributes[:checksum] = @checksum
         end
         if @url
-          @attributes[:url]=@url
+          @attributes[:url] = @url
         end
       end
 
@@ -68,13 +68,13 @@ module IMML
 
       # Wget needed - use curl instead ?
       def check_file(local_file)
-#        Immateriel.info binding, @url
-        uniq_str=Digest::MD5.hexdigest("#{@url}:#{local_file}")
+        #        Immateriel.info binding, @url
+        uniq_str = Digest::MD5.hexdigest("#{@url}:#{local_file}")
         uri = URI.parse(@url)
-        fn="/tmp/#{uniq_str}_"+Digest::MD5.hexdigest(File.basename(uri.path))+File.extname(uri.path)
+        fn = "/tmp/#{uniq_str}_" + Digest::MD5.hexdigest(File.basename(uri.path)) + File.extname(uri.path)
         self.class.download(@url, fn)
-        if File.exists?(fn)
-          check_result=self.class.check_image(fn, local_file, uniq_str)
+        if File.exist?(fn)
+          check_result = self.class.check_image(fn, local_file, uniq_str)
           FileUtils.rm_f(fn)
           if check_result
             true
@@ -87,7 +87,8 @@ module IMML
       end
 
       private
-      def self.check_image(img1, img2, uniq_str, cleanup=true)
+
+      def self.check_image(img1, img2, uniq_str, cleanup = true)
         if system("which perceptualdiff > /dev/null")
           self.check_image_perceptualdiff_fork(img1, img2, uniq_str, cleanup)
         else
@@ -112,34 +113,34 @@ module IMML
       end
 
       # https://github.com/immateriel/perceptualdiff
-      def self.check_image_perceptualdiff_fork(img1, img2, uniq_str, cleanup=true)
+      def self.check_image_perceptualdiff_fork(img1, img2, uniq_str, cleanup = true)
         system("perceptualdiff #{img1} #{img2} --scale --luminance-only --down-sample 1 --threshold 0.15")
       end
 
       # ImageMagick needed
-      def self.check_image_imagemagick(img1, img2, uniq_str, cleanup=true)
-        nsec="%10.9f" % Time.now.to_f
-        tmp1="/tmp/check_image_#{nsec}_#{uniq_str}_tmp1.png"
+      def self.check_image_imagemagick(img1, img2, uniq_str, cleanup = true)
+        nsec = "%10.9f" % Time.now.to_f
+        tmp1 = "/tmp/check_image_#{nsec}_#{uniq_str}_tmp1.png"
         # on supprime le transparent
-        conv1=`convert #{img1} -trim +repage -resize 64 #{tmp1}`
-        if File.exists?(tmp1)
+        conv1 = `convert #{img1} -trim +repage -resize 64 #{tmp1}`
+        if File.exist?(tmp1)
           # on recupere la taille
-          size1=`identify #{tmp1}`.chomp.gsub(/.*[^\d](\d+x\d+)[^\d].*/, '\1').split("x").map { |v| v.to_i }
+          size1 = `identify #{tmp1}`.chomp.gsub(/.*[^\d](\d+x\d+)[^\d].*/, '\1').split("x").map { |v| v.to_i }
 
-          tmp2="/tmp/check_image_#{nsec}_#{uniq_str}_tmp2.png"
+          tmp2 = "/tmp/check_image_#{nsec}_#{uniq_str}_tmp2.png"
           # on convertit l'image deux dans la taille de l'image un
-          conv2=`convert #{img2} -trim +repage -resize #{size1.first}x#{size1.last}\\! #{tmp2}`
+          conv2 = `convert #{img2} -trim +repage -resize #{size1.first}x#{size1.last}\\! #{tmp2}`
 
-          if File.exists?(tmp2)
-            tmp3="/tmp/check_image_#{nsec}_#{uniq_str}_tmp3.png"
+          if File.exist?(tmp2)
+            tmp3 = "/tmp/check_image_#{nsec}_#{uniq_str}_tmp3.png"
             # on compare
-            result=`compare -dissimilarity-threshold 1 -metric mae #{tmp1} #{tmp2} #{tmp3} 2>/dev/stdout`.chomp
+            result = `compare -dissimilarity-threshold 1 -metric mae #{tmp1} #{tmp2} #{tmp3} 2>/dev/stdout`.chomp
             if cleanup
               FileUtils.rm_f(tmp1)
               FileUtils.rm_f(tmp2)
               FileUtils.rm_f(tmp3)
             end
-            r=result.gsub(/.*[^\(]\((.*)\).*/, '\1').to_f
+            r = result.gsub(/.*[^\(]\((.*)\).*/, '\1').to_f
             r < 0.25
           else
             false
@@ -158,16 +159,16 @@ module IMML
       # ZIP needed
       def calculate_checksum(local_file)
         case @mimetype
-          when /epub/
-            Digest::MD5.hexdigest(`unzip -p #{local_file}`)
-          else
-            Digest::MD5.hexdigest(File.read(local_file))
+        when /epub/
+          Digest::MD5.hexdigest(`unzip -p #{local_file}`)
+        else
+          Digest::MD5.hexdigest(File.read(local_file))
         end
 
       end
 
       def set_checksum(local_file)
-        @checksum=self.calculate_checksum(local_file)
+        @checksum = self.calculate_checksum(local_file)
       end
 
       def check_checksum(local_file)
@@ -194,8 +195,8 @@ module IMML
       attr_accessor_with_version :cover, :extracts, :fulls
 
       def initialize
-        @extracts=EntityCollection.new
-        @fulls=EntityCollection.new
+        @extracts = EntityCollection.new
+        @fulls = EntityCollection.new
       end
 
       def attach_version v
@@ -210,19 +211,19 @@ module IMML
       def parse(node)
         node.children.each do |child|
           case child.name
-            when "cover"
-              self.cover=Cover.new
-              @cover.parse(child)
-            when "extract"
-              extract=Extract.new
-              extract.parse(child)
-              self.extracts << extract
-            when "full"
-              full=Full.new
-              full.parse(child)
-              self.fulls << full
-            else
-              # unknown
+          when "cover"
+            self.cover = Cover.new
+            @cover.parse(child)
+          when "extract"
+            extract = Extract.new
+            extract.parse(child)
+            self.extracts << extract
+          when "full"
+            full = Full.new
+            full.parse(child)
+            self.fulls << full
+          else
+            # unknown
           end
         end
       end

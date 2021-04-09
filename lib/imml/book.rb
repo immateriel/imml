@@ -41,35 +41,35 @@ module IMML
         @url = node.attributes["url"].value if node.attributes["url"]
         node.children.each do |child|
           case child.name
-            when "metadata"
-              self.metadata = Metadata.new
-              self.metadata.parse(child)
-            when "assets"
-              self.assets = Assets.new
-              self.assets.parse(child)
-            when "offer"
-              o = Offer.new
-              o.parse(child)
-              self.offers << o
-            when "offers"
-              child.children.each do |subchild|
-                case subchild.name
-                  when "offer"
-                    o = Offer.new
-                    o.parse(subchild)
-                    self.offers << o
-                  else
-                    # unknown
-                end
+          when "metadata"
+            self.metadata = Metadata.new
+            self.metadata.parse(child)
+          when "assets"
+            self.assets = Assets.new
+            self.assets.parse(child)
+          when "offer"
+            offer = Offer.new
+            offer.parse(child)
+            self.offers << offer
+          when "offers"
+            child.children.each do |subchild|
+              case subchild.name
+              when "offer"
+                offer = Offer.new
+                offer.parse(subchild)
+                self.offers << offer
+              else
+                # unknown
               end
-            else
-              # unknown
+            end
+          else
+            # unknown
           end
         end
       end
 
       def write(xml)
-        attrs = {"ean"=>@ean}
+        attrs = { "ean" => @ean }
         attrs["uid"] = @uid if @uid
         attrs["sc:url"] = @url if @url
         xml.book(attrs) {
@@ -82,8 +82,8 @@ module IMML
           if self.version.to_i > 201
             if self.offers.count > 0
               if self.offers.count > 1
-                self.offers.each do |o|
-                  o.write(xml)
+                self.offers.each do |offer|
+                  offer.write(xml)
                 end
               else
                 self.offer.write(xml)

@@ -53,22 +53,22 @@ module IMML
 
     def initialize(version)
       version.gsub(/(\d+)\.(\d+)\.?(\d*)/) do
-        @major=$1.to_i
-        @minor=$2.to_i
-        @fixes=$3.to_i
+        @major = $1.to_i
+        @minor = $2.to_i
+        @fixes = $3.to_i
       end
     end
 
     def to_s
-      vstr="#{@major}.#{@minor}"
+      vstr = "#{@major}.#{@minor}"
       if @fixes > 0
-        vstr+=".#{@fixes}"
+        vstr += ".#{@fixes}"
       end
       vstr
     end
 
     def to_i
-      100*@major+10*@minor+@fixes
+      100 * @major + 10 * @minor + @fixes
     end
   end
 
@@ -80,42 +80,42 @@ module IMML
       RnvValidator
     end
 
-    def initialize(version=IMML.current_version, extensions = [])
+    def initialize(version = IMML.current_version, extensions = [])
       @version = Version.new(version)
       @extensions = extensions
     end
 
-    def parse(xml, valid=true)
-      @errors=[]
+    def parse(xml, valid = true)
+      @errors = []
       if valid
-        @errors=self.validate(xml)
+        @errors = self.validate(xml)
       end
-      if @errors.length==0
-        @version=Version.new(xml.root["version"])
+      if @errors.length == 0
+        @version = Version.new(xml.root["version"])
         xml.children.each do |root|
           case root.name
-            when "imml"
-              @version=root["version"].to_s
-              root.children.each do |child|
-                case child.name
-                  when "header"
-                    self.header=Header::Header.new
-                    self.header.parse(child)
-                  when "book"
-                    self.book=Book::Book.new
-                    self.book.parse(child)
-                  when "reporting"
-                    self.reporting=Reporting::Reporting.new
-                    self.reporting.parse(child)
-                  else
-                    # unknown
-                end
+          when "imml"
+            @version = root["version"].to_s
+            root.children.each do |child|
+              case child.name
+              when "header"
+                self.header = Header::Header.new
+                self.header.parse(child)
+              when "book"
+                self.book = Book::Book.new
+                self.book.parse(child)
+              when "reporting"
+                self.reporting = Reporting::Reporting.new
+                self.reporting.parse(child)
+              else
+                # unknown
               end
+            end
           end
         end
         true
       else
-#        self.dump_errors(errors)
+        # self.dump_errors(errors)
         false
       end
     end
@@ -135,26 +135,26 @@ module IMML
       end
     end
 
-    def parse_data(data, valid=true)
-      xml=Nokogiri::XML.parse(data)
+    def parse_data(data, valid = true)
+      xml = Nokogiri::XML.parse(data)
       self.parse(xml, valid)
     end
 
-    def parse_file(file, valid=true)
+    def parse_file(file, valid = true)
       self.parse_data(File.open(file).read, valid)
     end
 
     def write(xml)
-      attrs={:version => @version.to_s}
+      attrs = { :version => @version.to_s }
       if @version.to_i > 201
         attrs[:xmlns] = "http://ns.immateriel.fr/imml"
       end
       @extensions.each do |ext|
         case ext
-          when :store_check
-            attrs["xmlns:sc"] = "http://ns.immateriel.fr/imml/store_check"
-          else
-            # unknown extension
+        when :store_check
+          attrs["xmlns:sc"] = "http://ns.immateriel.fr/imml/store_check"
+        else
+          # unknown extension
         end
       end
       xml.imml(attrs) {

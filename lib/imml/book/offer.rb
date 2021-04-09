@@ -55,21 +55,21 @@ module IMML
         @currency = node["currency"]
         node.children.each do |child|
           case child.name
-            when "current_amount"
-              # Float or Integer ?
-              @current_amount = child.text.to_f
-            when "territories"
-              @territories = Text.new(child.text)
-            when "intervals"
-              child.children.each do |interval_node|
-                if interval_node.element?
-                  interval = Interval.new
-                  interval.parse(interval_node)
-                  @intervals << interval
-                end
+          when "current_amount"
+            # Float or Integer ?
+            @current_amount = child.text.to_f
+          when "territories"
+            @territories = Text.new(child.text)
+          when "intervals"
+            child.children.each do |interval_node|
+              if interval_node.element?
+                interval = Interval.new
+                interval.parse(interval_node)
+                @intervals << interval
               end
-            else
-              # unknown
+            end
+          else
+            # unknown
           end
         end
       end
@@ -207,37 +207,37 @@ module IMML
       def parse(node)
         node.children.each do |child|
           case child.name
-            when "medium"
-              @medium = child.text
-            when "pagination"
-              @pagination = child.text.to_i
-            when "ready_for_sale"
-              @ready_for_sale = (child.text == "true")
-            when "sales_start_at"
-              self.sales_start_at = SalesStartAt.new
-              @sales_start_at.parse(child)
-            when "prices"
-              self.prices = Prices.new
-              self.prices.parse(child)
-              update_currency_hash
-            when "sales_models"
-              child.children.each do |model_node|
-                if model_node.element?
-                  model = SalesModel.new
-                  model.parse(model_node)
-                  @sales_models << model
-                end
+          when "medium"
+            @medium = child.text
+          when "pagination"
+            @pagination = child.text.to_i
+          when "ready_for_sale"
+            @ready_for_sale = (child.text == "true")
+          when "sales_start_at"
+            self.sales_start_at = SalesStartAt.new
+            @sales_start_at.parse(child)
+          when "prices"
+            self.prices = Prices.new
+            self.prices.parse(child)
+            update_currency_hash
+          when "sales_models"
+            child.children.each do |model_node|
+              if model_node.element?
+                model = SalesModel.new
+                model.parse(model_node)
+                @sales_models << model
               end
-            when "alternatives"
-              child.children.each do |alt_node|
-                if alt_node.element?
-                  alt = Alternative.new
-                  alt.parse(alt_node)
-                  @alternatives << alt
-                end
+            end
+          when "alternatives"
+            child.children.each do |alt_node|
+              if alt_node.element?
+                alt = Alternative.new
+                alt.parse(alt_node)
+                @alternatives << alt
               end
-            else
-              # unknown
+            end
+          else
+            # unknown
           end
         end
       end
@@ -278,6 +278,7 @@ module IMML
       end
 
       private
+
       def update_currency_hash
         @prices.each do |price|
           @prices_with_currency[price.currency] = price

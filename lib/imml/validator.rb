@@ -1,4 +1,6 @@
 require 'posix/spawn'
+require 'rnv'
+
 module IMML
   class Validator
     def self.validate(xml)
@@ -49,41 +51,11 @@ module IMML
 
   class RnvValidator < Validator
     def self.validate(xml)
-      if system("which rnv > /dev/null")
-
-        cmd = "rnv #{self.scheme_dir}/imml.rnc"
-        child = POSIX::Spawn::Child.new(cmd, :input => xml.to_xml)
-
-        if child.status.exitstatus == 1
-          last_details = nil
-          err = []
-          child.err.split(/\n/).each do |l|
-            if l =~ /.*\:\d+\:\d+\: error\:.*/
-              l.gsub(/.*\:(\d+)\:(\d+)\: error\:(.*)/) do
-                line = $1.strip
-                col = $2.strip
-                msg = $3.strip
-                err << ValidationError.new(line, col, msg)
-              end
-            else
-              case l
-                when /^required/
-                  last_details = :required
-                when /^allowed/
-                  last_details = :allowed
-                when /^\t/
-                  err.last.details ||= {}
-                  err.last.details[last_details] ||= []
-                  err.last.details[last_details] << l.gsub(/\t/,"")
-              end
-            end
-          end
-          err
-        else
-          []
-        end
-      else
-        raise "You must install rnv (http://www.davidashen.net/rnv.html) for XML validation"
+      validator = RNV::Validator.new
+      validator.load_schema_from_file("#{self.scheme_dir}/imml.rnc")
+      validator.parse_string(xml.to_xml)
+      validator.errors.map do |err|
+        ValidationError.new(err.line, err.col, err.message+"\n"+err.expected)
       end
     end
   end
